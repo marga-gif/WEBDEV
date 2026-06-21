@@ -1,11 +1,11 @@
 {
-    "cleanUrls": true,
-    "rewrites": [
+  "cleanUrls": true,
+  "rewrites": [
     { "source": "/", "destination": "/html/index.html" },
-    { "source": "/css/(.*)", "destination": "/css/$1" },
-    { "source": "/images/(.*)", "destination": "/images/$1" },
-    { "source": "/backend/(.*)", "destination": "/backend/$1" },
-    { "source": "/admin/(.*)", "destination": "/admin/$1" },
+    { "source": "/css/:path*", "destination": "/css/:path*" },
+    { "source": "/images/:path*", "destination": "/images/:path*" },
+    { "source": "/admin/:path*", "destination": "/admin/:path*" },
+    { "source": "/backend/:path*", "destination": "/backend/:path*" },
     { "source": "/(Aboutus|finance|gov|index|login|Medical|register|Socialwellness)", "destination": "/html/$1.html" }
-    ]
+  ]
 }
