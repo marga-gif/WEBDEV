@@ -44,7 +44,13 @@ app.use((req, res) => {
   res.status(404).json({ error: "Route not found." });
 });
 
-app.listen(PORT, () => {
-  console.log(`SenEtizen backend running on http://localhost:${PORT}`);
-  console.log(`Firebase: ${process.env.FIREBASE_PROJECT_ID ? "configured" : "not configured (local JSON fallback)"}`);
-});
+// Only start the listening loop if we are NOT running on Vercel production
+if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`SenEtizen backend running on http://localhost:${PORT}`);
+    console.log(`Firebase: ${process.env.FIREBASE_PROJECT_ID ? "configured" : "not configured (local JSON fallback)"}`);
+  });
+}
+
+// CRITICAL FOR VERCEL ES MODULES: Export the application instance
+export default app;
