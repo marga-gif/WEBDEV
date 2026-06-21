@@ -360,6 +360,11 @@ If you have any questions, concerns, clarifications, or requests regarding your 
 
         emailInput.addEventListener('input', clearLoginError);
         passwordInput.addEventListener('input', clearLoginError);
+// --- DYNAMIC API ROUTING ENGINE ---
+        const PROD_API_URL = 'https://your-live-backend-service.onrender.com'; // Replace with your live Render/Heroku backend URL if you have one
+        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:5001'
+            : PROD_API_URL;
 
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -373,7 +378,8 @@ If you have any questions, concerns, clarifications, or requests regarding your 
             loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
 
             try {
-                const response = await fetch('http://localhost:5001/api/auth/login', {
+                // Dynamically uses your localhost or your live domain automatically
+                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password, portal: 'user' }),
