@@ -3,7 +3,7 @@
 
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <title>Social Wellness (Events) - Barangay Admin Panel</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,7 +32,7 @@
                     <a href="../doc_reqs/index.html" class="nav-item"><i class="fas fa-file-alt"></i> Document
                         Requests</a>
                     <a href="../financial/index.html" class="nav-item"><i class="fas fa-wallet"></i> Financial Assistance</a>
-                    <a href="../medical/index.html" class="nav-item"><i class="fas fa-notes-medical"></i> Medical Assistance</a>
+                    <a href="../medical/index.html" class="nav-item"><i class="fas fa-notes-medical"></i> Medical Appointments</a>
                     <a href="index.html" class="nav-item active"><i class="fas fa-calendar-alt"></i> Social Wellness
                         (Events)</a>
                     <a href="../cont_mngmnt/index.html" class="nav-item"><i class="fas fa-bullhorn"></i> Content
@@ -43,12 +43,11 @@
                     <a href="../system_settings/index.html" class="nav-item"><i class="fas fa-cog"></i> System
                         Settings</a>
                 </nav>
-
                 <div class="sidebar-footer">
-                    <a href="../profile/index.html" class="admin-profile clickable-profile" style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:8px;border-radius:8px;transition:background 0.2s;cursor:pointer;">
+                    <a href="../profile/index.html" class="admin-profile clickable-profile">
                         <i class="fas fa-user-circle profile-icon"></i>
                         <div class="admin-info">
-                            <span class="admin-name" id="auth-admin-name">Admin User</span>
+                            <span class="admin-name" id="auth-admin-name">admin@barangay.gov.ph</span>
                             <span class="admin-role" id="auth-admin-role">Administrator</span>
                         </div>
                     </a>
@@ -160,54 +159,59 @@
         </div>
 
         <!-- Custom Modal Overlay Background -->
-                    <div id="custom-modal-overlay" class="modal-overlay" style="display: none;"></div>
-                        
-                    <!-- Unified Event Creation Card -->
-                    <div id="create-event-modal" class="custom-modal" style="display: none;">
-                        <div class="modal-header">
-                            <h3 id="modal-title">
-                                <i class="fas fa-calendar-plus" style="color: var(--primary-green); margin-right: 8px;"></i>                    Create Community Event
-                            </h3>
-                            <button class="btn-close-modal" id="close-event-modal-btn"><i class="fas fa-times"></i></button>
-                        </div>
-                        
-                        <div class="modal-body" style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
-                            <div class="form-input-group">
-                                <label>Event Title <span style="color:#EF4444;">*</span></label>
-                                <input type="text" id="modal-event-title" placeholder="e.g., Senior Citizens' Health & Wellness                     Day">
-                            </div>
-                            
-                            <div style="display: flex; gap: 16px;">
-                                <div class="form-input-group" style="flex: 1;">
-                                    <label>Date <span style="color:#EF4444;">*</span></label>
-                                    <input type="date" id="modal-event-date">
-                                </div>
-                                <div class="form-input-group" style="flex: 1;">
-                                    <label>Time <span style="color:#EF4444;">*</span></label>
-                                    <input type="time" id="modal-event-time">
-                                </div>
-                            </div>
-                        
-                            <div style="display: flex; gap: 16px;">
-                                <div class="form-input-group" style="flex: 2;">
-                                    <label>Venue / Location <span style="color:#EF4444;">*</span></label>
-                                    <input type="text" id="modal-event-location" placeholder="e.g., Barangay Covered Court">
-                                </div>
-                                <div class="form-input-group" style="flex: 1;">
-                                    <label>Target RSVPs <span style="color:#EF4444;">*</span></label>
-                                    <input type="number" id="modal-event-slots" value="100" min="1">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="modal-footer">
-                            <button class="btn-icon" id="cancel-event-modal-btn" style="width: auto; padding: 8px 16px;                     background: #E5E7EB; color: #374151; border-radius: 6px; font-weight: 600;">Cancel</button>
-                            <button class="btn-primary btn-success-override" id="save-event-btn">Publish Event</button>
-                        </div>
+        <div id="custom-modal-overlay" class="modal-overlay" style="display: none;"></div>
+            
+        <!-- Unified Event Creation Card -->
+        <div id="create-event-modal" class="custom-modal" style="display: none;">
+            <div class="modal-header">
+                <h3 id="modal-title">
+                    <i class="fas fa-calendar-plus" style="color: var(--primary-green); margin-right: 8px;"></i> Create Community Event
+                </h3>
+                <button class="btn-close-modal" id="close-event-modal-btn"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="modal-body" style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+                <div class="form-input-group">
+                    <label>Event Title <span style="color:#EF4444;">*</span></label>
+                    <input type="text" id="modal-event-title" class="val-input" placeholder="e.g., Senior Citizens' Health & Wellness Day" maxlength="100">
+                    <span class="validation-msg hidden" id="msg-modal-event-title"></span>
+                </div>
+                
+                <div style="display: flex; gap: 16px;">
+                    <div class="form-input-group" style="flex: 1;">
+                        <label>Date <span style="color:#EF4444;">*</span></label>
+                        <input type="date" id="modal-event-date" class="val-input">
+                        <span class="validation-msg hidden" id="msg-modal-event-date"></span>
+                    </div>
+                    <div class="form-input-group" style="flex: 1;">
+                        <label>Time <span style="color:#EF4444;">*</span></label>
+                        <input type="time" id="modal-event-time" class="val-input">
+                        <span class="validation-msg hidden" id="msg-modal-event-time"></span>
+                    </div>
+                </div>
+            
+                <div style="display: flex; gap: 16px;">
+                    <div class="form-input-group" style="flex: 2;">
+                        <label>Venue / Location <span style="color:#EF4444;">*</span></label>
+                        <input type="text" id="modal-event-location" class="val-input" placeholder="e.g., Barangay Covered Court" maxlength="100">
+                        <span class="validation-msg hidden" id="msg-modal-event-location"></span>
+                    </div>
+                    <div class="form-input-group" style="flex: 1;">
+                        <label>Target RSVPs <span style="color:#EF4444;">*</span></label>
+                        <input type="number" id="modal-event-slots" class="val-input" value="100" min="1" max="5000">
+                        <span class="validation-msg hidden" id="msg-modal-event-slots"></span>
                     </div>
                 </div>
             </div>
+            
+            <div class="modal-footer">
+                <button class="btn-cancel" id="cancel-event-modal-btn">Cancel</button>
+                <button class="btn-primary btn-success-override" id="save-event-btn">
+                    <i class="fas fa-check"></i> Publish Event
+                </button>
+            </div>
         </div>
+
         <script src="../api-config.js"></script>
         <script src="events.js"></script>
     </body>
