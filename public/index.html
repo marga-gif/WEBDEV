@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SenEtizen Home</title>
+
+    <link rel="stylesheet" href="../css/Homepage.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+
+<div class="wrapper">
+
+    <!-- HEADER -->
+
+    <header class="topbar">
+
+    <div class="profile" id="profileButton" role="button" tabindex="0" aria-label="Open profile panel">
+        <i class="fa-solid fa-circle-user" id="headerProfileIcon"></i>
+        <img id="headerProfileImg" alt="Profile picture preview">
+    </div>
+
+    <div class="logo-area">
+        <div class="logo-text">
+            <h1>SenEtizen</h1>
+            <p>Barangay Senior Citizen Assistance System</p>
+        </div>
+    </div>
+
+    <div class="notification" id="notificationButton" role="button" tabindex="0" aria-label="View notifications">
+
+    <i class="fa-solid fa-bell"></i>
+
+    <span class="notification-badge" id="notificationBadge">3</span>
+
+</div>
+
+    </header>
+
+    <div class="panel-overlay" id="panelOverlay"></div>
+
+    <aside class="profile-panel" id="profilePanel" aria-hidden="true">
+        <div class="panel-header">
+            <div>
+                <h3>My Profile</h3>
+                <p>Account details</p>
+            </div>
+            <button class="close-panel" id="closePanel" aria-label="Close profile panel">&times;</button>
+        </div>
+        <div class="profile-picture" id="profileAvatar">
+            <i class="fa-solid fa-circle-user photo-placeholder-icon"></i>
+            <img id="profileAvatarImg" alt="Profile picture">
+        </div>
+        <h4 id="profileFullName">Juan Dela Cruz</h4>
+        <p class="profile-email" id="profileEmail">user@example.com</p>
+        <p class="profile-role" id="profileRole">Senior Citizen Member</p>
+        <button class="logout-btn" type="button" id="logoutBtn">Logout</button>
+    </aside>
+
+    <div class="notification-popup" id="notificationPopup">
+
+    <div class="notification-header">
+        Notifications
+    </div>
+
+    <div class="notification-content" id="notificationContent">
+        No new notifications.
+    </div>
+
+</div>
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+    <div class="welcome">
+
+        <h2>
+            Welcome,
+            <span id="welcomeName">Senior Citizen!</span>
+        </h2>
+
+        <p>
+            We are here to support your
+            health, wellness and your needs.
+        </p>
+
+    </div>
+
+    <div class="hero-image">
+        <img src="../images/elder.png" alt="Senior Citizens">
+    </div>
+
+</section>
+
+    <!-- MAIN CARDS -->
+
+    <section class="cards-grid">
+        <a href="Medical.html" class="card">
+            <i class="fa-solid fa-stethoscope"></i>
+            <span>MEDICAL</span>
+        </a>
+
+        <a href="Socialwellness.html" class="card">
+            <i class="fa-solid fa-users"></i>
+            <span>SOCIAL WELLNESS</span>
+        </a>
+
+        <a href="gov.html" class="card">
+            <i class="fa-solid fa-building-columns"></i>
+            <span>GOVERNMENT</span>
+        </a>
+
+        <a href="finance.html" class="card financial">
+            <i class="fa-solid fa-wallet"></i>
+            <span>FINANCIAL</span>
+        </a>
+
+        <a href="Aboutus.html" class="card about-us">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>ABOUT US</span>
+        </a>
+        
+        <div class="card mv-trigger-btn" id="mvOpenBtn" role="button" tabindex="0">
+            <i class="fa-solid fa-bullseye" style="color: #032b5b;"></i>
+            <span style="color: #032b5b;">MISSION & VISION</span>
+        </div>
+    </section>
+
+    <div class="mv-modal-overlay" id="mvModalOverlay">
+    <div class="mv-modal-container">
+        <button class="mv-modal-close" id="mvCloseBtn" aria-label="Close modal">&times;</button>
+        
+        <section class="mission-vision-container">
+            <div class="mv-card mission-card">
+                <div class="mv-icon-wrapper">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <h2>MISSION</h2>
+                <p>To provide quality assistance and services that promote the well-being, dignity and independence of senior citizens.</p>
+            </div>
+
+            <div class="mv-card vision-card">
+                <div class="mv-icon-wrapper">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <h2>VISION</h2>
+                <p>A community where senior citizens are valued, healthy, empowered and given access to equal opportunities.</p>
+            </div>
+        </section>
+    </div>
+</div>
+</section>
+
+    <!-- QUICK ACCESS -->
+
+    <section class="quick-access">
+
+        <div class="quick-item">
+
+            <i class="fa-solid fa-phone"></i>
+
+            <div>
+                <h4>Emergency Hotline</h4>
+                <p>(0912) 345 6789</p>
+            </div>
+
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="quick-item">
+
+            <i class="fa-solid fa-calendar-days"></i>
+
+            <div>
+                <h4>Upcoming Events</h4>
+                <p>View Calendar</p>
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+<script>
+    const profileButton = document.getElementById('profileButton');
+    const notificationButton = document.getElementById('notificationButton');
+    const profilePanel = document.getElementById('profilePanel');
+    const panelOverlay = document.getElementById('panelOverlay');
+    const closePanel = document.getElementById('closePanel');
+    const profileFullName = document.getElementById('profileFullName');
+    const profileRole = document.getElementById('profileRole');
+    const profileAvatar = document.getElementById('profileAvatar');
+    const profileAvatarImg = document.getElementById('profileAvatarImg');
+    const headerProfileImg = document.getElementById('headerProfileImg');
+    const headerProfileIcon = document.getElementById('headerProfileIcon');
+    const profileEmail = document.getElementById('profileEmail');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const welcomeName = document.getElementById('welcomeName');
+
+    const storedAuth = JSON.parse(localStorage.getItem('senetizenAuth') || 'null');
+    const storedUser = JSON.parse(localStorage.getItem('senetizenUser') || 'null');
+    const isLoggedIn = sessionStorage.getItem('senetizenLoggedIn') === 'true';
+    const rememberActive = localStorage.getItem('senetizenRemembered') === 'true';
+
+    if (!storedAuth || !storedUser || !storedUser.email || (!isLoggedIn && !rememberActive)) {
+        window.location.href = 'login.html';
+    }
+
+    if (!isLoggedIn && rememberActive) {
+        sessionStorage.setItem('senetizenLoggedIn', 'true');
+    }
+
+    const buildFullName = () => {
+        const suffix = storedUser.suffix && storedUser.suffix !== 'None' ? `, ${storedUser.suffix}` : '';
+        return `${storedUser.firstName}${storedUser.middleName ? ' ' + storedUser.middleName : ''} ${storedUser.lastName}${suffix}`;
+    };
+
+    const defaultAvatarSrc = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160"%3E%3Crect width="160" height="160" rx="80" fill="%23f8fafc"/%3E%3Ccircle cx="80" cy="62" r="28" fill="%23032b5b"/%3E%3Cpath d="M32 138c9-30 29-45 48-45s39 15 48 45" fill="%230a6c36"/%3E%3C/svg%3E';
+    const profilePhotoSrc = storedUser.photoData || defaultAvatarSrc;
+
+    profileFullName.textContent = buildFullName();
+    profileEmail.textContent = storedUser.email || 'No email address provided';
+    welcomeName.textContent = storedUser.firstName || 'Senior Citizen';
+    profileRole.textContent = 'Senior Citizen Member';
+
+    profileAvatarImg.src = profilePhotoSrc;
+    profileAvatarImg.hidden = false;
+    profileAvatar.classList.add('has-photo');
+    headerProfileImg.src = profilePhotoSrc;
+    headerProfileImg.hidden = false;
+    headerProfileIcon.hidden = true;
+    profileButton.classList.add('has-photo');
+
+    const openPanel = () => {
+        profilePanel.classList.add('open');
+        panelOverlay.classList.add('visible');
+        profilePanel.setAttribute('aria-hidden', 'false');
+    };
+
+    const closePanelAction = () => {
+        profilePanel.classList.remove('open');
+        panelOverlay.classList.remove('visible');
+        profilePanel.setAttribute('aria-hidden', 'true');
+    };
+
+    profileButton.addEventListener('click', openPanel);
+    profileButton.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openPanel();
+        }
+    });
+
+    closePanel.addEventListener('click', closePanelAction);
+    panelOverlay.addEventListener('click', closePanelAction);
+
+    logoutBtn.addEventListener('click', () => {
+        sessionStorage.removeItem('senetizenLoggedIn');
+        localStorage.removeItem('senetizenRemembered');
+        window.location.href = 'login.html';
+    });
+
+    const notificationPopup = document.getElementById('notificationPopup');
+    const notificationBadge = document.getElementById('notificationBadge');
+    const notificationContent = document.getElementById('notificationContent');
+
+    let notificationCount = 0;
+    if (notificationCount === 0) {
+        notificationBadge.style.display = 'none';
+        notificationContent.textContent = 'No new notifications.';
+    } else {
+        notificationBadge.textContent = notificationCount;
+    }
+
+    notificationButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        notificationPopup.classList.toggle('show');
+    });
+
+    document.addEventListener('click', () => {
+        notificationPopup.classList.remove('show');
+    });
+
+    notificationPopup.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+
+    const mvOpenBtn = document.getElementById('mvOpenBtn');
+    const mvCloseBtn = document.getElementById('mvCloseBtn');
+    const mvModalOverlay = document.getElementById('mvModalOverlay');
+
+    const openMvModal = () => {
+        mvModalOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden'; 
+    };
+
+    const closeMvModal = () => {
+        mvModalOverlay.classList.remove('active');
+        document.body.style.overflow = '';       
+    };
+
+    mvOpenBtn.addEventListener('click', openMvModal);
+    mvCloseBtn.addEventListener('click', closeMvModal);
+
+    mvModalOverlay.addEventListener('click', (event) => {
+        if (event.target === mvModalOverlay) {
+            closeMvModal();
+        }
+    });
+
+    mvOpenBtn.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openMvModal();
+        }
+    });
+</script>
+
+</body>
+</html>
+

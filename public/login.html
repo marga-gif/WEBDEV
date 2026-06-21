@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login - Barangay System</title>
+    <!-- External Separated Stylesheet link mapping definitions -->
+    <link rel="stylesheet" href="../css/login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="login-container">
+
+        <div class="banner-side">
+            <img src="../images/logo1.png" alt="Barangay Logo" class="banner-background-img">
+            
+            <div class="banner-content">
+                <h1>Barangay San Jose</h1>
+                <p class="subtitle">Senior Citizen Assistance System</p>
+                <p class="portal-type">User Portal</p>
+            </div>
+        </div>
+
+        <div class="form-side">
+            <h2>Welcome Back</h2>
+            <p class="form-instruction">Enter your credentials to access the dashboard.</p>
+
+            <form id="loginForm" method="POST">
+                <div class="form-error" id="loginError" style="display: none;"></div>
+                
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-envelope input-icon"></i>
+                        <input type="email" id="email" name="email" placeholder="user@example.com" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <div class="form-utilities">
+                    <label class="remember-me">
+                        <input type="checkbox" id="remember" name="remember">
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" class="forgot-pass" id="openForgotModal">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="btn-login">
+                 <i class="fa-solid fa-right-to-bracket"></i> Log In
+                </button>
+
+                <p class="terms-text">
+                    By logging in, you agree to our
+                    <a href="#" id="termsLink">Terms & Conditions</a>
+                    and
+                    <a href="#" id="privacyLink">Privacy Policy</a>.
+                </p>
+                </form>
+                <p class="switch-portal">Not registered yet? <a href="register.html">Register here</a></p>
+            
+            <div class="admin-divider-section">
+                <p class="admin-divider-text">Are you an administrator?</p>
+                <a href="../admin/auth/index.html" class="btn-admin-redirect">
+                    <i class="fa-solid fa-shield"></i> Admin Login
+                </a>
+            </div>
+        </div>
+    </div>
+
+<div class="modal-backdrop" id="forgotModalWrapper">
+    <div class="modal-card">
+        <button class="modal-close-btn" id="closeForgotModal" type="button">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        
+        <h3>Reset Password</h3>
+        
+        <div class="form-error" id="forgotError" style="display: none;"></div>
+        <div class="form-success" id="forgotSuccess" style="display: none;"></div>
+        
+        <form id="forgotPasswordForm" novalidate>
+            
+            <div id="forgotStep1">
+                <p class="instruction">Enter your 11-digit registered mobile number below. We will send an OTP verification code to reset your account credentials.</p>
+                
+                <div class="input-group forgot-input-margin">
+                    <label for="forgotPhone">Mobile Number</label>
+                    <div class="input-wrapper forgot-wrapper-border" id="forgotPhoneWrapper">
+                        <i class="fa-solid fa-phone forgot-phone-icon"></i>
+                        <input type="tel" id="forgotPhone" placeholder="09171234567 or +639123456789" maxlength="13" class="forgot-clean-input">
+                    </div>
+                    <p class="field-error" id="forgotPhoneError">Enter 11 digits starting with 09 or +63.</p>
+                </div>
+                
+                <button type="button" class="btn-submit" id="forgotSubmitBtn" onclick="handleRequestOtp()">
+                    <i class="fa-solid fa-paper-plane"></i> Send OTP Code
+                </button>
+            </div>
+
+            <div id="forgotStep2" style="display: none;">
+                <p class="instruction">We have sent a 6-digit verification pin code to your mobile device. Please enter it below to authorize this session.</p>
+                
+                <div class="input-group forgot-input-margin">
+                    <label for="otpCode">Verification Code</label>
+                    <div class="input-wrapper forgot-wrapper-border" id="otpCodeWrapper">
+                        <i class="fa-solid fa-key forgot-phone-icon"></i>
+                        <input type="text" id="otpCode" placeholder="000000" maxlength="6" style="text-align: center; letter-spacing: 4px; font-weight: bold;" class="forgot-clean-input">
+                    </div>
+                </div>
+                
+                <button type="button" class="btn-submit" id="forgotVerifyBtn" onclick="handleVerifyOtp()">
+                    <i class="fa-solid fa-shield-halved"></i> Verify OTP Code
+                </button>
+            </div>
+
+            <div id="forgotStep3" style="display: none;">
+                <p class="instruction">Your mobile number identity has been verified. You may now securely update your login credentials.</p>
+                
+                <div class="input-group forgot-input-margin">
+                    <label for="newPassword">New Password</label>
+                    <div class="input-wrapper forgot-wrapper-border">
+                        <i class="fa-solid fa-lock forgot-phone-icon"></i>
+                        <input type="password" id="newPassword" placeholder="Minimum 6 characters" class="forgot-clean-input">
+                    </div>
+                </div>
+
+                <div class="input-group forgot-input-margin">
+                    <label for="confirmNewPassword">Confirm New Password</label>
+                    <div class="input-wrapper forgot-wrapper-border">
+                        <i class="fa-solid fa-check-double forgot-phone-icon"></i>
+                        <input type="password" id="confirmNewPassword" placeholder="Repeat your new password" class="forgot-clean-input">
+                    </div>
+                </div>
+                
+                <button type="button" class="btn-submit" id="forgotResetBtn" onclick="handleSubmitNewPassword()">
+                    <i class="fa-solid fa-circle-check"></i> Update Password
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="policy-modal" id="termsModal">
+    <div class="policy-content">
+        <span class="close-modal">&times;</span>
+
+       <h2>TERMS AND CONDITIONS</h2>
+
+<h3>1. Introduction and Acceptance of Terms</h3>
+<p>
+Welcome to the <strong>SenEtizen – Senior Citizen Assistance System</strong>. Your access to, and use of, the SenEtizen platform is strictly conditioned upon your full acceptance and compliance with these Terms and Conditions. This digital platform has been specifically developed to bridge the gap between the local government unit and our elderly community, ensuring that vital services, announcements, and assistance programs are easily accessible from the comfort of their homes. These comprehensive terms govern the daily use of the system and apply uniformly to all registered users, including senior citizens, their legally authorized representatives, barangay personnel, administrators, and any other individuals accessing the platform's features. 
+</p>
+<p>
+By accessing, browsing, registering an account, or otherwise using any feature of the SenEtizen System, you acknowledge that you have carefully read, completely understood, and agreed to be legally bound by these Terms and Conditions in their entirety. If you do not agree with any part of these provisions, you are strictly prohibited from using the system and should rely on traditional, in-person transactions at the barangay hall. The Barangay Administration reserves the exclusive right to revise, amend, or update these terms at any time at its sole discretion, to align with new local ordinances, national laws, or technological upgrades, without the obligation of sending prior direct notice to individual users.
+</p>
+
+<h3>2. Definition of Terms</h3>
+<p>
+To ensure clarity and avoid misinterpretation, the following terms used throughout this agreement shall be defined as follows: 
+<strong>"System"</strong> or <strong>"Platform"</strong> refers to the SenEtizen web application, its databases, interfaces, and all associated digital services provided by the barangay; 
+<strong>"User"</strong> refers to any individual who successfully creates an account, logs in, or otherwise accesses the System for any purpose; 
+<strong>"Senior Citizen"</strong> refers to any verified resident of the barangay who is legally recognized as sixty (60) years of age or older and is seeking civic assistance through the System; 
+<strong>"Authorized Representative"</strong> refers to a family member, guardian, or caregiver who has been granted explicit, verifiable permission to operate an account on behalf of a senior citizen; and 
+<strong>"Barangay"</strong> refers to the local government unit, including its elected officials, appointed staff, and IT administrators managing the platform.
+</p>
+
+<h3>3. User Responsibilities and Account Registration</h3>
+<p>
+Users are strictly required to provide accurate, complete, current, and truthful information during the initial registration process and at all times when requesting barangay services, social welfare programs, or medical assistance. Because this system is tied to the allocation of public funds and government resources, users must ensure that their legal names, birth dates, residential addresses, and contact details are exactly as they appear on their official government-issued identification cards. Users are also responsible for proactively updating their digital profiles should there be any changes to their personal information, living arrangements, or residency status within the barangay.
+</p>
+<p>
+The submission of false, forged, or misleading information, or any attempt to impersonate another individual—including registering on behalf of a senior citizen without their explicit knowledge and legally binding consent—is strictly prohibited and will be treated as a severe violation. Such actions will result in the immediate rejection of pending service requests, the indefinite suspension or permanent banning of the user’s account, and may subject the offending party to administrative sanctions, penalties, or criminal prosecution for falsification of public documents or identity theft under applicable Philippine laws.
+</p>
+
+<h3>4. Acceptable Use and Restrictions</h3>
+<p>
+The SenEtizen System is a dedicated local government resource funded by public money and shall only be used for legitimate, civic, and barangay-related transactions. This primarily includes, but is not limited to, requesting official barangay documents (such as certificates of residency or clearances), viewing critical community announcements, applying for local social welfare programs, scheduling medical assistance or check-ups, and other explicitly authorized services designed for the welfare of the elderly. Users must maintain a respectful and courteous demeanor when using any messaging or inquiry features to communicate with barangay staff.
+</p>
+<p>
+Under no circumstances shall users utilize the platform for unlawful, fraudulent, commercial, or malicious purposes. Users are strictly prohibited from engaging in the following activities: (a) attempting to bypass security measures to gain unauthorized access to system resources, administrator dashboards, or the private data of other registered residents; (b) interfering with or intentionally disrupting system operations and servers through overwhelming requests or denial-of-service attacks; (c) uploading or transmitting destructive code, viruses, malware, or any other software intended to damage digital infrastructure; and (d) engaging in automated data scraping, mining, or any activity that compromises the integrity, availability, or overall security of the platform.
+</p>
+
+<h3>5. Account Security and Confidentiality</h3>
+<p>
+Users hold the primary and ultimate responsibility for safeguarding their account credentials, including their chosen usernames, passwords, and any secondary authentication codes. To maintain the highest level of security, users are strongly advised to create complex passwords and avoid logging into their SenEtizen accounts on public or shared computers. Sharing login credentials with unauthorized individuals, even close friends or unverified relatives, is strictly prohibited to prevent unauthorized access, data breaches, and the filing of fraudulent assistance requests. 
+</p>
+<p>
+The Barangay shall not be held legally or financially liable for any loss, damage, missed assistance allocations, or unauthorized transactions arising directly or indirectly from a user's negligence or failure to properly secure their account credentials. Any suspected account compromise, unauthorized access, or unusual activity—such as service requests you did not initiate—must be reported immediately to the Barangay Administration or the designated system IT administrator so that prompt preventive measures, such as temporary account freezing, can be implemented.
+</p>
+
+<h3>6. Data Privacy and Protection</h3>
+<p>
+The SenEtizen System processes and stores highly sensitive personal information, including health records, financial statuses, and exact residential locations. By registering for and using the platform, you provide your explicit consent to the collection, processing, storage, and sharing of your personal data by the Barangay solely for the specific purposes of delivering requested services, validating identity, and effectively implementing local senior citizen welfare programs. 
+</p>
+<p>
+All data processing shall be conducted in strict, unwavering compliance with the <strong>Data Privacy Act of 2012 (Republic Act No. 10173)</strong>. The Barangay commits to implementing robust, industry-standard organizational, physical, and technical security measures to protect user data against unauthorized access, accidental alteration, unlawful disclosure, or destruction. User data will only be retained for as long as necessary to fulfill the purposes for which it was collected, or as required by government archiving laws, and will never be sold or shared with third-party commercial entities.
+</p>
+
+<h3>7. System Availability and "As-Is" Disclaimer</h3>
+<p>
+The Barangay makes reasonable, good-faith efforts to ensure the continuous availability, accuracy, and seamless functionality of the SenEtizen System to serve the public effectively. However, users must understand that the platform is provided strictly on an "as is" and "as available" basis. Temporary service interruptions, software bugs, or total system downtime may periodically occur due to routine maintenance activities, necessary software upgrades, unforeseen technical malfunctions, power outages, or force majeure events such as natural disasters. 
+</p>
+<p>
+The Barangay does not guarantee or warrant that the system will be entirely uninterrupted, error-free, or completely immune to cyber threats. Consequently, the local government shall not be held liable for any delays, inconveniences, or failures in processing service requests resulting from such downtimes. During extended periods of system unavailability, users are encouraged to utilize alternative traditional channels, such as visiting the barangay hall in person or contacting the barangay office via telephone, to ensure their needs are met without delay.
+</p>
+
+<h3>8. Termination or Suspension of Access</h3>
+<p>
+The Barangay reserves the unilateral and unquestionable right to suspend, restrict, or permanently terminate any user account at any time, without prior notice or liability, if a user is found to have violated any provision outlined in these Terms and Conditions. Grounds for immediate account termination include, but are not limited to: providing fraudulent or forged information, engaging in abusive, threatening, or harassing behavior towards barangay personnel through the platform's communication channels, or attempting to exploit or breach system security protocols. 
+</p>
+<p>
+Upon the termination or suspension of an account, the user's right to access the digital system and its integrated services will immediately and automatically cease. However, it is important to note that the suspension of a SenEtizen digital account does not necessarily strip the individual of their fundamental rights as a senior citizen of the barangay; they may still seek assistance and process their transactions manually at the physical barangay office, subject to the review of the Barangay Captain or appointed officials.
+</p>
+
+<h3>9. Changes to Terms and Conditions</h3>
+<p>
+These Terms and Conditions may be modified, expanded, or completely updated periodically to accurately reflect operational improvements, new local government mandates, changes in national legislation, or advancements in digital technology. While the Barangay will make reasonable administrative efforts to notify registered users of significant or material changes—usually by posting a prominent announcement banner on the platform's homepage or login screen—it remains the sole responsibility of the user to review this legal page periodically. Continued access or use of the SenEtizen System after any modifications have been published shall constitute your formal, irrevocable acknowledgment and binding acceptance of the newly revised terms.
+</p>
+
+<h3>10. Governing Law and Dispute Resolution</h3>
+<p>
+These Terms and Conditions, as well as any separate agreements whereby we provide you services, shall be governed by, and construed in accordance with, the laws of the Republic of the Philippines, without regard to its conflict of law principles. Any disputes, claims, or controversies arising from or relating to the use of the SenEtizen System shall first be subject to amicable settlement through the Katarungang Pambarangay (Barangay Justice System). Should the matter remain unresolved at the barangay level, it shall then be subject to the exclusive jurisdiction of the competent municipal or regional trial courts in the city or municipality where the Barangay is geographically located.
+</p>
+    </div>
+</div>
+<!-- Privacy Modal -->
+<div class="policy-modal" id="privacyModal">
+    <div class="policy-content">
+        <span class="close-modal">&times;</span>
+
+        <h2>PRIVACY POLICY</h2>
+
+<p><strong>Effective Date:</strong> June 2026</p>
+
+<p>
+The <strong>SenEtizen – Senior Citizen Assistance System</strong> highly values your privacy and is fully committed to protecting your personal data. This comprehensive Privacy Policy outlines how your personal and sensitive information is collected, processed, utilized, stored, and safeguarded by the Barangay Administration. All data processing activities conducted within this platform strictly adhere to the guidelines set forth by the National Privacy Commission (NPC) and are in full compliance with Republic Act No. 10173, otherwise known as the Data Privacy Act of 2012. By registering and utilizing the SenEtizen platform, you grant your explicit consent to the data practices described in this document.
+</p>
+
+<h3>1. Information We Collect</h3>
+<p>
+To effectively provide you with necessary barangay services, the system requires the collection of specific data points. The information we gather is divided into two categories:
+</p>
+<ul>
+    <li><strong>Personal and Sensitive Information:</strong> This includes your full name, exact residential address, date of birth, age, contact numbers, email address, civil status, and official identification numbers (such as your OSCA ID or Senior Citizen ID number). In cases involving medical assistance requests, we may also collect necessary health-related information and medical records.</li>
+    <li><strong>Documentary Requirements:</strong> Digital copies of documents you upload for verification purposes, such as valid government IDs, proof of billing, medical prescriptions, or certificates of residency.</li>
+</ul>
+
+<h3>2. Purpose and Use of Collected Information</h3>
+<p>
+The SenEtizen platform operates as a localized digital public service tool. Therefore, your personal information is collected and processed solely for legitimate barangay operations and public administration purposes. We use your data specifically to:
+</p>
+<ul>
+    <li>Accurately verify your identity and confirm your eligibility as a senior citizen resident of the barangay.</li>
+    <li>Process your requests for official documents, medical assistance, financial aid, and other social welfare programs efficiently.</li>
+    <li>Maintain an accurate and updated digital registry of senior citizens to aid the local government in the proper allocation of public funds and resources.</li>
+    <li>Communicate with you directly regarding the status of your requests, upcoming barangay events, health advisories, and emergency announcements.</li>
+</ul>
+<p>
+Your information will never be used for commercial purposes, marketing, or any unauthorized activities outside the scope of barangay public service.
+</p>
+
+<h3>3. Data Security and Confidentiality</h3>
+<p>
+The Barangay takes the security of your personal data very seriously. We have implemented a combination of rigorous administrative, organizational, and technical safeguards to protect your personal information against unauthorized access, accidental loss, unlawful disclosure, alteration, or misuse. 
+</p>
+<p>
+Access to the backend database of the SenEtizen System is strictly restricted. Only officially designated and legally accountable barangay personnel, such as the IT Administrator, Barangay Secretary, and assigned Social Workers, are granted access to your data. These authorized individuals are bound by strict confidentiality agreements and are permitted to access your information only when absolutely necessary to perform their official duties.
+</p>
+
+<h3>4. Sharing and Disclosure of Information</h3>
+<p>
+Your personal information is kept strictly confidential within the barangay administration. We do not sell, rent, or trade your data to private third parties. However, your information may be shared or disclosed under the following specific circumstances:
+</p>
+<ul>
+    <li>When sharing data with higher government agencies (such as the DSWD, OSCA, or the Department of Health) is required to facilitate wider senior citizen assistance programs.</li>
+    <li>When mandated by law, court order, or a valid legal process executed by law enforcement agencies.</li>
+    <li>When necessary to protect the life, health, and immediate safety of the user during medical emergencies or disaster response situations.</li>
+</ul>
+
+<h3>5. Data Retention and Disposal</h3>
+<p>
+Personal information collected through the SenEtizen platform shall be retained only for as long as necessary to fulfill the legal, administrative, and operational requirements of the barangay. Active accounts will have their data maintained to ensure seamless transactions. For inactive accounts, deceased residents, or individuals who have relocated outside the barangay, data will be archived in accordance with the retention limits set by the National Archives of the Philippines. Once the retention period expires, physical documents will be securely shredded, and digital records will be permanently and irretrievably deleted from our servers.
+</p>
+
+<h3>6. User Rights Under the Data Privacy Act</h3>
+<p>
+As a registered user and data subject, you are entitled to specific rights guaranteed by RA 10173. You have the right to be informed about how your data is being used. You may request access to the personal information we hold about you and demand the correction or updating of any inaccurate or outdated data in your profile. Furthermore, you have the right to object to the processing of your data, request the suspension, withdrawal, or secure destruction of your information from our system, and claim compensation if you suffer damages due to unauthorized data breaches.
+</p>
+
+<h3>7. Cookies, System Logs, and Technical Tracking</h3>
+<p>
+To ensure the system runs smoothly and securely, the SenEtizen platform automatically collects non-identifiable technical information when you access the site. This includes login timestamps, IP addresses, browser types, and activity logs. We also use "cookies" (small data files stored on your device) to keep you logged in during your session and to remember your interface preferences. These technical logs are used exclusively for security auditing, troubleshooting errors, preventing fraudulent access, and monitoring overall system performance. They are not used to track your activities on other websites.
+</p>
+
+<h3>8. Updates to this Privacy Policy</h3>
+<p>
+The Barangay reserves the right to periodically review and update this Privacy Policy to reflect changes in national privacy laws, municipal ordinances, or significant upgrades to the SenEtizen system’s functionalities. Whenever substantial changes are made, we will notify users by posting a prominent announcement on the system's login page or dashboard. We strongly encourage you to review this policy regularly to stay informed about how we are protecting your information.
+</p>
+
+<h3>9. Contact Information and Data Protection Officer</h3>
+<p>
+If you have any questions, concerns, clarifications, or requests regarding your personal data or this Privacy Policy, please do not hesitate to reach out to the barangay administration. You may submit a formal inquiry to the designated Data Protection Officer (DPO) by visiting the Barangay Hall in person, utilizing the official contact numbers provided on the SenEtizen platform, or sending a message through the system's integrated helpdesk feature.
+</p>
+    </div>
+</div>
+
+<script>
+        // --- LOGIN FORM ENGINE VARIABLES ---
+        const loginForm = document.getElementById('loginForm');
+        const loginError = document.getElementById('loginError');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginButton = loginForm.querySelector('button[type="submit"]');
+
+        // --- FORGOT PASSWORD MODULE VARIABLES ---
+        const openForgotModal = document.getElementById('openForgotModal');
+        const closeForgotModal = document.getElementById('closeForgotModal');
+        const forgotModalWrapper = document.getElementById('forgotModalWrapper');
+        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+        const forgotPhone = document.getElementById('forgotPhone');
+        const forgotPhoneWrapper = document.getElementById('forgotPhoneWrapper');
+        const forgotPhoneError = document.getElementById('forgotPhoneError');
+        const forgotError = document.getElementById('forgotError');
+        const forgotSuccess = document.getElementById('forgotSuccess');
+        const forgotSubmitBtn = document.getElementById('forgotSubmitBtn');
+
+        // --- NEW STEP WRAPPERS AND BUTTONS ---
+        const forgotStep1 = document.getElementById('forgotStep1');
+        const forgotStep2 = document.getElementById('forgotStep2');
+        const forgotStep3 = document.getElementById('forgotStep3');
+        const otpCode = document.getElementById('otpCode');
+        const otpCodeWrapper = document.getElementById('otpCodeWrapper');
+        const newPassword = document.getElementById('newPassword');
+        const confirmNewPassword = document.getElementById('confirmNewPassword');
+
+        // Retain verified phone reference state across steps
+        let verifiedSessionPhone = "";
+
+        // --- LOGIN ACTION UTILITIES ---
+        const showLoginError = (message) => {
+            loginError.textContent = message;
+            loginError.style.display = 'flex';
+            emailInput.classList.add('input-error');
+            passwordInput.classList.add('input-error');
+        };
+
+        const clearLoginError = () => {
+            loginError.textContent = '';
+            loginError.style.display = 'none';
+            emailInput.classList.remove('input-error');
+            passwordInput.classList.remove('input-error');
+        };
+
+        emailInput.addEventListener('input', clearLoginError);
+        passwordInput.addEventListener('input', clearLoginError);
+
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!email || !password) return;
+
+            const originalText = loginButton.innerHTML;
+            loginButton.disabled = true;
+            loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+
+            try {
+                const response = await fetch('http://localhost:5001/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, portal: 'user' }),
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Unable to sign in.');
+                }
+
+                clearLoginError();
+
+                const authPayload = {
+                    idToken: data.idToken,
+                    refreshToken: data.refreshToken,
+                    user: data.user,
+                };
+
+                localStorage.setItem('senetizenAuth', JSON.stringify(authPayload));
+                localStorage.setItem('senetizenUser', JSON.stringify(data.user));
+                sessionStorage.setItem('senetizenLoggedIn', 'true');
+                localStorage.setItem('senetizenRemembered', loginForm.remember.checked ? 'true' : 'false');
+
+                window.location.href = 'index.html';
+            } catch (error) {
+                showLoginError(error.message || 'Login failed.');
+            } finally {
+                loginButton.disabled = false;
+                loginButton.innerHTML = originalText;
+            }
+        });
+
+        // --- FORGOT PASSWORD MODULE WIZARD ---
+        const openModal = (e) => {
+            e.preventDefault();
+            forgotModalWrapper.style.display = 'flex';
+            setTimeout(() => {
+                forgotModalWrapper.classList.add('show');
+                // Reset to default step layout view state
+                forgotStep1.style.display = 'block';
+                forgotStep2.style.display = 'none';
+                forgotStep3.style.display = 'none';
+                forgotPhone.focus();
+            }, 10);
+        };
+
+        const closeModal = () => {
+            forgotModalWrapper.classList.remove('show');
+            forgotPasswordForm.reset();
+            verifiedSessionPhone = "";
+            clearForgotMessages();
+            setTimeout(() => {
+                forgotModalWrapper.style.display = 'none';
+            }, 250);
+        };
+
+        const clearForgotMessages = () => {
+            forgotError.textContent = '';
+            forgotError.style.display = 'none';
+            forgotSuccess.textContent = '';
+            forgotSuccess.style.display = 'none';
+            forgotPhoneWrapper.style.borderColor = '#e2e8f0';
+            forgotPhoneError.style.display = 'none';
+            if(otpCodeWrapper) otpCodeWrapper.style.borderColor = '#e2e8f0';
+        };
+
+        const clearForgotFieldError = () => {
+            forgotPhoneWrapper.style.borderColor = '#e2e8f0';
+            forgotPhoneError.style.display = 'none';
+        };
+
+        const showForgotFieldError = (message) => {
+            forgotPhoneWrapper.style.borderColor = '#ef4444';
+            forgotPhoneError.textContent = message;
+            forgotPhoneError.style.display = 'block';
+        };
+
+        function normalizeForgotPhone(phone) {
+            let normalized = String(phone || '').trim();
+            if (normalized.startsWith('+63')) {
+                normalized = '0' + normalized.slice(3);
+            }
+            return normalized;
+        }
+
+        // Enforce strictly numerical values during entries
+        forgotPhone.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/[^\d+]/g, '');
+            if (value.indexOf('+') > 0) {
+                value = value.replace(/\+/g, '');
+            }
+            e.target.value = value;
+            clearForgotMessages();
+        });
+
+        if (otpCode) {
+            otpCode.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/\D/g, '');
+                clearForgotMessages();
+            });
+        }
+
+        openForgotModal.addEventListener('click', openModal);
+        closeForgotModal.addEventListener('click', closeModal);
+        
+        forgotModalWrapper.addEventListener('click', (e) => {
+            if (e.target === forgotModalWrapper) closeModal();
+        });
+
+        // --- STEP 1: REQUEST OTP CODE ---
+        async function handleRequestOtp() {
+            clearForgotMessages();
+            const phoneValue = forgotPhone.value.trim();
+            const normalizedPhone = normalizeForgotPhone(phoneValue);
+            const phoneRegex = /^(?:09\d{9}|\+639\d{9})$/;
+
+            if (!phoneValue) {
+                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Phone number field cannot be left empty.';
+                forgotError.style.display = 'flex';
+                showForgotFieldError('Enter 11 digits starting with 09 or +63.');
+                return;
+            }
+
+            if (!phoneRegex.test(phoneValue) && !phoneRegex.test(normalizedPhone)) {
+                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Must be 11 digits starting with 09 or +63 (e.g., 09171234567 or +639171234567).';
+                forgotError.style.display = 'flex';
+                showForgotFieldError('Enter 11 digits starting with 09 or +63.');
+                return;
+            }
+
+            const originalBtnHTML = forgotSubmitBtn.innerHTML;
+            forgotSubmitBtn.disabled = true;
+            forgotSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+            try {
+                const response = await fetch('http://localhost:5001/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: normalizedPhone })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'This mobile number is not registered.');
+                }
+
+                verifiedSessionPhone = normalizedPhone;
+                forgotSuccess.innerHTML = '<i class="fa-solid fa-circle-check"></i> Verification code sent! Please check your mobile messages.';
+                forgotSuccess.style.display = 'flex';
+
+                // Transition viewport content layout states gracefully
+                forgotStep1.style.display = 'none';
+                forgotStep2.style.display = 'block';
+                setTimeout(() => otpCode.focus(), 50);
+
+            } catch (err) {
+                forgotError.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${err.message}`;
+                forgotError.style.display = 'flex';
+                forgotPhoneWrapper.style.borderColor = '#ef4444';
+            } finally {
+                forgotSubmitBtn.disabled = false;
+                forgotSubmitBtn.innerHTML = originalBtnHTML;
+            }
+        }
+
+        // --- STEP 2: VERIFY CODE VALIDATION ---
+        async function handleVerifyOtp() {
+            clearForgotMessages();
+            const otpValue = otpCode.value.trim();
+
+            if (otpValue.length !== 6) {
+                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Please enter the complete 6-digit verification code.';
+                forgotError.style.display = 'flex';
+                otpCodeWrapper.style.borderColor = '#ef4444';
+                return;
+            }
+
+            if (!verifiedSessionPhone) {
+                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Please request an OTP first.';
+                forgotError.style.display = 'flex';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5001/api/auth/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: verifiedSessionPhone, otp: otpValue })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'OTP verification failed.');
+                }
+
+                forgotSuccess.innerHTML = '<i class="fa-solid fa-circle-check"></i> Identity successfully verified! Enter your new credentials.';
+                forgotSuccess.style.display = 'flex';
+
+                forgotStep2.style.display = 'none';
+                forgotStep3.style.display = 'block';
+            } catch (err) {
+                forgotError.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${err.message}`;
+                forgotError.style.display = 'flex';
+                otpCodeWrapper.style.borderColor = '#ef4444';
+            }
+        }
+
+        // --- STEP 3: UPDATE USER PASSWORDS ---
+        async function handleSubmitNewPassword() {
+            clearForgotMessages();
+            const newPasswordValue = newPassword.value;
+            const confirmNewPasswordValue = confirmNewPassword.value;
+
+            if (!newPasswordValue || !confirmNewPasswordValue) {
+                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> All password entry fields are required.';
+                forgotError.style.display = 'flex';
+                return;
+            }
+
+            if (newPasswordValue !== confirmNewPasswordValue) {
+                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Passwords do not match. Please re-enter credentials.';
+                forgotError.style.display = 'flex';
+                return;
+            }
+
+            if (newPasswordValue.length < 6) {
+                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Password must contain at least 6 characters.';
+                forgotError.style.display = 'flex';
+                return;
+            }
+
+            if (!verifiedSessionPhone) {
+                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Please request and verify your OTP before resetting your password.';
+                forgotError.style.display = 'flex';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5001/api/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: verifiedSessionPhone, otp: otpCode.value.trim(), newPassword: newPasswordValue })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Password reset failed.');
+                }
+
+                forgotSuccess.innerHTML = '<i class="fa-solid fa-circle-check"></i> Password successfully updated! Redirecting to login context...';
+                forgotSuccess.style.display = 'flex';
+
+                setTimeout(() => {
+                    closeModal();
+                }, 2000);
+            } catch (err) {
+                forgotError.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${err.message}`;
+                forgotError.style.display = 'flex';
+            }
+        }
+
+        // Terms & Privacy Modal
+const termsLink = document.getElementById('termsLink');
+const privacyLink = document.getElementById('privacyLink');
+
+const termsModal = document.getElementById('termsModal');
+const privacyModal = document.getElementById('privacyModal');
+
+termsLink.addEventListener('click', function(e){
+    e.preventDefault();
+    termsModal.style.display = 'flex';
+});
+
+privacyLink.addEventListener('click', function(e){
+    e.preventDefault();
+    privacyModal.style.display = 'flex';
+});
+
+document.querySelectorAll('.close-modal').forEach(btn => {
+    btn.addEventListener('click', () => {
+        termsModal.style.display = 'none';
+        privacyModal.style.display = 'none';
+    });
+});
+
+window.addEventListener('click', function(e){
+    if(e.target === termsModal){
+        termsModal.style.display = 'none';
+    }
+
+    if(e.target === privacyModal){
+        privacyModal.style.display = 'none';
+    }
+});
+</script>
+</body>
+</html>

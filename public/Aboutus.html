@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SenEtizen - About Us</title>
+<link rel="stylesheet" href="../css/Aboutus.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <header class="top-nav">
+        <div class="brand">SenEtizen</div>
+
+        <button class="menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mainNav">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <nav id="mainNav">
+            <a href="index.html">HOME</a>
+            <a href="Medical.html">MEDICAL</a>
+            <a href="Socialwellness.html">SOCIAL WELLNESS</a>
+            <a href="gov.html">GOVERNMENT</a>
+            <a href="finance.html">FINANCIAL</a>
+            <a href="Aboutus.html" class="active">ABOUT US</a>
+        </nav>
+    </header>
+<section class="about-section">
+
+    <div class="about-text">
+
+        <h1>About Us</h1>
+
+        <p>
+            SenEtizen is a digital platform designed to help senior citizens
+            access barangay services, document requests, medical assistance,
+            and community programs with ease.
+        </p>
+
+        <p>
+            Our goal is to make government services more accessible,
+            convenient, and senior-friendly.
+        </p>
+
+        <div class="about-highlight">
+            We are here to help and serve our senior citizens.
+        </div>
+
+    </div>
+
+    <div class="about-image">
+        <img src="images/about us photo.png" alt="Barangay Staff">
+    </div>
+
+</section>
+ 
+    <div class="content-wrapper">
+
+        <section class="top-grid">
+
+            <div class="card contact-card">
+
+                <div class="card-header green">
+                    CONTACT US
+                </div>
+
+                <div class="contact-content">
+
+                    <div class="info">
+                        <i class="fa-solid fa-location-dot"></i> Address:&nbsp;&nbsp;&nbsp; Barangay Hall Brgy. Malaya, City
+                    </div>
+
+                    <div class="info">
+                        <i class="fa-solid fa-phone"></i> Hotline:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (0912) 345 6789
+                    </div>
+
+                    <div class="info">
+                        <i class="fa-solid fa-envelope"></i> Email:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; silverderly@barangay.gov.ph
+                    </div>
+
+                    <div class="info">
+                        <i class="fa-solid fa-clock"></i> Schedule:&nbsp; Mon - Fri 8:00 AM - 5:00 PM
+                    </div>
+
+                    <div class="quote-box">
+                        We are here to help our senior citizens.
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="org-card">
+
+            <h2>ORGANIZATIONAL CHART</h2>
+
+            <img src="images/org chart2.png" alt="Organizational Chart" class="org-image">
+            </div>
+        </section>
+
+    </div>
+</div>
+
+<script>
+const menuToggle = document.querySelector(".menu-toggle");
+const mainNav = document.getElementById("mainNav");
+
+menuToggle.addEventListener("click", function(){
+    const isOpen = mainNav.classList.toggle("show");
+    menuToggle.setAttribute("aria-expanded", isOpen);
+});
+
+mainNav.querySelectorAll("a").forEach(function(link){
+    link.addEventListener("click", function(){
+        mainNav.classList.remove("show");
+        menuToggle.setAttribute("aria-expanded", "false");
+    });
+});
+</script>
+</body>
+</html>

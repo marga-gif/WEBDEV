@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/gov.css">
+
+    <title>SenEtizen - Government Portal</title>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Main Navigation -->
+    <header class="top-nav">
+        <div class="brand">SenEtizen</div>
+        <button class="menu-toggle"
+                type="button"
+                aria-label="Open navigation menu"
+                aria-expanded="false"
+                aria-controls="mainNav">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <nav id="mainNav">
+            <a href="index.html">HOME</a>
+            <a href="Medical.html">MEDICAL</a>
+            <a href="Socialwellness.html">SOCIAL WELLNESS</a>
+            <a href="gov.html" class="active">GOVERNMENT</a>
+            <a href="finance.html">FINANCIAL</a>
+            <a href="Aboutus.html">ABOUT US</a>
+        </nav>
+    </header>
+
+    <!-- Main Content Wrapper -->
+    <div class="content-wrapper">
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-bar-container">
+                <input
+                    type="text"
+                    placeholder="Get help..."
+                    class="search-input"
+                >
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            </div>
+        </section>
+
+        <!-- Government Layout -->
+        <main class="content-layout">
+
+            <!-- Left Panel -->
+            <section class="panel options-panel">
+                <div class="panel-header">OPTIONS</div>
+                <ul class="panel-list" id="options-list">
+                    <li class="list-item active" data-target="CERTIFICATES">CERTIFICATES</li>
+                    <li class="list-item" data-target="BARANGAY DOCUMENTS">BARANGAY DOCUMENTS</li>
+                    <li class="list-item" data-target="LICENSES">LICENSES</li>
+                    <li class="list-item" data-target="FINANCIAL SUPPORTS">FINANCIAL SUPPORTS</li>
+                </ul>
+            </section>
+
+            <!-- Right Panel -->
+            <section class="panel detail-panel">
+                <div class="panel-header">
+                    KIND OF <span id="dynamic-category">CERTIFICATES</span>
+                </div>
+                <ul class="panel-list content-list" id="content-container"></ul>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<!-- DATA PRIVACY MODAL -->
+<div class="privacy-modal" id="privacyModal">
+    <div class="privacy-card">
+        <div class="privacy-header">DATA PRIVACY CONSENT</div>
+        <div class="privacy-body">
+            <p>
+                In compliance with Republic Act No. 10173 (Data Privacy Act of 2012), SenEtizen and the
+                Barangay Office collect personal information solely for the purpose of processing your requested document.
+            </p>
+            <p>
+                The information you provide will be treated confidentially and will only be accessed by authorized personnel.
+            </p>
+            <p>
+                By proceeding, you agree to the collection, processing, storage, and verification of your
+                personal information for document issuance and government-related services.
+            </p>
+            <div class="privacy-checkbox">
+                <input type="checkbox" id="agreePrivacy">
+                <label for="agreePrivacy">I have read and understood the Data Privacy Notice.</label>
+            </div>
+        </div>
+        <div class="privacy-buttons">
+            <button class="cancel-btn" onclick="closePrivacyModal()">Cancel</button>
+            <button class="proceed-btn" onclick="proceedToForm()">Proceed</button>
+        </div>
+    </div>
+</div>
+
+<!-- FORM POPUP MODAL -->
+<div class="modal-overlay" id="documentModal">
+    <div class="appointment-popup gov-popup">
+        <div class="appointment-header">
+            <h2 id="documentTitle">DOCUMENT REQUEST</h2>
+            <button class="close-btn" type="button" onclick="closeDocumentModal()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="appointment-form" id="formContainer"></div>
+    </div>
+</div>
+
+<script>
+let selectedDocument = "";
+
+function getTodayDateString(){
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+/* Mobile Navigation */
+const menuToggle = document.querySelector(".menu-toggle");
+const mainNav = document.getElementById("mainNav");
+
+menuToggle.addEventListener("click", () => {
+    const isOpen = mainNav.classList.toggle("show");
+    menuToggle.setAttribute("aria-expanded", isOpen);
+});
+
+mainNav.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", () => {
+        mainNav.classList.remove("show");
+        menuToggle.setAttribute("aria-expanded", "false");
+    });
+});
+
+/* Government Content Data */
+const optionItems = document.querySelectorAll('#options-list .list-item');
+const dynamicCategory = document.getElementById('dynamic-category');
+const contentContainer = document.getElementById('content-container');
+
+const mockData = {
+    "CERTIFICATES": [
+        "Barangay Certificate",
+        "Certificate of Indigency",
+        "Certificate of Residency",
+        "Certificate of Good Moral Character",
+        "Voter's Certificate (Barangay Copy)",
+        "First-Time Job Seeker Certificate (RA 11261)",
+        "Solo Parent / Senior Citizen Local Certification",
+        "Certificate of Cohabitation",
+        "Birth / Marriage / Baptismal Certification Support"
+    ],
+    "BARANGAY DOCUMENTS": [
+        "Community Tax Certificate (Cedula)",
+        "Barangay Clearance",
+        "Philhealth MDR Form Request",
+        "Barangay ID Request",
+        "Barangay Blotter / Incident Report Copy",
+        "Katarungang Pambarangay Mediation / Legal Endorsement",
+        "Barangay Protection Order (BPO)",
+        "Certificate of No Objection"
+    ],
+    "LICENSES": [
+        "Barangay Business Clearance / Permit",
+        "Locational Clearance",
+        "Building / Excavation Clearance",
+        "Tricycle / Pedicab Operator's Clearance",
+        "Working / Local Employment Clearance"
+    ],
+    "FINANCIAL SUPPORTS": [
+        "Doctor's Prescription & Free Maintenance Medicine",
+        "AICS (Crisis Assistance) Endorsement / Referral",
+        "Educational Assistance & SK Scholarships",
+        "Medical, Burial, and Emergency Cash Aid Referrals",
+        "Senior Citizen Cash Gift & Local Benefits Coordination",
+        "Livelihood Training & SK Skills Seminars",
+        "Emergency Relief Operations & Feeding Programs"
+    ]
+};
+
+updateContentList("CERTIFICATES");
+
+/* Change Government Tab */
+optionItems.forEach(item => {
+    item.addEventListener('click', () => {
+        document.querySelector('#options-list .list-item.active').classList.remove('active');
+        item.classList.add('active');
+        const targetName = item.getAttribute('data-target');
+        dynamicCategory.textContent = targetName;
+        updateContentList(targetName);
+    });
+});
+
+function updateContentList(category){
+    contentContainer.innerHTML = '';
+    if(mockData[category]){
+        mockData[category].forEach(text => {
+            const li = document.createElement('li');
+            li.className = 'list-item sub-item document-item';
+            li.textContent = text;
+            li.addEventListener('click', () => {
+                selectedDocument = text;
+                document.getElementById('privacyModal').classList.add('show');
+            });
+            contentContainer.appendChild(li);
+        });
+    }
+}
+
+/* Global Search */
+const searchInput = document.querySelector('.search-input');
+searchInput.addEventListener('input', function(){
+    const searchValue = this.value.trim().toLowerCase();
+    if(searchValue === ""){
+        const activeCategory = document.querySelector('#options-list .list-item.active').dataset.target;
+        updateContentList(activeCategory);
+        return;
+    }
+
+    let results = [];
+    for(const category in mockData){
+        mockData[category].forEach(item => {
+            if(item.toLowerCase().includes(searchValue)){
+                results.push({ category, item });
+            }
+        });
+    }
+
+    contentContainer.innerHTML = '';
+    if(results.length === 0){
+        contentContainer.innerHTML = `<li class="list-item sub-item">No results found.</li>`;
+        dynamicCategory.textContent = "SEARCH RESULTS";
+        return;
+    }
+
+    dynamicCategory.textContent = "SEARCH RESULTS";
+    results.forEach(result => {
+        const li = document.createElement('li');
+        li.className = 'list-item sub-item';
+        contentContainer.appendChild(li);
+        li.addEventListener('click', () => {
+            selectedDocument = result.item;
+            document.getElementById('privacyModal').classList.add('show');
+        });
+        li.innerHTML = `<strong>${result.category}</strong><br>${result.item}`;
+    });
+});
+
+function closePrivacyModal(){
+    document.getElementById('privacyModal').classList.remove('show');
+}
+
+function proceedToForm(){
+    const agree = document.getElementById('agreePrivacy');
+    if(!agree.checked){
+        alert('Please agree to the Data Privacy Notice.');
+        return;
+    }
+    closePrivacyModal();
+    openDocumentForm(selectedDocument);
+}
+
+const personalForms = ["Barangay Certificate", "Certificate of Residency", "Certificate of Good Moral Character", "Voter's Certificate (Barangay Copy)", "First-Time Job Seeker Certificate (RA 11261)", "Solo Parent / Senior Citizen Local Certification", "Certificate of Cohabitation"];
+const financialForms = ["Certificate of Indigency", "AICS (Crisis Assistance) Endorsement / Referral", "Educational Assistance & SK Scholarships", "Medical, Burial, and Emergency Cash Aid Referrals"];
+const businessForms = ["Barangay Business Clearance / Permit", "Locational Clearance", "Building / Excavation Clearance", "Tricycle / Pedicab Operator's Clearance", "Working / Local Employment Clearance"];
+const incidentForms = ["Barangay Blotter / Incident Report Copy", "Katarungang Pambarangay Mediation / Legal Endorsement", "Barangay Protection Order (BPO)", "Certificate of No Objection"];
+const recordsForms = ["Community Tax Certificate (Cedula)", "Philhealth MDR Form Request", "Barangay ID Request", "Barangay Clearance"];
+
+function applicantInformation(){
+    return `
+    <div class="section-title">Applicant Information</div>
+    <div class="form-group"><label>Surname</label><input type="text" required></div>
+    <div class="form-group"><label>First Name</label><input type="text" required></div>
+    <div class="form-group"><label>Middle Name</label><input type="text"></div>
+    <div class="form-group">
+        <label>Suffix</label>
+        <select>
+            <option>None</option><option>Jr.</option><option>Sr.</option><option>II</option><option>III</option><option>IV</option>
+        </select>
+    </div>
+    <div class="form-group"><label>Contact Number</label><input type="text" placeholder="09XXXXXXXXX"></div>
+    <div class="form-group"><label>Date</label><input type="date" required></div>
+    <div class="form-group"><label>Street Address</label><input type="text"></div>
+    <div class="form-group"><label>Barangay</label><input type="text"></div>
+    <div class="form-group"><label>City / Municipality</label><input type="text"></div>
+    <div class="form-group"><label>Province</label><input type="text"></div>
+    <div class="form-group"><label>ZIP Code</label><input type="text"></div>`;
+}
+
+function uploadField(label){
+    return `
+    <div class="form-group full-width">
+        <label>${label}</label>
+        <input type="file" accept=".jpg,.jpeg,.png" multiple>
+        <small class="file-note">Accepted file formats: JPG, JPEG, PNG only. Maximum file size: 5 MB.</small>
+    </div>`;
+}
+
+function openDocumentForm(documentName){
+    document.getElementById("documentTitle").textContent = documentName;
+    let formHTML = "";
+
+    if(personalForms.includes(documentName)){
+        formHTML = `<form class="request-form">${applicantInformation()}<div class="form-group full-width"><label>Purpose</label><textarea rows="4"></textarea></div>${uploadField("Valid ID")}<button class="request-submit">Submit Request</button></form>`;
+    }
+    else if(financialForms.includes(documentName)){
+        formHTML = `<form class="request-form">${applicantInformation()}<div class="form-group"><label>Occupation</label><input type="text"></div><div class="form-group"><label>Monthly Income</label><input type="number"></div><div class="form-group"><label>Household Members</label><input type="number"></div><div class="form-group full-width"><label>Reason For Assistance</label><textarea rows="4"></textarea></div>${uploadField("Upload Documents Here")}<button class="request-submit">Submit Request</button></form>`;
+    }
+    else if(businessForms.includes(documentName)){
+        formHTML = `<form class="request-form">${applicantInformation()}<div class="section-title">Business Information</div><div class="form-group"><label>Business Name</label><input type="text"></div><div class="form-group"><label>Nature of Business</label><input type="text"></div><div class="form-group"><label>DTI Registration Number</label><input type="text"></div>${uploadField("DTI Certificate")}${uploadField("Valid ID")}<button class="request-submit">Submit Request</button></form>`;
+    }
+    else if(documentName === "Barangay Blotter / Incident Report Copy"){
+        formHTML = `<form class="request-form"><div class="section-title">Complaint Information</div><div class="form-group"><label>Complainant Name</label><input type="text"></div><div class="form-group"><label>Respondent Name</label><input type="text"></div><div class="form-group"><label>Incident Date</label><input type="date" required></div><div class="form-group"><label>Incident Location</label><input type="text"></div><div class="form-group full-width"><label>Incident Description</label><textarea rows="5"></textarea></div><button class="request-submit">Submit Request</button></form>`;
+    }
+    else if(incidentForms.includes(documentName)){
+        formHTML = `<form class="request-form">${applicantInformation()}<div class="form-group full-width"><label>Request Details</label><textarea rows="5"></textarea></div>${uploadField("Upload Documents Here")}<button class="request-submit">Submit Request</button></form>`;
+    }
+    else if(documentName === "Birth / Marriage / Baptismal Certification Support"){
+        formHTML = `<form class="request-form">${applicantInformation()}<div class="form-group"><label>Document Type</label><select><option>Birth Certificate</option><option>Marriage Certificate</option><option>Baptismal Certificate</option></select></div><div class="form-group"><label>Relationship to Owner</label><input type="text"></div><div class="form-group full-width"><label>Purpose</label><textarea rows="4"></textarea></div>${uploadField("Valid ID")}<button class="request-submit">Submit Request</button></form>`;
+    }
+    else if(documentName === "Community Tax Certificate (Cedula)"){
+        formHTML = `<form class="request-form">${applicantInformation()}<div class="form-group"><label>Occupation</label><input type="text"></div><div class="form-group"><label>Annual Income</label><input type="number"></div><div class="form-group full-width"><label>Purpose</label><textarea rows="4"></textarea></div>${uploadField("Upload Documents Here")}<button class="request-submit">Submit Request</button></form>`;
+    }
+    else if(documentName === "Doctor's Prescription & Free Maintenance Medicine"){
+        formHTML = `<form class="request-form">${applicantInformation()}<div class="form-group full-width"><label>Medical Condition</label><textarea rows="4"></textarea></div><div class="form-group full-width"><label>Medicine Needed</label><textarea rows="3"></textarea></div>${uploadField("Doctor's Prescription")}<button class="request-submit">Submit Request</button></form>`;
+    }
+    else if(documentName === "Senior Citizen Cash Gift & Local Benefits Coordination"){
+        formHTML = `<form class="request-form">${applicantInformation()}<div class="form-group"><label>Senior Citizen ID Number</label><input type="text"></div><div class="form-group"><label>Age</label><input type="number"></div><div class="form-group full-width"><label>Benefits Requested</label><textarea rows="4"></textarea></div>${uploadField("Upload Documents Here")}<button class="request-submit">Submit Request</button></form>`;
+    }
+    else if(documentName === "Livelihood Training & SK Skills Seminars"){
+        formHTML = `<form class="request-form">${applicantInformation()}<div class="form-group"><label>Current Occupation</label><input type="text"></div><div class="form-group"><label>Preferred Training</label><input type="text"></div><div class="form-group full-width"><label>Skills You Want To Learn</label><textarea rows="4"></textarea></div><button class="request-submit">Submit Request</button></form>`;
+    }
+    else if(documentName === "Emergency Relief Operations & Feeding Programs"){
+        formHTML = `<form class="request-form">${applicantInformation()}<div class="form-group"><label>Number of Household Members</label><input type="number"></div><div class="form-group"><label>Affected By</label><input type="text"></div><div class="form-group full-width"><label>Reason For Assistance</label><textarea rows="4"></textarea></div>${uploadField("Upload Documents Here")}<button class="request-submit">Submit Request</button></form>`;
+    }
+    else if(recordsForms.includes(documentName)){
+        formHTML = `<form class="request-form">${applicantInformation()}<div class="section-title">Document Information</div><div class="form-group full-width"><label>Purpose</label><textarea rows="4"></textarea></div>${uploadField("Upload Documents Here")}<button class="request-submit">Submit Request</button></form>`;
+    }
+    else{
+        formHTML = `<form class="request-form"><div class="form-group"><label>Full Name</label><input type="text" required></div><div class="form-group"><label>Contact Number</label><input type="text"></div><div class="form-group full-width"><label>Purpose</label><input type="text"></div><button class="request-submit">Submit Request</button></form>`;
+    }
+
+    document.getElementById("formContainer").innerHTML = formHTML;
+
+    const dateInputs = document.querySelectorAll('#formContainer input[type="date"]');
+    const todayStr = getTodayDateString();
+    
+    dateInputs.forEach(input => {
+        input.setAttribute('min', todayStr); 
+        input.value = todayStr; 
+    });
+
+
+    document.getElementById("documentModal").classList.add("show");
+}
+
+/* File Upload Validation: type and size */
+const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png"];
+const ALLOWED_FILE_EXTENSIONS = [".jpg", ".jpeg", ".png"];
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_FILE_COUNT = 5;
+
+function getFileExtension(fileName){
+    const lastDot = fileName.lastIndexOf(".");
+    return lastDot === -1 ? "" : fileName.slice(lastDot).toLowerCase();
+}
+
+function formatFileSize(bytes){
+    return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+}
+
+document.addEventListener("change", function(e){
+    if(e.target.type !== "file") return;
+
+    const input = e.target;
+    const files = Array.from(input.files);
+
+    if(files.length === 0) return;
+
+    if(files.length > MAX_FILE_COUNT){
+        alert(`Maximum of ${MAX_FILE_COUNT} documents only.`);
+        input.value = "";
+        return;
+    }
+
+    const invalidTypeFiles = [];
+    const oversizedFiles = [];
+
+    files.forEach(file => {
+        const extension = getFileExtension(file.name);
+        const isValidType = ALLOWED_FILE_TYPES.includes(file.type) || ALLOWED_FILE_EXTENSIONS.includes(extension);
+        if(!isValidType){
+            invalidTypeFiles.push(file.name);
+        }
+        if(file.size > MAX_FILE_SIZE_BYTES){
+            oversizedFiles.push(`${file.name} (${formatFileSize(file.size)})`);
+        }
+    });
+
+    if(invalidTypeFiles.length > 0){
+        alert(`Invalid file format for: ${invalidTypeFiles.join(", ")}.\nAccepted file formats: JPG, JPEG, PNG only.`);
+        input.value = "";
+        return;
+    }
+
+    if(oversizedFiles.length > 0){
+        alert(`File too large for: ${oversizedFiles.join(", ")}.\nMaximum file size: 5 MB.`);
+        input.value = "";
+        return;
+    }
+});
+
+function closeDocumentModal(){
+    document.getElementById("documentModal").classList.remove("show");
+}
+</script>
+
+</body>
+</html>
