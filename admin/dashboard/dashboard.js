@@ -1,4 +1,4 @@
-//FOR DEMO PURPOSES
+// FOR DEMO PURPOSES
 const mockDashboardData = {
     metrics: {
         totalRegistered: "1,248",
@@ -7,13 +7,14 @@ const mockDashboardData = {
         activeAlerts: "2"
     },
     activities: [
-        { icon: "fa-user-plus", color: "#1E40AF", text: "New Senior Citizen account registered: Tomas Aquino", time: "10 mins ago" },
-        { icon: "fa-file-Medical Assistance", color: "#047857", text: "Medical Assistance financial assistance approved for Clara Reyes", time: "1 hr ago" },
-        { icon: "fa-bullhorn", color: "#B45309", text: "System broadcast dispatched: Typhoon Track Warning", time: "3 hrs ago" }
+        { icon: "fa-user-plus", color: "#1E40AF", text: "New Senior Citizen account registered: Tomas Aquino", time: "10 mins ago", timestamp: Date.now() - 600000, category: "account" },
+        { icon: "fa-file-medical", color: "#047857", text: "Medical Assistance financial assistance approved for Clara Reyes", time: "1 hr ago", timestamp: Date.now() - 3600000, category: "medical" },
+        { icon: "fa-bullhorn", color: "#B45309", text: "System broadcast dispatched: Typhoon Track Warning", time: "3 hrs ago", timestamp: Date.now() - 10800000, category: "system" },
+        { icon: "fa-file-alt", color: "#1E40AF", text: "Document request processed for Juan Dela Cruz", time: "5 hrs ago", timestamp: Date.now() - 18000000, category: "account" }
     ],
     appointments: [
-        { title: "Senior ID Card Issuance Roster", scope: "09:00 AM - 12:00 PM", status: "Ongoing" },
-        { title: "Free Diagnostic Medical Assistance Check-up Group A", scope: "02:00 PM - 04:30 PM", status: "Pending" }
+        { title: "Senior ID Card Issuance Roster", scope: "09:00 AM - 12:00 PM", status: "Ongoing", rawDate: new Date().toISOString().split('T')[0] },
+        { title: "Free Diagnostic Medical Assistance Check-up Group A", scope: "02:00 PM - 04:30 PM", status: "Pending", rawDate: "2099-12-31" }
     ],
     notifications: [
         { title: "Critical Alert", text: "Ambulance dispatched to Purok 3.", time: "5 mins ago", unread: true },
@@ -27,11 +28,9 @@ const mockDashboardData = {
     ]
 };
 
-const API_BASE = window.API_BASE;
+const API_BASE = window.API_BASE || '';
+let currentActivitiesCache = [...mockDashboardData.activities];
 
-// ==========================================
-// AUTHENTICATION CHECK
-// ==========================================
 function getAdminToken() {
     const storedAuth = JSON.parse(localStorage.getItem('barangay_admin_auth') || 'null');
     return storedAuth?.idToken || null;
@@ -58,12 +57,21 @@ async function loadDashboardData() {
         }
 
         if (Array.isArray(data.recentActivity) && data.recentActivity.length > 0) {
-            mockDashboardData.activities = data.recentActivity.map((log) => ({
-                icon: 'fa-bullhorn',
-                color: '#047857',
-                text: `${log.action?.replace(/_/g, ' ') || 'Activity'}${log.actorEmail ? ' by ' + log.actorEmail : ''}`,
-                time: log.timestamp ? new Date(log.timestamp).toLocaleString() : 'Just now',
-            }));
+            currentActivitiesCache = data.recentActivity.map((log) => {
+                let cat = 'system';
+                const lowerAction = (log.action || '').toLowerCase();
+                if (lowerAction.includes('register') || lowerAction.includes('account')) cat = 'account';
+                if (lowerAction.includes('medical')) cat = 'medical';
+                
+                return {
+                    icon: 'fa-bullhorn',
+                    color: '#047857',
+                    text: `${log.action?.replace(/_/g, ' ') || 'Activity'}${log.actorEmail ? ' by ' + log.actorEmail : ''}`,
+                    time: log.timestamp ? new Date(log.timestamp).toLocaleString() : 'Just now',
+                    timestamp: log.timestamp ? new Date(log.timestamp).getTime() : Date.now(),
+                    category: cat
+                };
+            });
         }
 
         if (Array.isArray(data.upcomingAppointments) && data.upcomingAppointments.length > 0) {
@@ -71,17 +79,20 @@ async function loadDashboardData() {
                 title: appt.fullName || appt.patient || appt.medicalAttention || 'Appointment',
                 scope: `${appt.date || ''} ${appt.time || ''}`.trim(),
                 status: appt.status || 'Scheduled',
+                rawDate: appt.date || '' 
             }));
         }
 
         setupDashboardInteractions();
         setupDropdownModules();
         setupRoutingActions();
+        initCharts();
     } catch (error) {
         console.warn('Dashboard API load failed:', error);
         setupDashboardInteractions();
         setupDropdownModules();
         setupRoutingActions();
+        initCharts();
     }
 }
 
@@ -100,21 +111,18 @@ function checkAdminAuth() {
         sessionStorage.setItem('barangay_admin_logged_in', 'true');
     }
 
-    // Populate admin info in sidebar
     try {
         const user = JSON.parse(adminUser);
         const adminNameEl = document.getElementById('auth-admin-name');
         const adminRoleEl = document.getElementById('auth-admin-role');
-        if (adminNameEl) adminNameEl.textContent = user.fullName || user.email || 'Admin User';
+        if (adminNameEl) adminNameEl.textContent = user.fullName || user.email || 'admin@barangay.gov.ph';
         if (adminRoleEl) adminRoleEl.textContent = 'Administrator';
     } catch (e) {
         console.warn('Could not parse admin user data');
     }
 }
 
-
 document.addEventListener('DOMContentLoaded', async () => {
-    // Check admin authentication first
     checkAdminAuth();
 
     const styleOverride = document.createElement('style');
@@ -153,6 +161,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.head.appendChild(styleOverride);
 
     setupMobileNavigation();
+    setupInputValidation();
     await loadDashboardData();
     setupLogout();
 });
@@ -169,7 +178,6 @@ function setupLogout() {
         });
     }
 }
-
 
 function setupMobileNavigation() {
     const burgerBtn = document.getElementById('menu-toggle');
@@ -189,8 +197,20 @@ function setupMobileNavigation() {
     }
 }
 
+// Input Trimming & Validation Integration
+function setupInputValidation() {
+    const inputs = document.querySelectorAll('.val-input');
+    inputs.forEach(input => {
+        input.addEventListener('input', (e) => {
+            e.target.classList.remove('error-border');
+        });
+        input.addEventListener('blur', (e) => {
+            e.target.value = e.target.value.trim();
+        });
+    });
+}
+
 function setupDashboardInteractions() {
-    // Ingest parameters securely from local memory cache blocks
     const totalEl = document.getElementById('metric-total-registered');
     const docsEl = document.getElementById('metric-pending-docs');
     const rsvpsEl = document.getElementById('metric-event-rsvps');
@@ -201,16 +221,69 @@ function setupDashboardInteractions() {
     if (rsvpsEl) rsvpsEl.textContent = mockDashboardData.metrics.eventRsvps;
     if (alertsEl) alertsEl.textContent = mockDashboardData.metrics.activeAlerts;
 
-    renderActivityPanel();
-    renderAppointmentsPanel();
+    renderActivityPanel(currentActivitiesCache);
+    
+    // Init appointments to strictly render 'today' by default
+    renderAppointmentsPanel('today');
+
+    const sortFilter = document.getElementById('activity-sort-filter');
+    const catFilter = document.getElementById('activity-category-filter');
+    const apptFilter = document.getElementById('appointment-filter');
+    const apptFilterMobile = document.getElementById('appointment-filter-mobile');
+
+    if (sortFilter && catFilter) {
+        const applyFilters = () => {
+            let filtered = [...currentActivitiesCache];
+            const cat = catFilter.value;
+            if (cat !== 'all') filtered = filtered.filter(item => item.category === cat);
+
+            const sort = sortFilter.value;
+            filtered.sort((a, b) => sort === 'latest' ? b.timestamp - a.timestamp : a.timestamp - b.timestamp);
+
+            renderActivityPanel(filtered);
+        };
+
+        sortFilter.addEventListener('change', applyFilters);
+        catFilter.addEventListener('change', applyFilters);
+    }
+
+    const handleApptFilterChange = (val) => {
+        if(apptFilter) apptFilter.value = val;
+        renderAppointmentsPanel(val);
+    };
+
+    if (apptFilter) {
+        apptFilter.addEventListener('change', (e) => handleApptFilterChange(e.target.value));
+    }
+
+    if (apptFilterMobile) {
+        apptFilterMobile.addEventListener('click', () => {
+            const currentVal = apptFilter ? apptFilter.value : 'today';
+            const newVal = currentVal === 'today' ? 'all' : 'today';
+            handleApptFilterChange(newVal);
+            
+            apptFilterMobile.innerHTML = newVal === 'today' 
+                ? `<i class="fas fa-calendar-alt"></i> View All Appointments` 
+                : `<i class="fas fa-calendar-day"></i> View Today Only`;
+        });
+    }
 }
 
-function renderActivityPanel() {
+function renderActivityPanel(activitiesToRender = currentActivitiesCache) {
     const activityBox = document.getElementById('recent-activity-box');
     if (!activityBox) return;
 
+    if (activitiesToRender.length === 0) {
+        activityBox.innerHTML = `
+            <div class="empty-state" style="text-align:center; padding: 30px;">
+                <i class="fas fa-folder-open" style="font-size:24px; color:var(--text-muted); margin-bottom:10px;"></i>
+                <p>No activity found for this filter.</p>
+            </div>`;
+        return;
+    }
+
     let canvasHtml = `<div style="display:flex; flex-direction:column; gap:16px; width:100%;">`;
-    mockDashboardData.activities.forEach(log => {
+    activitiesToRender.forEach(log => {
         canvasHtml += `
             <div style="display:flex; align-items:flex-start; gap:12px; font-size:14px; border-bottom: 1px solid var(--border-color); padding-bottom:12px;">
                 <div style="color:${log.color}; width:24px; text-align:center; font-size:16px;"><i class="fas ${log.icon}"></i></div>
@@ -225,12 +298,30 @@ function renderActivityPanel() {
     activityBox.innerHTML = canvasHtml;
 }
 
-function renderAppointmentsPanel() {
+function renderAppointmentsPanel(filterValue = 'today') {
     const appointmentsBox = document.getElementById('today-appointments-box');
     if (!appointmentsBox) return;
 
+    let filteredAppointments = mockDashboardData.appointments;
+
+    if (filterValue === 'today') {
+        const systemDateStr = new Date().toISOString().split('T')[0];
+        filteredAppointments = filteredAppointments.filter(appt => {
+            return !appt.rawDate || appt.rawDate === systemDateStr || appt.scope.includes(systemDateStr);
+        });
+    }
+
+    if (filteredAppointments.length === 0) {
+        appointmentsBox.innerHTML = `
+            <div class="empty-state" style="text-align:center; padding: 30px;">
+                <i class="fas fa-calendar-check" style="font-size:24px; color:var(--text-muted); margin-bottom:10px;"></i>
+                <p>No appointments match the current filter parameters.</p>
+            </div>`;
+        return;
+    }
+
     let canvasHtml = `<div style="display:flex; flex-direction:column; gap:16px; width:100%;">`;
-    mockDashboardData.appointments.forEach(sched => {
+    filteredAppointments.forEach(sched => {
         canvasHtml += `
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:14px; border-bottom: 1px solid var(--border-color); padding-bottom:12px; gap:10px;">
                 <div style="text-align:left;">
@@ -278,7 +369,9 @@ function setupDropdownModules() {
     if (searchInput && searchPanel) {
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
-            notifPanel.style.display = "none"; // Close neighbor layer
+            notifPanel.style.display = "none";
+            
+            e.target.classList.remove('error-border');
 
             if (!query) {
                 searchPanel.style.display = "none";
@@ -304,8 +397,6 @@ function setupDropdownModules() {
             }
             searchPanel.style.display = "flex";
         });
-
-        // Retain dropdown visible while interacting inside search boundary box
         searchInput.addEventListener('click', (e) => e.stopPropagation());
     }
     document.addEventListener('click', () => {
@@ -317,7 +408,6 @@ function setupDropdownModules() {
 function setupRoutingActions() {
     const viewAllBtn = document.getElementById('btn-view-all-activity');
     const viewCalendarBtn = document.getElementById('btn-view-calendar');
-    const logoutBtn = document.getElementById('logout-btn');
 
     if (viewAllBtn) {
         viewAllBtn.addEventListener('click', () => {
@@ -330,11 +420,67 @@ function setupRoutingActions() {
             window.location.href = "../social_wellness/index.html";
         });
     }
+}
 
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.location.href = "../auth/index.html";
+function initCharts() {
+    const regCtx = document.getElementById('registrationChart');
+    if (regCtx) {
+        new Chart(regCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Registrations',
+                    data: [15, 28, 42, 68, 85, 110], 
+                    borderColor: '#1A6B3B', 
+                    backgroundColor: 'rgba(26, 107, 59, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#E5E7EB' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    const statCtx = document.getElementById('statusChart');
+    if (statCtx) {
+        new Chart(statCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Approved', 'Pending', 'Rejected'],
+                datasets: [{
+                    data: [75, 15, 10], 
+                    backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
+                    borderWidth: 0,
+                    cutout: '65%' 
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, 
+                layout: {
+                    padding: 20 
+                },
+                plugins: {
+                    legend: { 
+                        position: 'right', 
+                        labels: { 
+                            boxWidth: 12, 
+                            font: { size: 11, weight: '500' }, 
+                            color: '#374151'
+                        } 
+                    }
+                }
+            }
         });
     }
 }

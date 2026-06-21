@@ -1,16 +1,14 @@
-const API_BASE = window.API_BASE;
+const API_BASE = window.API_BASE || '';
 
-// FOR DEMO PURPOSES
+// REVISION: Added Track Numbers to appointments
 let mockAppointmentsData = [
-    { id: "apt_1", date: "2026-06-05", time: "09:30 AM", patient: "JUAN DELA CRUZ", doctor: "Dr. Maria Santos", purpose: "Hypertension Routine Follow-up" },
-    { id: "apt_2", date: "2026-06-11", time: "02:00 PM", patient: "TOMAS AQUINO", doctor: "Dr. Alan Diaz", purpose: "Asthma Nebulization Evaluation" },
-    { id: "apt_3", date: "2026-06-15", time: "10:00 AM", patient: "ELENA SANTOS", doctor: "Dr. Elena Abad", purpose: "Diabetic Glucose Fasting Review" },
-    { id: "apt_4", date: "2026-06-15", time: "03:15 PM", patient: "CLARA REYES", doctor: "Dr. Maria Santos", purpose: "General Physical Checkup" }
+    { id: "apt_1", trackNumber: "APPT-333236-3824", date: "2026-06-05", time: "09:30 AM", patient: "JUAN DELA CRUZ", doctor: "Dr. Maria Santos", purpose: "Hypertension Routine Follow-up" },
+    { id: "apt_2", trackNumber: "APPT-902144-1188", date: "2026-06-11", time: "02:00 PM", patient: "TOMAS AQUINO", doctor: "Dr. Alan Diaz", purpose: "Asthma Nebulization Evaluation" },
+    { id: "apt_3", trackNumber: "APPT-773121-5502", date: "2026-06-15", time: "10:00 AM", patient: "ELENA SANTOS", doctor: "Dr. Elena Abad", purpose: "Diabetic Glucose Fasting Review" },
+    { id: "apt_4", trackNumber: "APPT-889022-6631", date: "2026-06-15", time: "03:15 PM", patient: "CLARA REYES", doctor: "Dr. Maria Santos", purpose: "General Physical Checkup" }
 ];
 
-// UPDATED: Added contact, hours, and isActive flags
 let mockProvidersDirectory = [
-
     { id: "prov_1", name: "Dr. Maria Santos", type: "Primary Care", location: "Purok 2 Health Center Annex", contact: "0917-111-2222", hours: "8:00 AM - 5:00 PM", isActive: true, status: "Active" },
     { id: "prov_2", name: "Dr. Alan Diaz", type: "Dental", location: "Barangay Central Dental Clinic", contact: "0918-333-4444", hours: "9:00 AM - 4:00 PM", isActive: true, status: "Active" },
     { id: "prov_3", name: "Dr. Elena Abad", type: "Optical", location: "Purok 4 Eyecare Station", contact: "0922-555-6666", hours: "10:00 AM - 3:00 PM", isActive: false, status: "Inactive" },
@@ -30,11 +28,8 @@ function getAdminToken() {
 }
 
 function getAdminUser() {
-    try {
-        return JSON.parse(localStorage.getItem('barangay_admin_user') || 'null') || null;
-    } catch (e) {
-        return null;
-    }
+    try { return JSON.parse(localStorage.getItem('barangay_admin_user') || 'null') || null; } 
+    catch (e) { return null; }
 }
 
 function checkAdminAuth() {
@@ -55,7 +50,7 @@ function populateAdminName(selector = 'auth-admin-name') {
     const adminNameEl = document.getElementById(selector);
     const adminUser = getAdminUser();
     if (adminNameEl) {
-        adminNameEl.textContent = adminUser?.fullName || adminUser?.email || 'Admin User';
+        adminNameEl.textContent = adminUser?.fullName || adminUser?.email || 'admin@barangay.gov.ph';
     }
 }
 
@@ -87,6 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupTabSwitchingLogic();
     initializeCalendarEngine();
     setupProviderDirectoryLogic();
+    setupRealTimeValidation();
     setupModalFormActionLayer();
     setupRoutingRedirects();
     setupLogoutButton();
@@ -99,8 +95,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     selectedCalendarDayString = `${year}-${month}-${day}`;
     
     await loadAppointmentsFromApi();
+    renderAppointmentMetrics();
     renderCalendarGridCanvas();
-    renderFilteredAppointmentsList();
     renderProviderDirectoryGrid();
 });
 
@@ -117,6 +113,7 @@ async function loadAppointmentsFromApi() {
         if (Array.isArray(data) && data.length > 0) {
             mockAppointmentsData = data.map(item => ({
                 id: item.id || `apt_${Date.now()}`,
+                trackNumber: item.trackNumber || item.referenceCode || `APPT-${Math.floor(100000 + Math.random() * 900000)}-${Math.floor(1000 + Math.random() * 9000)}`,
                 date: item.date || '',
                 time: item.time || '',
                 patient: item.fullName || item.patient || 'Untitled',
@@ -129,6 +126,75 @@ async function loadAppointmentsFromApi() {
     }
 }
 
+// REVISION: Advanced UI/UX Form Validation Handlers (Adds Icons & trims)
+function triggerFieldError(inputId, msgId, customMsg = null) {
+    const inputEl = document.getElementById(inputId);
+    const msgEl = document.getElementById(msgId);
+    if(inputEl) inputEl.classList.add('input-error');
+    if(msgEl) {
+        // Strip previous html and prepend the icon securely
+        const textToDisplay = customMsg || msgEl.innerText.replace(/<[^>]*>?/gm, '');
+        msgEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${textToDisplay}`;
+        msgEl.classList.add('show');
+    }
+}
+
+function clearFieldErrors() {
+    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+    document.querySelectorAll('.validation-msg').forEach(el => el.classList.remove('show'));
+}
+
+function setupRealTimeValidation() {
+    const inputs = document.querySelectorAll('.val-input');
+    inputs.forEach(input => {
+        // Validation Reset on Input
+        input.addEventListener('input', (e) => {
+            e.target.classList.remove('input-error');
+            const msgObj = document.getElementById(`msg-${e.target.id.replace('new-', '')}`);
+            if (msgObj) msgObj.classList.remove('show');
+            
+            // Format phone numbers dynamically
+            if (e.target.id === 'new-prov-contact') {
+                let val = e.target.value.replace(/\D/g, ''); 
+                if (val.length > 4 && val.length <= 7) {
+                    val = val.slice(0, 4) + '-' + val.slice(4);
+                } else if (val.length > 7) {
+                    val = val.slice(0, 4) + '-' + val.slice(4, 7) + '-' + val.slice(7, 11);
+                }
+                e.target.value = val;
+            }
+        });
+
+        // Whitespace Trimming on Blur
+        input.addEventListener('blur', (e) => {
+            e.target.value = e.target.value.trim();
+        });
+    });
+}
+
+// REVISION: Metrics Logic Implementation
+function renderAppointmentMetrics() {
+    let totalAppointments = mockAppointmentsData.length;
+    let activeRefCodes = 0;
+    
+    // Calculate active references (e.g. appointments happening today or in the future)
+    const systemCurrentDateStr = new Date().toISOString().split('T')[0]; 
+    mockAppointmentsData.forEach(apt => {
+        if (apt.date >= systemCurrentDateStr) {
+            activeRefCodes++;
+        }
+    });
+
+    let activeProviders = mockProvidersDirectory.filter(p => p.isActive).length;
+
+    const totalEl = document.getElementById('metric-total-appt');
+    const activeRefEl = document.getElementById('metric-active-ref');
+    const activeProvEl = document.getElementById('metric-active-prov');
+
+    if (totalEl) totalEl.textContent = totalAppointments.toLocaleString();
+    if (activeRefEl) activeRefEl.textContent = activeRefCodes.toLocaleString();
+    if (activeProvEl) activeProvEl.textContent = activeProviders.toLocaleString();
+}
 
 function setupMobileMenuToggle() {
     const burgerBtn = document.getElementById('menu-toggle');
@@ -148,7 +214,6 @@ function setupMobileMenuToggle() {
     }
 }
 
-// Tab View Switching Logic
 function setupTabSwitchingLogic() {
     const tabs = document.querySelectorAll('.module-tabs .tab-btn');
     tabs.forEach(tab => {
@@ -194,16 +259,41 @@ function initializeCalendarEngine() {
     }
     if (todayBtn) {
         todayBtn.addEventListener('click', () => {
-            currentCalendarDate = new Date(); // Today
+            currentCalendarDate = new Date(); 
             const year = currentCalendarDate.getFullYear();
             const month = String(currentCalendarDate.getMonth() + 1).padStart(2, '0');
             const day = String(currentCalendarDate.getDate()).padStart(2, '0');
             selectedCalendarDayString = `${year}-${month}-${day}`;
             renderCalendarGridCanvas();
-            renderFilteredAppointmentsList();
         });
     }
 }
+
+// REVISION: Custom UI Modal for Event Details (Replaces Alert)
+window.openAppointmentDetails = function(trackNumber, patient, doctor, time, purpose) {
+    const modalOverlay = document.getElementById('custom-modal-overlay');
+    const modal = document.getElementById('appointment-details-modal');
+    const body = document.getElementById('appt-details-body');
+    
+    if (modalOverlay && modal && body) {
+        body.innerHTML = `
+            <div style="display:flex; flex-direction:column; gap: 8px;">
+                <p><strong>Reference Code:</strong> <span style="color:var(--primary-green); font-family:monospace;">${trackNumber}</span></p>
+                <p><strong>Patient Name:</strong> ${patient}</p>
+                <p><strong>Attending Doctor:</strong> ${doctor}</p>
+                <p><strong>Schedule Time:</strong> ${time}</p>
+                <p><strong>Purpose of Visit:</strong> ${purpose}</p>
+            </div>
+        `;
+        modalOverlay.style.display = 'block';
+        modal.style.display = 'flex';
+    }
+};
+
+window.closeApptModal = function() {
+    document.getElementById('custom-modal-overlay').style.display = 'none';
+    document.getElementById('appointment-details-modal').style.display = 'none';
+};
 
 function renderCalendarGridCanvas() {
     const canvas = document.getElementById('calendar-grid');
@@ -229,74 +319,46 @@ function renderCalendarGridCanvas() {
 
     for (let i = 0; i < firstDayIndex; i++) {
         let dayNum = totalDaysInPrevMonth - firstDayIndex + 1 + i;
-        canvas.insertAdjacentHTML('beforeend', `<div class="calendar-day-node other-month">${dayNum}</div>`);
+        canvas.insertAdjacentHTML('beforeend', `<div class="calendar-day-node other-month"><span class="day-number">${dayNum}</span></div>`);
     }
 
     for (let dayNum = 1; dayNum <= totalDaysInMonth; dayNum++) {
         const matchingStringDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
-        let hasEvent = false;
-        if (typeof mockAppointmentsData !== 'undefined' && mockAppointmentsData.length > 0) {
-            hasEvent = mockAppointmentsData.some(a => a.date === matchingStringDate);
-        }
         
-        let hasEventClass = hasEvent ? "has-event" : "";
+        const dayMatches = typeof mockAppointmentsData !== 'undefined' ? mockAppointmentsData.filter(a => a.date === matchingStringDate) : [];
         let activeSelectionClass = (matchingStringDate === selectedCalendarDayString) ? "active-selected" : "";
 
+        let eventsHtml = '';
+        dayMatches.forEach(apt => {
+            // REVISION: Implemented Custom Modal Trigger instead of Native Alert
+            eventsHtml += `
+                <div class="calendar-event-pill" title="Ref: ${apt.trackNumber} | Patient: ${apt.patient} | Doctor: ${apt.doctor}" onclick="event.stopPropagation(); window.openAppointmentDetails('${apt.trackNumber}', '${apt.patient}', '${apt.doctor}', '${apt.time}', '${apt.purpose}')">
+                    <span class="event-time">${apt.time}</span>
+                    <span class="event-name"><span style="opacity:0.7;">[${apt.trackNumber.split('-')[1]}]</span> ${apt.patient}</span>
+                </div>`;
+        });
+
         const cellElement = document.createElement('div');
-        cellElement.className = `calendar-day-node ${hasEventClass} ${activeSelectionClass}`;
-        cellElement.innerHTML = `<span>${dayNum}</span>`;
+        cellElement.className = `calendar-day-node ${activeSelectionClass}`;
+        cellElement.innerHTML = `
+            <span class="day-number">${dayNum}</span>
+            <div class="day-events-container">${eventsHtml}</div>
+        `;
 
         cellElement.addEventListener('click', () => {
             selectedCalendarDayString = matchingStringDate;
             document.querySelectorAll('.calendar-day-node').forEach(node => node.classList.remove('active-selected'));
             cellElement.classList.add('active-selected');
-            renderFilteredAppointmentsList();
         });
 
         canvas.appendChild(cellElement);
     }
 }
 
-function renderFilteredAppointmentsList() {
-    const listContainer = document.getElementById('appointment-list-container');
-    const titleLabel = document.getElementById('selected-date-title');
-    if (!listContainer) return;
-
-    if (titleLabel) {
-        const options = { month: 'long', day: 'numeric', year: 'numeric' };
-        const parsedDisplayDate = new Date(selectedCalendarDayString);
-        titleLabel.textContent = `Appointments for ${isNaN(parsedDisplayDate) ? selectedCalendarDayString : parsedDisplayDate.toLocaleDateString('en-US', options)}`;
-    }
-
-    const dayMatches = mockAppointmentsData.filter(a => a.date === selectedCalendarDayString);
-    listContainer.innerHTML = '';
-
-    if (dayMatches.length === 0) {
-        listContainer.innerHTML = `<div class="table-empty-state" style="margin-top: 50px;"><i class="far fa-calendar-times" style="display:block; margin-bottom:8px; opacity:0.4; font-size: 24px;"></i>No scheduled clinical consults logged for this timeline.</div>`;
-        return;
-    }
-    dayMatches.forEach(apt => {
-        const cardHTML = `
-            <div class="appointment-card">
-                <div class="apt-time">
-                    ${apt.time.split(' ')[0]}
-                    <span>${apt.time.split(' ')[1] || ''}</span>
-                </div>
-                <div class="apt-details" style="text-align: left;">
-                    <h4>${apt.patient}</h4>
-                    <p><i class="fas fa-user-md" style="margin-right:4px;"></i> ${apt.doctor} — <span style="color:var(--primary-green); font-weight:500;">${apt.purpose}</span></p>
-                </div>
-            </div>
-        `;
-        listContainer.insertAdjacentHTML('beforeend', cardHTML);
-    });
-}
-
 function setupProviderDirectoryLogic() {
     const searchInput = document.getElementById('search-provider-input');
     const typeSelect = document.getElementById('filter-provider-type-select');
-    const statusSelect = document.getElementById('filter-provider-status-select'); // NEW
-    const triggerFilterBtn = document.getElementById('btn-trigger-filter-action');
+    const statusSelect = document.getElementById('filter-provider-status-select'); 
 
     const handleFilterExecution = () => {
         if(typeSelect) targetedProviderTypeFilter = typeSelect.value;
@@ -312,19 +374,27 @@ function setupProviderDirectoryLogic() {
         });
     }
 
-    if (triggerFilterBtn) triggerFilterBtn.addEventListener('click', handleFilterExecution);
     if (typeSelect) typeSelect.addEventListener('change', handleFilterExecution);
     if (statusSelect) statusSelect.addEventListener('change', handleFilterExecution);
 }
 
-// NEW: Global status toggler connected to checkboxes
+// REVISION: Implemented DOM Success feedback instead of Native Alert
 window.toggleProviderStatus = function(provId) {
     const provider = mockProvidersDirectory.find(p => p.id === provId);
     if(provider) {
         provider.isActive = !provider.isActive;
         provider.status = provider.isActive ? "Active" : "Inactive";
-        alert(`System Update: ${provider.name} is now marked as ${provider.status}.`);
-        renderProviderDirectoryGrid(); // Refresh to apply UI and filter updates
+        
+        const msgBox = document.getElementById('global-action-msg');
+        if (msgBox) {
+            msgBox.innerHTML = `<i class="fas fa-check-circle"></i> <strong>${provider.name}</strong> is now marked as ${provider.status}.`;
+            msgBox.className = 'validation-msg show text-success';
+            msgBox.style.color = '#10b981';
+            setTimeout(() => msgBox.classList.remove('show'), 4000);
+        }
+
+        renderProviderDirectoryGrid(); 
+        renderAppointmentMetrics(); // Refresh tracking counters
     }
 };
 
@@ -339,8 +409,6 @@ function renderProviderDirectoryGrid() {
     const filteredArray = mockProvidersDirectory.filter(prov => {
         const matchesSearch = !query || prov.name.toLowerCase().includes(query) || prov.location.toLowerCase().includes(query);
         const matchesType = (targetedProviderTypeFilter === "All Types" || prov.type === targetedProviderTypeFilter);
-        
-        // NEW Status filtering logic
         const matchesStatus = (targetedProviderStatusFilter === "All Statuses" || 
                               (targetedProviderStatusFilter === "Active" && prov.isActive) ||
                               (targetedProviderStatusFilter === "Inactive" && !prov.isActive));
@@ -367,9 +435,9 @@ function renderProviderDirectoryGrid() {
     }
 
     paginatedSlice.forEach(p => {
-        let colorTheme = "#1A6B3B"; // Emerald hex
-        if (p.type === "Dental") colorTheme = "#2563EB"; // Blue
-        if (p.type === "Optical") colorTheme = "#D97706"; // Amber
+        let colorTheme = "#1A6B3B"; 
+        if (p.type === "Dental") colorTheme = "#2563EB"; 
+        if (p.type === "Optical") colorTheme = "#D97706"; 
 
         const cardHTML = `
             <div class="provider-card" style="text-align: left;">
@@ -441,6 +509,7 @@ function renderDirectoryPagination(totalPages) {
         });
         container.appendChild(numBtn);
     }
+    
     const nextArrow = document.createElement('button');
     nextArrow.className = 'page-num';
     nextArrow.innerHTML = `<i class="fas fa-chevron-right"></i>`;
@@ -462,9 +531,11 @@ function setupModalFormActionLayer() {
     const closeBtnX = document.getElementById('close-prov-modal-btn');
     const cancelBtn = document.getElementById('cancel-prov-modal-btn');
     const saveBtn = document.getElementById('save-prov-btn'); 
+    const saveBtnText = document.getElementById('save-prov-text'); 
 
     if (openBtn && modal) {
         openBtn.addEventListener('click', () => {
+            clearFieldErrors();
             if (modalOverlay) modalOverlay.style.display = "block";
             modal.style.display = "flex";
         });
@@ -473,6 +544,7 @@ function setupModalFormActionLayer() {
     const hideAndResetModalClosure = () => {
         if (modalOverlay) modalOverlay.style.display = "none";
         if (modal) modal.style.display = "none";
+        clearFieldErrors();
         document.getElementById('new-prov-name').value = "";
         document.getElementById('new-prov-type').value = "Primary Care";
         document.getElementById('new-prov-location').value = "";
@@ -486,6 +558,8 @@ function setupModalFormActionLayer() {
     if (saveBtn) {
         saveBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            clearFieldErrors();
+            let isFormValid = true;
             
             const nameInput = document.getElementById('new-prov-name');
             const typeInput = document.getElementById('new-prov-type');
@@ -499,66 +573,82 @@ function setupModalFormActionLayer() {
             const contact = contactInput.value.trim();
             const hours = hoursInput.value.trim();
 
-            // --- STRICT VALIDATION RULES ---
             const textRegex = /^[A-Za-z0-9Ññ\s\-\.,'&()]+$/;
             const phoneRegex = /^(?:\+63|0)[0-9\-\s]{9,13}$/;
 
-            // 1. Name Validation
+            // Strict Visual Validations (Triggers Red Borders and Messaging)
             if (!name || name.length < 3) {
-                alert("Action Blocked: Provider Name must be at least 3 characters long.");
-                nameInput.focus();
-                return;
-            }
-            if (!textRegex.test(name)) {
-                alert("Action Blocked: Provider Name contains invalid special characters.");
-                nameInput.focus();
-                return;
+                triggerFieldError('new-prov-name', 'msg-prov-name', "Provider name must be at least 3 characters.");
+                isFormValid = false;
+            } else if (!textRegex.test(name)) {
+                triggerFieldError('new-prov-name', 'msg-prov-name', "Invalid special characters detected.");
+                isFormValid = false;
             }
 
-            // 2. Contact Validation
             if (!contact || !phoneRegex.test(contact)) {
-                alert("Action Blocked: A valid regional contact number is required (e.g., 0917-123-4567).");
-                contactInput.focus();
-                return;
+                triggerFieldError('new-prov-contact', 'msg-prov-contact', "Valid regional contact number required.");
+                isFormValid = false;
             }
 
-            // 3. Location Validation
             if (!location || location.length < 5) {
-                alert("Action Blocked: Location/Address must be specified properly (min 5 characters).");
-                locInput.focus();
-                return;
-            }
-            if (!textRegex.test(location)) {
-                alert("Action Blocked: Location contains invalid special characters.");
-                locInput.focus();
-                return;
+                triggerFieldError('new-prov-location', 'msg-prov-location', "Location must be at least 5 characters.");
+                isFormValid = false;
+            } else if (!textRegex.test(location)) {
+                triggerFieldError('new-prov-location', 'msg-prov-location', "Invalid special characters detected.");
+                isFormValid = false;
             }
 
-            const newGeneratedProvider = {
-                id: "prov_" + Date.now(),
-                name: name,
-                type: type,
-                location: location,
-                contact: contact,
-                hours: hours || "Standard Hours",
-                isActive: true,
-                status: "Active"
-            }
+            if (!isFormValid) return; 
 
-            mockProvidersDirectory.unshift(newGeneratedProvider);
-            directoryCurrentPage = 1;
-            renderProviderDirectoryGrid();
-            hideAndResetModalClosure();
+            // Processing Spinner (Double Submit Locking)
+            const originalText = saveBtnText.innerText;
+            saveBtnText.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
+            saveBtn.disabled = true;
+
+            setTimeout(() => {
+                const newGeneratedProvider = {
+                    id: "prov_" + Date.now(),
+                    name: name,
+                    type: type,
+                    location: location,
+                    contact: contact,
+                    hours: hours || "Standard Hours",
+                    isActive: true,
+                    status: "Active"
+                }
+
+                mockProvidersDirectory.unshift(newGeneratedProvider);
+                directoryCurrentPage = 1;
+                
+                renderProviderDirectoryGrid();
+                renderAppointmentMetrics(); // Refresh tracking counters
+                
+                // Add positive feedback string globally
+                const msgBox = document.getElementById('global-action-msg');
+                if (msgBox) {
+                    msgBox.innerHTML = `<i class="fas fa-check-circle"></i> Provider successfully added to directory.`;
+                    msgBox.className = 'validation-msg show text-success';
+                    msgBox.style.color = '#10b981';
+                    setTimeout(() => msgBox.classList.remove('show'), 4000);
+                }
+                
+                saveBtnText.innerHTML = "Provider Saved";
+                setTimeout(() => {
+                    saveBtnText.innerHTML = originalText;
+                    saveBtn.disabled = false;
+                    hideAndResetModalClosure();
+                }, 800);
+
+            }, 800);
         });
     }
 }
 
 function setupRoutingRedirects() {
-    const viewAllAptsBtn = document.getElementById('btn-view-all-appointments');
     const logoutBtn = document.getElementById('logout-btn');
-    if (viewAllAptsBtn) {
-        viewAllAptsBtn.addEventListener('click', () => {
-            window.location.href = "../social_wellness/index.html";
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            window.location.href = "../auth/index.html";
         });
     }
 }

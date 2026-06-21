@@ -65,7 +65,7 @@ function populateAdminName(selector = 'auth-admin-name') {
     const adminNameEl = document.getElementById(selector);
     const adminUser = getAdminUser();
     if (adminNameEl) {
-        adminNameEl.textContent = adminUser?.fullName || adminUser?.email || 'Admin User';
+        adminNameEl.textContent = adminUser?.fullName || adminUser?.email || 'admin@barangay.gov.ph';
     }
 }
 
@@ -138,7 +138,6 @@ async function loadEventRegistrationsFromApi() {
     }
 
     try {
-        console.log('[admin social] fetching event registrations, token present:', !!token);
         const response = await fetch(`${API_BASE}/social/registrations`, {
             headers: {
                 Authorization: 'Bearer ' + token,
@@ -187,7 +186,6 @@ async function loadEventRegistrationsFromApi() {
             }
         });
 
-        console.log(`[admin social] loaded ${eventRegistrations.length} registrations`, eventRegistrations);
     } catch (error) {
         console.warn('Could not load event registrations from API:', error);
         registrationsFetchError = error.message || 'Unable to load event registrations.';
@@ -222,7 +220,6 @@ async function loadEventsFromApi() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     if (!checkAdminAuth()) return;
-    console.log('[admin social] admin token present at DOMContentLoaded:', !!getAdminToken());
     setupMobileMenuBurger();
     setupTabPillFiltering();
     setupAdvancedControlsAndSorting();
@@ -368,6 +365,7 @@ function applyFiltersAndRenderEventGridCanvas() {
         let statusBadgeClass = String(statusToShow).toLowerCase() === 'upcoming' ? 'upcoming' : (String(statusToShow).toLowerCase() === 'ongoing' ? 'ongoing' : 'completed');
         let completionPercent = Math.min(100, Math.round((evt.totalRsvps / (evt.targetSlots || 100)) * 100));
 
+        // REVISION: Passed 'this' element context into the onclick handler to allow inline DOM changes
         const cardHTML = `
             <div class="event-card" style="cursor: pointer;" onclick="window.inspectEventAttendance('${evt.id}')">
                 <div class="event-image-wrapper">
@@ -393,7 +391,7 @@ function applyFiltersAndRenderEventGridCanvas() {
                         </div>
                     </div>
                     <div class="event-actions">
-                        <button class="btn-outline" style="flex:1;" onclick="event.stopPropagation(); window.triggerInlineMockRsvpIncrement('${evt.id}')"><i class="fas fa-user-plus"></i> Join RSVP</button>
+                        <button class="btn-outline" style="flex:1;" onclick="event.stopPropagation(); window.triggerInlineMockRsvpIncrement('${evt.id}', this)"><i class="fas fa-user-plus"></i> Join RSVP</button>
                     </div>
                 </div>
             </div>`;
@@ -401,12 +399,24 @@ function applyFiltersAndRenderEventGridCanvas() {
     });
 }
 
-window.triggerInlineMockRsvpIncrement = function(eventId) {
+// REVISION: Uses the button element to show an inline error instead of an alert
+window.triggerInlineMockRsvpIncrement = function(eventId, btnElement) {
     const targetEvent = localEventsCache.find(e => e.id === eventId);
     if (!targetEvent) return;
 
     if (targetEvent.totalRsvps >= targetEvent.targetSlots) {
-        alert("This event has reached maximum target enrollment boundaries.");
+        if (btnElement) {
+            const originalHTML = btnElement.innerHTML;
+            btnElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> Event Full`;
+            btnElement.classList.add('error-border', 'text-danger');
+            btnElement.style.color = '#ef4444';
+            
+            setTimeout(() => {
+                btnElement.innerHTML = originalHTML;
+                btnElement.classList.remove('error-border', 'text-danger');
+                btnElement.style.color = '';
+            }, 2000);
+        }
         return;
     }
     targetEvent.totalRsvps++;
@@ -434,6 +444,19 @@ function setupModalFormActionLayer() {
     const cancelBtn = document.getElementById('cancel-event-modal-btn');
     const saveBtn = document.getElementById('save-event-btn');
 
+    // Attach sanitization trim on blur
+    document.querySelectorAll('.val-input').forEach(input => {
+        input.addEventListener('blur', (e) => { e.target.value = e.target.value.trim(); });
+        input.addEventListener('input', (e) => {
+            e.target.classList.remove('error-border');
+            const msgEl = document.getElementById(`msg-${e.target.id}`);
+            if(msgEl) {
+                msgEl.classList.remove('show');
+                msgEl.classList.add('hidden');
+            }
+        });
+    });
+
     if (openBtn && modal) {
         openBtn.addEventListener('click', () => {
             if (modalOverlay) modalOverlay.style.display = "block";
@@ -449,6 +472,16 @@ function setupModalFormActionLayer() {
         document.getElementById('modal-event-time').value = "";
         document.getElementById('modal-event-location').value = "";
         document.getElementById('modal-event-slots').value = "100";
+
+        // Reset any visual errors
+        document.querySelectorAll('.val-input').forEach(input => {
+            input.classList.remove('error-border');
+            const msgEl = document.getElementById(`msg-${input.id}`);
+            if (msgEl) {
+                msgEl.classList.remove('show');
+                msgEl.classList.add('hidden');
+            }
+        });
     };
 
     if (closeBtnX) closeBtnX.addEventListener('click', hideAndResetModalClosure);
@@ -470,63 +503,66 @@ function setupModalFormActionLayer() {
             const loc = locInput.value.trim();
             const slots = parseInt(slotsInput.value);
 
+            let hasErrors = false;
+
+            // Helper function for inline DOM errors instead of alerts
+            const displayError = (inputId, text) => {
+                const inputEl = document.getElementById(inputId);
+                const msgEl = document.getElementById(`msg-${inputId}`);
+                if (inputEl && msgEl) {
+                    inputEl.classList.add('error-border');
+                    msgEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${text}`;
+                    msgEl.classList.remove('hidden');
+                    msgEl.classList.add('show');
+                    hasErrors = true;
+                }
+            };
+
             // --- 1. TITLE VALIDATION ---
             const textRegex = /^[A-Za-z0-9Ññ\s\-\.,'&()]+$/;
             if (!title || title.length < 5) {
-                alert("Action Blocked: Event Title must be at least 5 characters long.");
-                titleInput.focus();
-                return;
-            }
-            if (!textRegex.test(title)) {
-                alert("Action Blocked: Event Title contains invalid special characters.");
-                titleInput.focus();
-                return;
+                displayError('modal-event-title', 'Title must be at least 5 characters long.');
+            } else if (!textRegex.test(title)) {
+                displayError('modal-event-title', 'Contains invalid special characters.');
             }
 
             // --- 2. DATE VALIDATION ---
             if (!date) {
-                alert("Action Blocked: You must select an Event Date.");
-                dateInput.focus();
-                return;
-            }
-            
-            // Generate string comparison to prevent past dates based on local timeline
-            const systemCurrentDateStr = new Date().toISOString().split('T')[0]; 
-            if (date < systemCurrentDateStr) {
-                alert("Action Blocked: You cannot schedule an event in the past.");
-                dateInput.focus();
-                return;
+                displayError('modal-event-date', 'You must select an Event Date.');
+            } else {
+                const systemCurrentDateStr = new Date().toISOString().split('T')[0]; 
+                if (date < systemCurrentDateStr) {
+                    displayError('modal-event-date', 'Cannot schedule an event in the past.');
+                }
             }
 
             // --- 3. TIME VALIDATION ---
             if (!time) {
-                alert("Action Blocked: You must assign a start time for the event.");
-                timeInput.focus();
-                return;
+                displayError('modal-event-time', 'Assign a start time.');
             }
 
             // --- 4. LOCATION VALIDATION ---
             if (!loc || loc.length < 5) {
-                alert("Action Blocked: Venue / Location must be specified properly (min 5 characters).");
-                locInput.focus();
-                return;
-            }
-            if (!textRegex.test(loc)) {
-                alert("Action Blocked: Venue / Location contains invalid special characters.");
-                locInput.focus();
-                return;
+                displayError('modal-event-location', 'Location must be min 5 characters.');
+            } else if (!textRegex.test(loc)) {
+                displayError('modal-event-location', 'Contains invalid special characters.');
             }
 
             // --- 5. TARGET CAPACITY VALIDATION ---
             if (!slots || isNaN(slots) || slots < 1 || slots > 5000) {
-                alert("Action Blocked: Target RSVPs must be a realistic positive number (between 1 and 5000).");
-                slotsInput.focus();
-                return;
+                displayError('modal-event-slots', 'Must be a number between 1 and 5000.');
             }
+
+            // Block execution if validation fails
+            if (hasErrors) return;
+
+            // --- REVISION: Double submission locking ---
+            const originalBtnHTML = saveBtn.innerHTML;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
 
             // --- STATUS & TYPE CALCULATION ---
             let statusFlag = determineStatusFromDate(date);
-
             let typeTag = "Wellness";
             if (title.toLowerCase().includes("med") || title.toLowerCase().includes("health") || title.toLowerCase().includes("clinic")) typeTag = "Medical Assistance";
             else if (title.toLowerCase().includes("meet") || title.toLowerCase().includes("assembly") || title.toLowerCase().includes("seminar")) typeTag = "Meeting";
@@ -570,19 +606,22 @@ function setupModalFormActionLayer() {
                         newGeneratedEventObj.scheduleDate = created.date || newGeneratedEventObj.scheduleDate;
                         newGeneratedEventObj.timeScope = created.time || newGeneratedEventObj.timeScope;
                         newGeneratedEventObj.targetSlots = created.capacity || newGeneratedEventObj.targetSlots;
-                    } else {
-                        console.warn('Create event API failed:', await response.text());
                     }
                 } catch (error) {
                     console.warn('Social event create request failed:', error);
                 }
             }
 
-            localEventsCache.unshift(newGeneratedEventObj); 
-            
-            recalculateStatusPillTabCounts();
-            applyFiltersAndRenderEventGridCanvas();
-            hideAndResetModalClosure();
+            // Simulate slight delay for the UI spinner to register properly
+            setTimeout(() => {
+                localEventsCache.unshift(newGeneratedEventObj); 
+                recalculateStatusPillTabCounts();
+                applyFiltersAndRenderEventGridCanvas();
+                
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalBtnHTML;
+                hideAndResetModalClosure();
+            }, 600);
         });
     }
 }

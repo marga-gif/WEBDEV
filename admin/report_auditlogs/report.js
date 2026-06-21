@@ -55,8 +55,13 @@ let currentPage = 1;
 const itemsPerPage = 10;
 let currentDropdownModuleFilter = "all";
 let globalSearchQueryText = "";
+let currentSort = { column: null, direction: 'none' }; 
 
-const API_BASE = window.API_BASE;
+const API_BASE = window.API_BASE || '';
+
+// --- CHART INSTANCES ---
+let docBarChartInstance = null;
+let moduleDoughnutChartInstance = null;
 
 function getAdminToken() {
   const storedAuth = JSON.parse(localStorage.getItem('barangay_admin_auth') || 'null');
@@ -76,7 +81,6 @@ function getAdminUser() {
   try {
     return JSON.parse(localStorage.getItem('barangay_admin_user') || 'null') || null;
   } catch (error) {
-    console.warn('Failed to parse stored admin user', error);
     return null;
   }
 }
@@ -102,7 +106,7 @@ function populateAdminName(selector = 'auth-admin-name') {
   const adminNameEl = document.getElementById(selector);
   const adminUser = getAdminUser();
   if (adminNameEl) {
-    adminNameEl.textContent = adminUser?.fullName || adminUser?.email || 'Admin User';
+    adminNameEl.textContent = adminUser?.fullName || adminUser?.email || 'admin@barangay.gov.ph';
   }
 }
 
@@ -116,7 +120,7 @@ async function loadAuditLogsFromApi() {
     });
     if (!res.ok) throw new Error('Failed to load audit logs');
     const data = await res.json();
-    if (Array.isArray(data)) mockAuditLogsCache = data.map(d => ({
+    if (Array.isArray(data) && data.length > 0) mockAuditLogsCache = data.map(d => ({
       time: d.createdAt || d.timestamp || d.time || '',
       admin: d.actorEmail || d.admin || d.actor || 'System',
       action: d.action || d.type || 'Action',
@@ -125,7 +129,7 @@ async function loadAuditLogsFromApi() {
       details: JSON.stringify(d.meta || d.details || {}).slice(0, 200),
     }));
   } catch (err) {
-    console.warn('Could not load audit logs from API:', err);
+    console.warn('Could not load audit logs from API. Using local cache.');
   }
 }
 
@@ -144,7 +148,7 @@ async function loadDashboardMetricsFromApi() {
       mockAnalyticsMetrics.verifiedAccounts = data.metrics.totalRegistered ? Math.max(0, data.metrics.totalRegistered - 94) : mockAnalyticsMetrics.verifiedAccounts;
     }
   } catch (err) {
-    console.warn('Could not load dashboard metrics', err);
+    console.warn('Could not load dashboard metrics');
   }
 }
 
@@ -154,20 +158,65 @@ document.addEventListener("DOMContentLoaded", () => {
     setupMobileMenuToggle();
     setupDropdownAndSearchFilters();
     setupExportCSVReportFeature();
-    setupManualLogFABEntry();
     setupLogoutButton();
     populateAdminName();
+
+    // Close headers naturally
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.dropdown-header')) {
+            document.querySelectorAll('.header-menu').forEach(menu => menu.classList.remove('show'));
+        }
+    });
 
     await loadAuditLogsFromApi();
     await loadDashboardMetricsFromApi();
 
     renderKPIMetricsCards();
-    renderAnalyticsBarChart();
+    renderChartJSAnalytics();
     applyFiltersAndRenderAuditTable();
   })();
 });
 
-// FIXED BURGER BUTTON LOGIC
+// REVISION: Header Interaction Protocol
+window.toggleHeaderMenu = function(menuId, event) {
+    event.stopPropagation();
+    document.querySelectorAll('.header-menu').forEach(menu => {
+        if (menu.id !== menuId) menu.classList.remove('show');
+    });
+    
+    const targetMenu = document.getElementById(menuId);
+    if (targetMenu) targetMenu.classList.toggle('show');
+};
+
+window.applyHeaderAction = function(type, key, value) {
+    if (type === 'sort') {
+        currentSort.column = value === 'none' ? null : key;
+        currentSort.direction = value;
+        
+        document.querySelectorAll('.dropdown-header .sort-icon').forEach(icon => {
+            if(!icon.parentElement.parentElement.classList.contains('scrollable-menu')) {
+                icon.className = 'fas fa-sort sort-icon';
+            }
+        });
+        
+        if (value !== 'none') {
+            const headersMap = { 'date': 'menu-date', 'admin': 'menu-admin' };
+            const menuId = headersMap[key];
+            if (menuId) {
+                const headerEl = document.getElementById(menuId).parentElement;
+                const icon = headerEl.querySelector('.sort-icon');
+                if (icon) icon.className = value === 'asc' ? 'fas fa-sort-up sort-icon' : 'fas fa-sort-down sort-icon';
+            }
+        }
+    } else if (type === 'filter') {
+        if (key === 'module') currentDropdownModuleFilter = value;
+    }
+    
+    document.querySelectorAll('.header-menu').forEach(menu => menu.classList.remove('show'));
+    currentPage = 1;
+    applyFiltersAndRenderAuditTable();
+};
+
 function setupMobileMenuToggle() {
   const burgerBtn = document.getElementById('menu-toggle');
   const sidebarMenu = document.getElementById('sidebar');
@@ -176,12 +225,6 @@ function setupMobileMenuToggle() {
     burgerBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       sidebarMenu.classList.toggle('mobile-visible');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (sidebarMenu.classList.contains('mobile-visible') && !sidebarMenu.contains(e.target) && e.target !== burgerBtn) {
-        sidebarMenu.classList.remove('mobile-visible');
-      }
     });
   }
 }
@@ -208,42 +251,71 @@ function renderKPIMetricsCards() {
   document.getElementById("kpi-verified-pct").innerText = `(${verifiedPercentage}%)`;
 }
 
-function renderAnalyticsBarChart() {
-  const chartContainer = document.getElementById("document-chart-container");
-  if (!chartContainer) return;
+// REVISION: Advanced Chart.js Rendering
+function renderChartJSAnalytics() {
+    // Top Documents Bar Chart
+    const docLabels = mockDocumentChartData.map(d => d.label);
+    const docData = mockDocumentChartData.map(d => d.value);
 
-  if (!mockDocumentChartData || mockDocumentChartData.length === 0) {
-    chartContainer.innerHTML = `<div class="table-empty-state">No analytical graph variables recorded inside system cache.</div>`;
-    return;
-  }
-  const maxVal = Math.max(...mockDocumentChartData.map((d) => d.value)) || 1;
-  let chartHTML = "";
+    const barCtx = document.getElementById('documentBarChart');
+    if (barCtx) {
+        if (docBarChartInstance) docBarChartInstance.destroy();
+        docBarChartInstance = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: docLabels,
+                datasets: [{
+                    label: 'Document Requests',
+                    data: docData,
+                    backgroundColor: '#1A6B3B',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+            }
+        });
+    }
 
-  mockDocumentChartData.forEach((item) => {
-    const heightPct = (item.value / maxVal) * 100;
-    chartHTML += `
-          <div class="chart-bar-group">
-              <span class="chart-val">${item.value}</span>
-              <div class="chart-bar" style="height: ${heightPct}%;"></div>
-              <span class="chart-label">${item.label}</span>
-          </div>
-      `;
-  });
-  chartContainer.innerHTML = chartHTML;
+    // Module Audit Distribution Doughnut
+    let moduleCounts = {};
+    mockAuditLogsCache.forEach(log => {
+        const mod = log.module || 'Unknown';
+        moduleCounts[mod] = (moduleCounts[mod] || 0) + 1;
+    });
+
+    const modLabels = Object.keys(moduleCounts);
+    const modData = Object.values(moduleCounts);
+    const modColors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#6B7280'];
+
+    const doughCtx = document.getElementById('moduleDoughnutChart');
+    if (doughCtx) {
+        if (moduleDoughnutChartInstance) moduleDoughnutChartInstance.destroy();
+        moduleDoughnutChartInstance = new Chart(doughCtx, {
+            type: 'doughnut',
+            data: {
+                labels: modLabels,
+                datasets: [{
+                    data: modData,
+                    backgroundColor: modColors.slice(0, modLabels.length),
+                    borderWidth: 0,
+                    cutout: '70%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } } }
+            }
+        });
+    }
 }
 
 function setupDropdownAndSearchFilters() {
-  const selectFilter = document.getElementById("audit-filter");
   const searchInput = document.getElementById("global-search-input");
-
-  if (selectFilter) {
-    selectFilter.addEventListener("change", (e) => {
-      currentDropdownModuleFilter = e.target.value;
-      currentPage = 1;
-      applyFiltersAndRenderAuditTable();
-    });
-  }
-
   if (searchInput) {
     searchInput.addEventListener("input", (e) => {
       globalSearchQueryText = e.target.value.toLowerCase().trim();
@@ -260,12 +332,23 @@ function applyFiltersAndRenderAuditTable() {
 
   const computationalResults = mockAuditLogsCache.filter((log) => {
     const matchesDropdown = currentDropdownModuleFilter === "all" || log.module === currentDropdownModuleFilter;
-    
     const searchTextTarget = `${log.admin} ${log.action} ${log.details} ${log.module}`.toLowerCase();
     const matchesSearchText = !globalSearchQueryText || searchTextTarget.includes(globalSearchQueryText);
-
     return matchesDropdown && matchesSearchText;
   });
+
+  if (currentSort.column && currentSort.direction !== 'none') {
+        computationalResults.sort((a, b) => {
+            let valA = a[currentSort.column] || '';
+            let valB = b[currentSort.column] || '';
+            
+            if (currentSort.column === 'date') valA = a.time || ''; valB = b.time || '';
+
+            valA = String(valA).toLowerCase();
+            valB = String(valB).toLowerCase();
+            return currentSort.direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        });
+    }
 
   const totalItems = computationalResults.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
@@ -279,19 +362,25 @@ function applyFiltersAndRenderAuditTable() {
   tbody.innerHTML = "";
 
   if (totalItems === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="table-empty-state"><i class="fas fa-history" style="display:block; margin-bottom:8px; opacity:0.4;"></i>No security logs or trails match your parameters.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty-state"><i class="fas fa-history" style="display:block; margin-bottom:8px; opacity:0.4; font-size:24px;"></i>No security logs or trails match your parameters.</td></tr>`;
     if (showingText) showingText.textContent = "Showing 0 entries";
     renderPaginationFooterControls(totalPages);
     return;
   }
 
   paginatedSlice.forEach((log) => {
+    // REVISION: Splitting Timestamp into Date and Time Strings securely
+    const splitTimestamp = (log.time || "---- --:--").split(' ');
+    const dateString = splitTimestamp[0];
+    const timeString = splitTimestamp.slice(1).join(' ') || '--:--';
+
     tbody.innerHTML += `
           <tr>
-              <td style="color: var(--text-muted); font-weight: 500;">${log.time}</td>
+              <td style="color: var(--text-main); font-weight: 500;">${dateString}</td>
+              <td style="color: var(--text-muted); font-weight: 500;">${timeString}</td>
               <td><strong style="color: var(--text-main); font-weight: 600;">${log.admin}</strong></td>
-              <td style="font-weight: 500;">${log.action}</td>
               <td><span class="log-module-badge ${log.modClass || 'mod-users'}">${log.module}</span></td>
+              <td style="font-weight: 500;">${log.action}</td>
               <td style="color: var(--text-muted); font-weight: 500;">${log.details}</td>
           </tr>
       `;
@@ -350,65 +439,54 @@ function renderPaginationFooterControls(totalPages) {
 
 function setupExportCSVReportFeature() {
   const dlBtn = document.getElementById("btn-download-report");
+  const errorMsg = document.getElementById("export-error-msg");
   if (!dlBtn) return;
 
   dlBtn.addEventListener("click", (e) => {
     e.preventDefault();
 
+    if (errorMsg) {
+        errorMsg.classList.remove("show");
+        errorMsg.innerHTML = "";
+    }
+
     if (!mockAuditLogsCache || mockAuditLogsCache.length === 0) {
-      alert("No telemetry audit entries recorded in cache to assemble a spreadsheet file.");
+      if (errorMsg) {
+          errorMsg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> No telemetry audit entries recorded to assemble a spreadsheet file.';
+          errorMsg.classList.add("show");
+      }
       return;
     }
 
-    let csvLines = ["Timestamp,Admin Operator,Action Executed,Module Scope,Detailed Description"];
-    mockAuditLogsCache.forEach((log) => {
-      csvLines.push(`"${log.time}","${log.admin}","${log.action}","${log.module}","${log.details}"`);
-    });
+    // Double Submission & Feedback Implementation
+    const originalHtml = dlBtn.innerHTML;
+    dlBtn.disabled = true;
+    dlBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating CSV...';
 
-    const textBlob = new Blob([csvLines.join("\n")], { type: 'text/csv;charset=utf-8;' });
-    const downloadUrl = URL.createObjectURL(textBlob);
-    const temporaryAnchor = document.createElement("a");
+    setTimeout(() => {
+        let csvLines = ["Date,Time,Admin Operator,Module Scope,Action Executed,Detailed Description"];
+        mockAuditLogsCache.forEach((log) => {
+          const splitTime = (log.time || "").split(' ');
+          const pureDate = splitTime[0] || '';
+          const pureTime = splitTime.slice(1).join(' ') || '';
+          csvLines.push(`"${pureDate}","${pureTime}","${log.admin}","${log.module}","${log.action}","${log.details}"`);
+        });
 
-    temporaryAnchor.setAttribute("href", downloadUrl);
-    temporaryAnchor.setAttribute("download", `Barangay_System_Audit_Logs_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(temporaryAnchor);
-    
-    temporaryAnchor.click();
-    document.body.removeChild(temporaryAnchor);
-    URL.revokeObjectURL(downloadUrl);
-  });
-}
+        const textBlob = new Blob([csvLines.join("\n")], { type: 'text/csv;charset=utf-8;' });
+        const downloadUrl = URL.createObjectURL(textBlob);
+        const temporaryAnchor = document.createElement("a");
 
-function setupManualLogFABEntry() {
-  const fabBtn = document.getElementById("btn-add-manual-log");
-  if (!fabBtn) return;
+        temporaryAnchor.setAttribute("href", downloadUrl);
+        temporaryAnchor.setAttribute("download", `Barangay_System_Audit_Logs_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(temporaryAnchor);
+        
+        temporaryAnchor.click();
+        document.body.removeChild(temporaryAnchor);
+        URL.revokeObjectURL(downloadUrl);
 
-  fabBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-
-    const detailText = prompt("Enter a description details line to append a system audit log manually:");
-    if (!detailText || detailText.trim() === "") return;
-
-    const now = new Date();
-    const formattedTimestamp = now.getFullYear() + "-" + 
-                               String(now.getMonth() + 1).padStart(2, '0') + "-" + 
-                               String(now.getDate()).padStart(2, '0') + " " + 
-                               String(now.getHours()).padStart(2, '0') + ":" + 
-                               String(now.getMinutes()).padStart(2, '0') + ":" + 
-                               String(now.getSeconds()).padStart(2, '0');
-
-    const newManualLogEntry = {
-      time: formattedTimestamp,
-      admin: "Admin User",
-      action: "Manual Override Entry",
-      module: "Citizens",
-      modClass: "mod-users",
-      details: detailText.trim()
-    };
-
-    mockAuditLogsCache.unshift(newManualLogEntry); 
-    currentPage = 1;
-    applyFiltersAndRenderAuditTable();
+        dlBtn.disabled = false;
+        dlBtn.innerHTML = originalHtml;
+    }, 600); // Simulate backend processing delay for UX feedback
   });
 }
 
