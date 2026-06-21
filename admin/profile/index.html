@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Barangay Admin Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <img src="../../images/brgy_logo.jpg" alt="Barangay Logo" class="logo" id="dynamic-barangay-logo">
+                <div class="header-text">
+                    <h2 id="dynamic-barangay-name">Barangay Assistance System</h2>
+                    <p>Admin Panel</p>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../dashboard/index.html" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+                <span class="nav-section-title">Manage</span>
+                <a href="../citizens/index.html" class="nav-item"><i class="fas fa-users"></i> SenEtizens</a>
+                <a href="../doc_reqs/index.html" class="nav-item"><i class="fas fa-file-alt"></i> Document Requests</a>
+                <a href="../financial/index.html" class="nav-item"><i class="fas fa-wallet"></i> Financial Assistance</a>
+                <a href="../medical/index.html" class="nav-item"><i class="fas fa-notes-medical"></i> Medical Assistance</a>
+                <a href="../social_wellness/index.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Social Wellness (Events)</a>
+                <a href="../cont_mngmnt/index.html" class="nav-item"><i class="fas fa-bullhorn"></i> Content Management</a>
+                <span class="nav-section-title">System</span>
+                <a href="../report_auditlogs/index.html" class="nav-item"><i class="fas fa-chart-line"></i> Reports & Audit Logs</a>
+                <a href="../system_settings/index.html" class="nav-item"><i class="fas fa-cog"></i> System Settings</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="admin-profile active-profile-tab">
+                    <i class="fas fa-user-circle profile-icon" id="footer-icon"></i>
+                    <img src="" id="footer-avatar" style="display: none; width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                    <div class="admin-info">
+                        <span class="admin-name" id="nav-admin-name">Loading...</span>
+                        <span class="admin-role" id="nav-admin-role">Loading...</span>
+                    </div>
+                </div>
+                <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </aside>
+        
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-toggle" id="menu-toggle"><i class="fas fa-bars"></i></button>
+                    <div class="page-title">
+                        <h1>Account Profile</h1>
+                        <span>Manage your personal information and system credentials</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="dashboard-viewport">
+                <div class="profile-layout-container">
+                    
+                    <div class="profile-sidebar-card">
+                        <div class="avatar-upload-wrapper">
+                            <div class="avatar-preview">
+                                <i class="fas fa-user profile-placeholder" id="avatar-placeholder"></i>
+                                <img id="avatar-image-preview" src="" alt="Profile Preview" style="display: none;">
+                                <div class="avatar-overlay" onclick="document.getElementById('profile-image-upload').click();">
+                                    <i class="fas fa-camera"></i>
+                                    <span>Change Picture</span>
+                                </div>
+                            </div>
+                            <input type="file" id="profile-image-upload" accept="image/jpeg, image/png" hidden>
+                        </div>
+                        <h3 id="card-admin-name">Administrator Name</h3>
+                        <div class="role-badge" id="card-role-badge">System Role</div>
+                        <p class="profile-instruction">Allowed formats: JPEG, PNG. Max size: 2MB.</p>
+                        <span class="validation-msg text-center" id="msg-avatar-error"></span>
+                        
+                        <div class="account-status-box">
+                            <div class="status-item">
+                                <span class="status-label">Account Status</span>
+                                <span class="status-value text-success"><i class="fas fa-check-circle"></i> Active</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">Last Login</span>
+                                <span class="status-value" id="card-last-login">Today, 08:30 AM</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-forms-column">
+                        
+                        <div class="content-panel-card profile-form-card">
+                            <div class="panel-header-wrapper">
+                                <h3>Personal Information</h3>
+                            </div>
+                            <div class="settings-form-grid">
+                                <div class="form-input-group">
+                                    <label>Employee ID <span class="lock-icon" title="Contact Super Admin to modify"><i class="fas fa-lock"></i></span></label>
+                                    <input type="text" id="prof-emp-id" class="input-disabled" disabled>
+                                </div>
+                                <div class="form-input-group">
+                                    <label>Role Assignment <span class="lock-icon" title="Contact Super Admin to modify"><i class="fas fa-lock"></i></span></label>
+                                    <input type="text" id="prof-role" class="input-disabled" disabled>
+                                </div>
+                                
+                                <div class="form-input-group">
+                                    <label>First Name <span class="text-danger">*</span></label>
+                                    <input type="text" id="prof-fname" placeholder="e.g. Juan">
+                                    <span class="validation-msg" id="msg-prof-fname">Valid first name required.</span>
+                                </div>
+                                <div class="form-input-group">
+                                    <label>Middle Name</label>
+                                    <input type="text" id="prof-mname" placeholder="e.g. Santos">
+                                    <span class="validation-msg" id="msg-prof-mname">Letters and spaces only.</span>
+                                </div>
+
+                                <div class="form-input-group">
+                                    <label>Surname <span class="text-danger">*</span></label>
+                                    <input type="text" id="prof-lname" placeholder="e.g. Dela Cruz">
+                                    <span class="validation-msg" id="msg-prof-lname">Valid surname required.</span>
+                                </div>
+                                <div class="form-input-group">
+                                    <label>Suffix</label>
+                                    <input type="text" id="prof-suffix" placeholder="e.g. Jr., Sr., III">
+                                    <span class="validation-msg" id="msg-prof-suffix">Letters, dots, and spaces only.</span>
+                                </div>
+
+                                <div class="form-input-group">
+                                    <label>Date of Birth <span class="text-danger">*</span></label>
+                                    <input type="date" id="prof-dob">
+                                    <span class="validation-msg" id="msg-prof-dob">Must be at least 18 years old.</span>
+                                </div>
+                                <div class="form-input-group">
+                                    <label>Contact Number <span class="text-danger">*</span></label>
+                                    <input type="text" id="prof-phone" placeholder="09XX-XXX-XXXX" maxlength="13">
+                                    <span class="validation-msg" id="msg-prof-phone">Valid Philippine mobile number required.</span>
+                                </div>
+
+                                <div class="form-input-group span-full-width">
+                                    <label>Email Address <span class="text-danger">*</span></label>
+                                    <input type="email" id="prof-email" placeholder="name@barangay.gov.ph">
+                                    <span class="validation-msg" id="msg-prof-email">Standard email format required.</span>
+                                </div>
+                                <div class="form-input-group span-full-width">
+                                    <label>Complete Home Address <span class="text-danger">*</span></label>
+                                    <input type="text" id="prof-address" placeholder="e.g. Purok 1, Main Street, Barangay San Jose">
+                                    <span class="validation-msg" id="msg-prof-address">Address is required (Alphanumeric and standard punctuation).</span>
+                                </div>
+                            </div>
+                            <div class="panel-footer-action-bar">
+                                <button class="btn-primary btn-success-override" id="btn-save-profile">
+                                    <i class="far fa-save"></i> <span id="save-btn-text">Update Profile</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="content-panel-card profile-form-card">
+                            <div class="panel-header-wrapper">
+                                <h3>Security Settings</h3>
+                            </div>
+                            <div class="settings-form-grid" style="grid-template-columns: 1fr;">
+                                <div class="form-input-group">
+                                    <label>Current Password <span class="text-danger">*</span></label>
+                                    <div class="password-input-wrapper">
+                                        <input type="password" id="prof-current-pass" placeholder="Enter current password">
+                                        <button type="button" class="toggle-password" tabindex="-1"><i class="fas fa-eye"></i></button>
+                                    </div>
+                                    <span class="validation-msg" id="msg-current-pass">Current password is required to make changes.</span>
+                                </div>
+                                <div class="settings-form-grid inner-grid border-none-override" style="padding: 0; gap: 24px;">
+                                    <div class="form-input-group">
+                                        <label>New Password</label>
+                                        <div class="password-input-wrapper">
+                                            <input type="password" id="prof-new-pass" placeholder="Minimum 8 characters">
+                                            <button type="button" class="toggle-password" tabindex="-1"><i class="fas fa-eye"></i></button>
+                                        </div>
+                                        <span class="validation-msg" id="msg-new-pass">Must contain at least 8 characters, 1 uppercase, 1 number, and 1 symbol.</span>
+                                    </div>
+                                    <div class="form-input-group">
+                                        <label>Confirm New Password</label>
+                                        <div class="password-input-wrapper">
+                                            <input type="password" id="prof-confirm-pass" placeholder="Re-type new password">
+                                            <button type="button" class="toggle-password" tabindex="-1"><i class="fas fa-eye"></i></button>
+                                        </div>
+                                        <span class="validation-msg" id="msg-confirm-pass">Passwords do not match.</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel-footer-action-bar">
+                                <button class="btn-primary" id="btn-update-password" style="background-color: var(--primary-dark);">
+                                    <i class="fas fa-key"></i> <span id="save-pass-text">Change Password</span>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../api-config.js"></script>
+    <script src="profile.js"></script>
+</body>
+</html>

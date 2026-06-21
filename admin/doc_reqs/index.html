@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document Requests - Barangay Admin Panel</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+
+    <body>
+        <div class="app-container">
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <img src="../../images/brgy_logo.jpg" alt="Barangay Logo" class="logo" id="dynamic-barangay-logo"
+                        onerror="this.src='https://placehold.co/42x42?text=BRGY'">
+                    <div class="header-text">
+                        <h2 id="dynamic-barangay-name">Barangay Assistance System</h2>
+                        <p>Admin Panel</p>
+                    </div>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="../dashboard/index.html" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+                    <span class="nav-section-title">Manage</span>
+                    <a href="../citizens/index.html" class="nav-item"><i class="fas fa-users"></i> SenEtizens</a>
+                    <a href="index.html" class="nav-item active"><i class="fas fa-file-alt"></i> Document Requests</a>
+                    <a href="../financial/index.html" class="nav-item"><i class="fas fa-wallet"></i> Financial Assistance</a>
+                    <a href="../medical/index.html" class="nav-item"><i class="fas fa-notes-medical"></i> Medical Assistance</a>
+                    <a href="../social_wellness/index.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Social
+                        Wellness (Events)</a>
+                    <a href="../cont_mngmnt/index.html" class="nav-item"><i class="fas fa-bullhorn"></i> Content
+                        Management</a>
+
+                    <span class="nav-section-title">System</span>
+                    <a href="../report_auditlogs/index.html" class="nav-item"><i class="fas fa-chart-line"></i> Reports & Audit Logs</a>
+                    <a href="../system_settings/index.html" class="nav-item"><i class="fas fa-cog"></i> System
+                        Settings</a>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <a href="../profile/index.html" class="admin-profile clickable-profile" style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:8px;border-radius:8px;transition:background 0.2s;cursor:pointer;">
+                        <i class="fas fa-user-circle profile-icon"></i>
+                        <div class="admin-info">
+                            <span class="admin-name" id="auth-admin-name">Admin User</span>
+                            <span class="admin-role" id="auth-admin-role">Administrator</span>
+                        </div>
+                    </a>
+                    <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </aside>
+
+            <main class="main-content">
+                <header class="topbar">
+                    <div class="topbar-left">
+                        <button class="menu-toggle" id="menu-toggle"><i class="fas fa-bars"></i></button>
+                        <div class="page-title">
+                            <h1>Document Requests</h1>
+                            <span>Manage and process all document requests from senior citizens.</span>
+                        </div>
+                    </div>
+                    <div class="topbar-right" style="gap: 12px; display: flex;">
+                        <button class="btn-primary" id="btn-download-csv"><i class="fas fa-file-csv"></i> Download
+                            CSV</button>
+                    </div>
+                </header>
+
+                <div class="dashboard-viewport">
+                    <div class="doc-tabs">
+                        <button class="doc-tab active" data-filter="all">
+                            All Requests <span class="tab-count bg-green" id="count-all">0</span>
+                        </button>
+                        <button class="doc-tab" data-filter="pending">
+                            Pending Review <span class="tab-count bg-yellow" id="count-pending">0</span>
+                        </button>
+                        <button class="doc-tab" data-filter="processing">
+                            Processing <span class="tab-count bg-blue" id="count-processing">0</span>
+                        </button>
+                        <button class="doc-tab" data-filter="ready">
+                            Ready for Pickup <span class="tab-count bg-emerald" id="count-ready">0</span>
+                        </button>
+                        <button class="doc-tab" data-filter="completed">
+                            Completed <span class="tab-count bg-gray" id="count-completed">0</span>
+                        </button>
+                    </div>
+
+                    <div class="table-controls-bar">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="search-document"
+                                placeholder="Search by Request ID, Name, or Document Type...">
+                        </div>
+                        <div class="controls-right-group">
+                            <button class="btn-secondary" id="btn-filter-toggle"><i class="fas fa-filter"></i> Filter:
+                                <span id="current-filter-label">All</span></button>
+                            <div class="pagination-info-wrapper hidden-mobile">
+                                <span id="showing-entries-text">Showing 0 to 0 of 0 requests</span>
+                                <select class="select-input-dropdown" id="records-per-page-select">
+                                    <option value="2">2 per page</option>
+                                    <option value="10" selected>10 per page</option>
+                                    <option value="25">25 per page</option>
+                                    <option value="50">50 per page</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container-card">
+
+                        <div class="table-scroll-wrapper">
+                            <table class="data-table doc-table">
+                                <thead>
+                                    <tr>
+                                        <th>Request ID <i class="fas fa-sort"></i></th>
+                                        <th>Citizen Name <i class="fas fa-sort"></i></th>
+                                        <th>Document Type <i class="fas fa-sort"></i></th>
+                                        <th>Date Submitted <i class="fas fa-sort"></i></th>
+                                        <th>Status <i class="fas fa-sort"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="documents-table-body">
+                                    <tr>
+                                        <td colspan="5" class="table-empty-state">
+                                            <i class="fas fa-spinner fa-spin"></i> Initializing data components...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-pagination-footer justify-center">
+                            <div class="page-buttons" id="pagination-buttons-container"></div>
+                        </div>
+                    </div>
+
+                    <div class="info-alert-banner">
+                        <i class="fas fa-info-circle"></i>
+                        <p>You can update the status directly from the dropdown. Once the document is uploaded and
+                            status is set to "Ready for Pickup" or "Completed", the citizen will be notified in their
+                            app.</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <script src="../api-config.js"></script>
+        <script src="requests.js"></script>
+    </body>
+
+</html>

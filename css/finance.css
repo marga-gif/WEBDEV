@@ -1,0 +1,403 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #f8f8f8;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Container */
+.container {
+    width: 98%;
+    margin: 14px auto;
+}
+
+/* Top Navigation */
+.top-nav {
+    background: #032c63;
+    color: white;
+    min-height: 88px;
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 0 34px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.brand {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.top-nav nav {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.top-nav a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 12px 18px;
+    border-radius: 12px;
+}
+
+.top-nav a:hover,
+.top-nav a.active {
+    background: #087a35;
+}
+
+.menu-toggle {
+    display: none;
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 12px;
+    background: #087a35;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Main content */
+main {
+    background: white;
+    border: 1px solid #ececec;
+    border-top: none;
+    border-radius: 0 0 20px 20px;
+    padding: 20px;
+}
+
+/* Grid for finance options */
+.finance-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr 1fr;
+    gap: 24px;
+    padding: 5px;
+}
+
+/* Panels */
+.panel {
+    background: white;
+    border: 1px solid #ececec;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Panel headers */
+.panel h2 {
+    background: #087a35;
+    color: white;
+    text-align: center;
+    padding: 16px;
+    font-size: 17px;
+    letter-spacing: 1px;
+}
+
+/* Option list */
+.option-list {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Option cards - MODIFIED FOR LARGER SIZE */
+.option-card {
+    border: 1px solid transparent;
+    background: white;
+    border-radius: 14px;
+    padding: 55px 30px; /* Pinalaki ang padding pataas at pababa */
+    display: flex;
+    gap: 25px;
+    text-align: left;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Mas ginawang prominent ang shadow */
+    transition: 0.3s;
+    align-items: center;
+}
+
+.option-card:hover {
+    transform: translateY(-5px);
+    border-color: #087a35;
+}
+
+/* Icon inside option card - MODIFIED SIZE */
+.option-icon {
+    width: 70px; /* Pinalaki ang icon container */
+    height: 70px;
+    background: #e8f6ee;
+    border-radius: 12px;
+    color: #087a35;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px; /* Pinalaki ang icon */
+    flex-shrink: 0;
+}
+
+/* Content inside option card */
+.option-content h3 {
+    color: #032c63;
+    font-size: 18px; /* Pinalaki ang title */
+    margin-bottom: 5px;
+}
+
+.option-content p {
+    font-size: 15px;
+    color: #555;
+}
+
+/* Video grid styles */
+.video-grid {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+/* Video cards (Updated to handle <a> tags) */
+.video-card {
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    text-decoration: none; /* Tinatanggal ang link underline */
+    display: block;
+    background: white;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Thumbnail wrapper */
+.video-thumb {
+    height: 150px; 
+    position: relative; 
+    background: #032c63;
+    overflow: hidden;
+}
+
+.video-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+}
+
+.video-card:hover .video-thumb img {
+    opacity: 0.7; /* Magdidilim nang onti ang thumbnail pag hinover */
+}
+
+/* Play button effect sa gitna ng thumbnail */
+.play-btn-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 45px;
+    opacity: 0.8;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    transition: 0.3s ease;
+}
+
+.video-card:hover .play-btn-overlay {
+    color: #087a35;
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.15); /* Lalaki nang onti pag hinover */
+}
+
+/* Video Content Texts */
+.video-card h3 {
+    padding: 12px 12px 5px;
+    color: #032c63;
+    font-size: 16px;
+}
+
+.video-card p {
+    padding: 0 12px 15px;
+    font-size: 14px;
+    color: #555;
+}
+/* Transaction list styles */
+.transaction-list {
+    padding: 30px;
+}
+
+.transaction-item {
+    display: grid;
+    grid-template-columns: 50px 1fr auto;
+    gap: 20px;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid #ececec;
+}
+
+.transaction-item i {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: #e8f6ee;
+    color: #087a35;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.transaction-item h3 {
+    color: #032c63;
+    font-size: 16px;
+}
+
+.transaction-item p {
+    font-size: 16px;
+}
+
+.transaction-item strong {
+    color: #087a35;
+    font-size: 16px;
+}
+
+/* --- MODAL (POP-UP) STYLES --- */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 500px;
+    padding: 30px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.close-modal {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.close-modal:hover {
+    color: #032c63;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+
+.modal-header i {
+    font-size: 30px;
+    color: #087a35;
+}
+
+.modal-header h2 {
+    color: #032c63;
+    font-size: 22px;
+}
+
+.modal-body p {
+    margin-bottom: 15px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #444;
+}
+
+.modal-body ul {
+    margin-left: 20px;
+    margin-bottom: 15px;
+    color: #444;
+}
+
+.modal-body li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media(max-width: 1100px) {
+    .finance-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width: 650px) {
+    .container {
+        width: 100%;
+        margin: 0;
+    }
+    .top-nav {
+        border-radius: 0;
+        padding: 14px 18px;
+    }
+    .menu-toggle {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-left: auto;
+    }
+    .top-nav nav {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        padding-top: 10px;
+    }
+    .top-nav nav.show {
+        display: flex;
+    }
+    .top-nav a {
+        width: 100%;
+        text-align: center;
+    }
+    main {
+        padding: 15px;
+        border-radius: 0;
+    }
+    .finance-grid {
+        padding: 5px;
+    }
+    .video-grid {
+        grid-template-columns: 1fr;
+    }
+}

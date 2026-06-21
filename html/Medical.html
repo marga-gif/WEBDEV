@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SenEtizen - Medical</title>
+<link rel="stylesheet" href="../css/medical.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body>
+
+<div class="page-content" id="pageContent">
+    <div class="container">
+
+        <header class="top-nav">
+            <div class="brand">SenEtizen</div>
+
+            <button class="menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mainNav">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <nav id="mainNav">
+                <a href="index.html">HOME</a>
+                <a href="Medical.html" class="active">MEDICAL</a>
+                <a href="Socialwellness.html">SOCIAL WELLNESS</a>
+                <a href="gov.html">GOVERNMENT</a>
+                <a href="finance.html">FINANCIAL</a>
+                <a href="Aboutus.html">ABOUT US</a>
+            </nav>
+        </header>
+
+        <main>
+
+            <section class="left">
+
+                <div class="cards">
+                    <div class="card" id="viewAppointments">
+                        <i class="fa-regular fa-calendar-days"></i>
+                        <h2>APPOINTMENTS</h2>
+                        <p>View your<br>appointments</p>
+                    </div>
+
+                    <div class="card" id="bookAppointment">
+                        <i class="fa-solid fa-kit-medical"></i>
+                        <h2>BOOK APPOINTMENT</h2>
+                        <p>Schedule a new<br>appointment</p>
+                    </div>
+
+                    <div class="card" id="availableDoctors">
+                        <i class="fa-solid fa-user-doctor"></i>
+                        <h2>AVAILABLE DOCTORS</h2>
+                        <p>Find and view<br>doctor profiles</p>
+                    </div>
+
+                    <div class="card emergency" id="medicalEmergencies">
+                        <i class="fa-solid fa-truck-medical"></i>
+                        <h2>MEDICAL EMERGENCIES</h2>
+                        <p>Get emergency<br>assistance</p>
+                    </div>
+                </div>
+
+            </section>
+
+            <aside class="map-panel">
+
+                <h2>MAP</h2>
+
+                <div class="map">
+                    <iframe
+                        src="https://www.google.com/maps?q=Barangay%20Health%20Center&output=embed"
+                        width="100%"
+                        height="100%"
+                        style="border:0;"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+
+                <h3>Nearby Clinics</h3>
+
+                <div class="clinic">
+                    <span>Barangay Health Center</span>
+                    <span>0.3 km</span>
+                </div>
+
+                <div class="clinic">
+                    <span>City Medical Center</span>
+                    <span>1.2 km</span>
+                </div>
+
+                <div class="clinic">
+                    <span>St. Joseph Hospital</span>
+                    <span>2.1 km</span>
+                </div>
+
+                <button onclick="openMap()">View All on Map</button>
+            </aside>
+
+        </main>
+
+    </div>
+</div>
+
+<div class="modal-overlay" id="doctorsModal">
+    <div class="appointment-popup doctors-popup">
+        <div class="appointment-header">
+            <h2>AVAILABLE DOCTORS</h2>
+            <button class="close-btn" type="button" id="closeDoctors" aria-label="Close doctors list">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="doctors-content">
+            <div class="doctor-search">
+                <input type="text" id="doctorSearch" placeholder="Search doctor, specialty, day, or clinic...">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+
+            <div class="doctor-list" id="doctorList">
+                <div class="doctor-card" data-search="maria santos general physician monday wednesday friday barangay health center">
+                    <div class="doctor-avatar"><i class="fa-solid fa-user-doctor"></i></div>
+                    <div class="doctor-info">
+                        <h3>Dr. Maria Santos</h3>
+                        <p>General Physician</p>
+                        <span>Available: Monday, Wednesday, Friday</span>
+                        <span>Time: 8:00 AM - 12:00 PM</span>
+                        <span>Clinic: Barangay Health Center</span>
+                    </div>
+                    <button class="doctor-book-btn" type="button">Book Appointment</button>
+                </div>
+
+                <div class="doctor-card" data-search="jose reyes cardiologist tuesday thursday city medical center">
+                    <div class="doctor-avatar"><i class="fa-solid fa-heart-pulse"></i></div>
+                    <div class="doctor-info">
+                        <h3>Dr. Jose Reyes</h3>
+                        <p>Cardiologist</p>
+                        <span>Available: Tuesday, Thursday</span>
+                        <span>Time: 9:00 AM - 1:00 PM</span>
+                        <span>Clinic: City Medical Center</span>
+                    </div>
+                    <button class="doctor-book-btn" type="button">Book Appointment</button>
+                </div>
+
+                <div class="doctor-card" data-search="liza cruz ophthalmologist monday friday st joseph hospital eye check-up">
+                    <div class="doctor-avatar"><i class="fa-solid fa-eye"></i></div>
+                    <div class="doctor-info">
+                        <h3>Dr. Liza Cruz</h3>
+                        <p>Ophthalmologist</p>
+                        <span>Available: Monday, Friday</span>
+                        <span>Time: 10:00 AM - 3:00 PM</span>
+                        <span>Clinic: St. Joseph Hospital</span>
+                    </div>
+                    <button class="doctor-book-btn" type="button">Book Appointment</button>
+                </div>
+
+                <div class="doctor-card" data-search="ana villanueva dentist wednesday saturday barangay dental clinic">
+                    <div class="doctor-avatar"><i class="fa-solid fa-tooth"></i></div>
+                    <div class="doctor-info">
+                        <h3>Dr. Ana Villanueva</h3>
+                        <p>Dentist</p>
+                        <span>Available: Wednesday, Saturday</span>
+                        <span>Time: 8:00 AM - 11:00 AM</span>
+                        <span>Clinic: Barangay Dental Clinic</span>
+                    </div>
+                    <button class="doctor-book-btn" type="button">Book Appointment</button>
+                </div>
+
+                <div class="doctor-card" data-search="mark dela cruz physical therapist tuesday friday community wellness center">
+                    <div class="doctor-avatar"><i class="fa-solid fa-person-walking"></i></div>
+                    <div class="doctor-info">
+                        <h3>Dr. Mark Dela Cruz</h3>
+                        <p>Physical Therapist</p>
+                        <span>Available: Tuesday, Friday</span>
+                        <span>Time: 1:00 PM - 5:00 PM</span>
+                        <span>Clinic: Community Wellness Center</span>
+                    </div>
+                    <button class="doctor-book-btn" type="button">Book Appointment</button>
+                </div>
+
+                <div class="no-doctors" id="noDoctors">No doctors found.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="emergencyModal">
+    <div class="appointment-popup emergency-popup">
+        <div class="appointment-header emergency-header">
+            <h2>MEDICAL EMERGENCIES</h2>
+            <button class="close-btn" type="button" id="closeEmergency" aria-label="Close emergency panel">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="emergency-content">
+            <div class="emergency-number main-emergency">
+                <i class="fa-solid fa-phone-volume"></i>
+                <div>
+                    <h3>Emergency Hotline</h3>
+                    <p>911</p>
+                </div>
+                <a href="tel:911">Call Now</a>
+            </div>
+
+            <div class="emergency-grid">
+                <div class="emergency-number">
+                    <i class="fa-solid fa-house-medical"></i>
+                    <div>
+                        <h3>Barangay Rescue</h3>
+                        <p>0912-345-6789</p>
+                    </div>
+                    <a href="tel:09123456789">Call</a>
+                </div>
+
+                <div class="emergency-number">
+                    <i class="fa-solid fa-hospital"></i>
+                    <div>
+                        <h3>Nearest Hospital</h3>
+                        <p>St. Joseph Hospital</p>
+                    </div>
+                    <a href="tel:0212345678">Call</a>
+                </div>
+            </div>
+
+            <div class="emergency-reminders">
+                <h3>Important Reminders</h3>
+                <p>Stay calm and call for help immediately.</p>
+                <p>Do not move the patient if there is a serious injury.</p>
+                <p>Prepare valid ID and medical records if available.</p>
+                <p>Wait in a safe and visible location.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="appointmentsModal">
+    <div class="appointment-popup appointments-popup">
+        <div class="appointment-header">
+            <h2>APPOINTMENTS</h2>
+            <button class="close-btn" type="button" id="closeAppointments" aria-label="Close appointments list">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="appointments-list" id="appointmentsList"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="appointmentModal">
+    <div class="appointment-popup">
+        <div class="appointment-header">
+            <h2>BOOK APPOINTMENT</h2>
+            <button class="close-btn" type="button" id="closeAppointment" aria-label="Close appointment form">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <form class="appointment-form" id="appointmentForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="surname">Surname</label>
+                    <input type="text" id="surname" name="surname" class="letters-only" pattern="[A-Za-z ]+" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="firstName" class="letters-only" pattern="[A-Za-z ]+" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="time">Time</label>
+                    <select id="time" name="time" required>
+                        <option value="">Select Time</option>
+                        <option value="08:00">08:00 AM</option>
+                        <option value="09:00">09:00 AM</option>
+                        <option value="10:00">10:00 AM</option>
+                        <option value="11:00">11:00 AM</option>
+                        <option value="12:00">12:00 PM</option>
+                        <option value="13:00">01:00 PM</option>
+                        <option value="14:00">02:00 PM</option>
+                        <option value="15:00">03:00 PM</option>
+                        <option value="16:00">04:00 PM</option>
+                        <option value="17:00">05:00 PM</option>
+                    </select>
+                </div>
+
+                <div class="name-row">
+                    <div class="form-group middle-name">
+                        <label for="middleName">Middle Name</label>
+                        <input type="text" id="middleName" name="middleName" class="letters-only" pattern="[A-Za-z ]+">
+                    </div>
+
+                    <div class="form-group suffix">
+                        <label for="suffix">Suffix</label>
+                        <select id="suffix" name="suffix">
+                            <option value="">None</option>
+                            <option>Jr.</option>
+                            <option>Sr.</option>
+                            <option>II</option>
+                            <option>III</option>
+                            <option>IV</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="attachment1">Attachment 1</label>
+                    <input type="file" id="attachment1" name="attachment1" accept=".jpeg,.jpg,.png,image/jpeg,image/png">
+                    <small class="file-note">Accepted file formats: JPG, JPEG, PNG only. Maximum file size: 5 MB.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="contactInfo">Contact Info</label>
+                    <input type="text" id="contactInfo" name="contactInfo" maxlength="13" pattern="^(?:09[0-9]{9}|\+639[0-9]{9})$" inputmode="numeric" placeholder="09123456789" required>
+                    <p class="field-error" id="contactInfoError" style="display:none;">Enter 11 digits starting with 09 or +63 country code.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="attachment2">Attachment 2</label>
+                    <input type="file" id="attachment2" name="attachment2" accept=".jpeg,.jpg,.png,image/jpeg,image/png">
+                    <small class="file-note">Accepted file formats: JPG, JPEG, PNG only. Maximum file size: 5 MB.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="medicalAttention">Type of Medical Attention</label>
+                    <select id="medicalAttention" name="medicalAttention" required>
+                        <option value="">Select Medical Attention</option>
+                        <option>General Check-up</option>
+                        <option>Blood Pressure Monitoring</option>
+                        <option>Diabetes Monitoring</option>
+                        <option>Medication Refill</option>
+                        <option>Follow-up Consultation</option>
+                        <option>Vaccination</option>
+                        <option>Eye Check-up</option>
+                        <option>Medical Consultation</option>
+                        <option>Laboratory Services</option>
+                        <option>Prescription Request</option>
+                        <option>Health Assessment</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group other-attention" id="otherAttentionGroup">
+                    <label for="otherAttention">Please Specify</label>
+                    <input type="text" id="otherAttention" name="otherAttention" class="letters-only" pattern="[A-Za-z ]+">
+                </div>
+            </div>
+
+            <div class="form-error" id="appointmentError" style="display:none; margin-top: 8px;"></div>
+            <button class="submit-btn" type="submit">Submit Appointment</button>
+        </form>
+
+        <div class="success-message" id="successMessage">
+            <h3>Appointment Successfully Booked</h3>
+            <p id="appointmentSchedule"></p>
+            <p id="appointmentReference"></p>
+            <em>Please arrive 15 minutes before your scheduled appointment and bring any valid ID</em>
+        </div>
+    </div>
+</div>
+
+<script>
+const menuToggle = document.querySelector('.menu-toggle');
+const mainNav = document.getElementById('mainNav');
+const bookAppointment = document.getElementById('bookAppointment');
+const viewAppointments = document.getElementById('viewAppointments');
+const availableDoctors = document.getElementById('availableDoctors');
+const medicalEmergencies = document.getElementById('medicalEmergencies');
+const appointmentModal = document.getElementById('appointmentModal');
+const appointmentsModal = document.getElementById('appointmentsModal');
+const doctorsModal = document.getElementById('doctorsModal');
+const emergencyModal = document.getElementById('emergencyModal');
+const closeAppointment = document.getElementById('closeAppointment');
+const closeAppointments = document.getElementById('closeAppointments');
+const closeDoctors = document.getElementById('closeDoctors');
+const closeEmergency = document.getElementById('closeEmergency');
+const pageContent = document.getElementById('pageContent');
+const appointmentForm = document.getElementById('appointmentForm');
+const successMessage = document.getElementById('successMessage');
+const appointmentSchedule = document.getElementById('appointmentSchedule');
+const appointmentReference = document.getElementById('appointmentReference');
+const appointmentError = document.getElementById('appointmentError');
+const contactInfo = document.getElementById('contactInfo');
+const appointmentsList = document.getElementById('appointmentsList');
+const dateInput = document.getElementById('date');
+const timeSelect = document.getElementById('time'); 
+const medicalAttention = document.getElementById('medicalAttention');
+const otherAttentionGroup = document.getElementById('otherAttentionGroup');
+const otherAttention = document.getElementById('otherAttention');
+const attachment1 = document.getElementById('attachment1');
+const attachment2 = document.getElementById('attachment2');
+const doctorSearch = document.getElementById('doctorSearch');
+const noDoctors = document.getElementById('noDoctors');
+const appointmentsStorageKey = 'senetizenAppointments';
+let selectedDoctorName = 'Barangay-Provided Doctor';
+
+// Set Minimum Date Constraint to Today
+const today = new Date();
+const year = today.getFullYear();
+const month = String(today.getMonth() + 1).padStart(2, '0');
+const day = String(today.getDate()).padStart(2, '0');
+const currentDateString = year + '-' + month + '-' + day;
+dateInput.min = currentDateString;
+
+// Dynamic Time Slot Filtering Logic
+function validateTimeSlots() {
+    if (!timeSelect) return;
+
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+
+    // Reset slots back to active states by default
+    Array.from(timeSelect.options).forEach(option => {
+        if (option.value !== "") {
+            option.disabled = false;
+            option.style.color = ""; 
+        }
+    });
+
+    // If selected date matches today, evaluate operational hours
+    if (dateInput.value === currentDateString) {
+        Array.from(timeSelect.options).forEach(option => {
+            if (option.value === "") return; // Skip structural placeholders
+
+            // Split the option value (e.g., "08:00" -> 8, 0)
+            const [slotHour, slotMinute] = option.value.split(':').map(Number);
+
+            // Disable past hours or current hours whose threshold minutes have expired
+            if (slotHour < currentHour || (slotHour === currentHour && slotMinute <= currentMinute)) {
+                option.disabled = true;
+                option.style.color = "#cbd5e1"; // Clean UI fading effect
+            }
+        });
+
+        // Clear selection value if chosen option was disabled retroactively
+        if (timeSelect.selectedOptions[0] && timeSelect.selectedOptions[0].disabled) {
+            timeSelect.value = "";
+        }
+    }
+}
+
+function openAppointmentForm(doctorName){
+    selectedDoctorName = doctorName || 'Barangay-Provided Doctor';
+    appointmentModal.classList.add('show');
+    pageContent.classList.add('blurred');
+    appointmentForm.reset();
+    appointmentForm.style.display = 'block';
+    successMessage.classList.remove('show');
+    otherAttentionGroup.classList.remove('show');
+    otherAttention.required = false;
+    clearAppointmentError();
+    appointmentReference.textContent = '';
+    validateTimeSlots(); // Execute immediate check on initial setup
+}
+
+function closeAppointmentForm(){
+    appointmentModal.classList.remove('show');
+    pageContent.classList.remove('blurred');
+}
+
+function getAppointments(){
+    return JSON.parse(localStorage.getItem(appointmentsStorageKey)) || [];
+}
+
+function saveAppointment(appointment){
+    const appointments = getAppointments();
+    appointments.push(appointment);
+    localStorage.setItem(appointmentsStorageKey, JSON.stringify(appointments));
+}
+
+function normalizePhoneNumber(phone){
+    let normalized = String(phone || '').trim();
+    if(normalized.startsWith('+63')){
+        normalized = '0' + normalized.slice(3);
+    }
+    return normalized;
+}
+
+function isValidPhoneNumber(phone){
+    const normalized = normalizePhoneNumber(phone);
+    return /^09\d{9}$/.test(normalized);
+}
+
+function showAppointmentError(message){
+    appointmentError.textContent = message;
+    appointmentError.style.display = 'block';
+}
+
+function clearAppointmentError(){
+    appointmentError.textContent = '';
+    appointmentError.style.display = 'none';
+    contactInfo.classList.remove('invalid-field');
+    if(timeSelect) timeSelect.classList.remove('invalid-field');
+}
+
+function hasOverlappingAppointment(appointment){
+    const appointments = getAppointments();
+    return appointments.some(existing =>
+        existing.doctorName === appointment.doctorName &&
+        existing.date === appointment.date &&
+        existing.time === appointment.time
+    );
+}
+
+// Fixed missing function parameter reference use case
+function generateReferenceNumber(){
+    const timestamp = Date.now().toString().slice(-6);
+    const randomId = Math.floor(1000 + Math.random() * 9000);
+    return `APPT-${timestamp}-${randomId}`;
+}
+
+function renderAppointments(){
+    const appointments = getAppointments();
+
+    if(appointments.length === 0){
+        appointmentsList.innerHTML = '<div class="empty-appointments"><i class="fa-regular fa-calendar-xmark"></i><p>No appointments booked yet.</p></div>';
+        return;
+    }
+
+    const sortedAppointments = [...appointments].sort(function(a, b) {
+        if (a.date < b.date) return -1;
+        if (a.date > b.date) return 1;
+        return a.time.localeCompare(b.time);
+    });
+
+    appointmentsList.innerHTML = sortedAppointments.map(function(appointment){
+        return `
+            <div class="appointment-item">
+                <div class="appointment-date-box">
+                    <span>${appointment.month}</span>
+                    <strong>${appointment.day}</strong>
+                </div>
+                <div class="appointment-info">
+                    <h3>${appointment.medicalAttention}</h3>
+                    <p><i class="fa-regular fa-clock"></i> ${appointment.time}</p>
+                    <p><i class="fa-solid fa-user-doctor"></i> ${appointment.doctorName || 'Barangay-Provided Doctor'}</p>
+                    <p><i class="fa-solid fa-user"></i> ${appointment.fullName}</p>
+                    <p><i class="fa-solid fa-phone"></i> ${appointment.contactInfo}</p>
+                    <em>Please arrive 15 minutes before your scheduled appointment and bring any valid ID</em>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function openAppointmentsList(){
+    renderAppointments();
+    appointmentsModal.classList.add('show');
+    pageContent.classList.add('blurred');
+}
+
+function closeAppointmentsList(){
+    appointmentsModal.classList.remove('show');
+    pageContent.classList.remove('blurred');
+}
+
+function openDoctorsList(){
+    doctorsModal.classList.add('show');
+    pageContent.classList.add('blurred');
+    doctorSearch.value = '';
+    filterDoctors();
+}
+
+function closeDoctorsList(){
+    doctorsModal.classList.remove('show');
+    pageContent.classList.remove('blurred');
+}
+
+function openEmergencyPanel(){
+    emergencyModal.classList.add('show');
+    pageContent.classList.add('blurred');
+}
+
+function closeEmergencyPanel(){
+    emergencyModal.classList.remove('show');
+    pageContent.classList.remove('blurred');
+}
+
+// Bind Time Validation Observers
+dateInput.addEventListener('change', validateTimeSlots);
+
+menuToggle.addEventListener('click', function(){
+    const isOpen = mainNav.classList.toggle('show');
+    menuToggle.setAttribute('aria-expanded', isOpen);
+});
+
+mainNav.querySelectorAll('a').forEach(function(link){
+    link.addEventListener('click', function(){
+        mainNav.classList.remove('show');
+        menuToggle.setAttribute('aria-expanded', 'false');
+    });
+});
+bookAppointment.addEventListener('click', function(){
+    openAppointmentForm('Barangay-Provided Doctor');
+});
+viewAppointments.addEventListener('click', openAppointmentsList);
+availableDoctors.addEventListener('click', openDoctorsList);
+medicalEmergencies.addEventListener('click', openEmergencyPanel);
+closeAppointment.addEventListener('click', closeAppointmentForm);
+closeAppointments.addEventListener('click', closeAppointmentsList);
+closeDoctors.addEventListener('click', closeDoctorsList);
+closeEmergency.addEventListener('click', closeEmergencyPanel);
+
+appointmentModal.addEventListener('click', function(event){
+    if(event.target === appointmentModal){
+        closeAppointmentForm();
+    }
+});
+
+appointmentsModal.addEventListener('click', function(event){
+    if(event.target === appointmentsModal){
+        closeAppointmentsList();
+    }
+});
+
+doctorsModal.addEventListener('click', function(event){
+    if(event.target === doctorsModal){
+        closeDoctorsList();
+    }
+});
+
+emergencyModal.addEventListener('click', function(event){
+    if(event.target === emergencyModal){
+        closeEmergencyPanel();
+    }
+});
+
+document.addEventListener('keydown', function(event){
+    if(event.key === 'Escape'){
+        closeAppointmentForm();
+        closeAppointmentsList();
+        closeDoctorsList();
+        closeEmergencyPanel();
+    }
+});
+
+function filterDoctors(){
+    const searchValue = doctorSearch.value.toLowerCase().trim();
+    const doctorCards = document.querySelectorAll('.doctor-card');
+    let visibleDoctors = 0;
+
+    doctorCards.forEach(function(card){
+        const doctorData = card.dataset.search;
+        const isMatch = doctorData.includes(searchValue);
+        card.style.display = isMatch ? 'flex' : 'none';
+
+        if(isMatch){
+            visibleDoctors++;
+        }
+    });
+
+    noDoctors.style.display = visibleDoctors === 0 ? 'block' : 'none';
+}
+
+// Fixed duplicate openMap references
+function openMap(){
+    window.open(
+        'https://www.google.com/maps/search/hospitals+near+San+Jose+Barangay+Hall+Antipolo',
+        '_blank'
+    );
+}
+
+doctorSearch.addEventListener('input', filterDoctors);
+
+document.querySelectorAll('.doctor-book-btn').forEach(function(button){
+    button.addEventListener('click', function(){
+        const doctorCard = button.closest('.doctor-card');
+        const doctorName = doctorCard.querySelector('h3').textContent.trim();
+        closeDoctorsList();
+        openAppointmentForm(doctorName);
+    });
+});
+
+document.querySelectorAll('.letters-only').forEach(function(input){
+    input.addEventListener('input', function(){
+        input.value = input.value.replace(/[^A-Za-z ]/g, '');
+    });
+});
+
+// Fixed: Removed duplicate "const contactInfo" line here
+
+contactInfo.addEventListener('input', function(){
+    this.value = this.value.replace(/\D/g, '').slice(0, 11);
+});
+
+medicalAttention.addEventListener('change', function(){
+    if(medicalAttention.value === 'Other'){
+        otherAttentionGroup.classList.add('show');
+        otherAttention.required = true;
+    }else{
+        otherAttentionGroup.classList.remove('show');
+        otherAttention.required = false;
+        otherAttention.value = '';
+    }
+});
+
+/* File Upload Validation: type and size */
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+
+function formatFileSize(bytes){
+    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+}
+
+function isAcceptedImage(file){
+    if(!file){
+        return true;
+    }
+
+    const acceptedTypes = ['image/jpeg', 'image/png'];
+    const acceptedExtensions = ['jpg', 'jpeg', 'png'];
+    const extension = file.name.split('.').pop().toLowerCase();
+
+    return (file.type === '' || acceptedTypes.includes(file.type)) && acceptedExtensions.includes(extension);
+}
+
+function isAcceptedFileSize(file){
+    if(!file){
+        return true;
+    }
+
+    return file.size <= MAX_FILE_SIZE_BYTES;
+}
+
+function validateAttachments(){
+    const firstFile = attachment1.files[0];
+    const secondFile = attachment2.files[0];
+
+    if(!isAcceptedImage(firstFile)){
+        alert('Attachment 1 must be JPG, JPEG, or PNG only.');
+        attachment1.value = '';
+        return false;
+    }
+
+    if(!isAcceptedImage(secondFile)){
+        alert('Attachment 2 must be JPG, JPEG, or PNG only.');
+        attachment2.value = '';
+        return false;
+    }
+
+    if(!isAcceptedFileSize(firstFile)){
+        alert(`Attachment 1 is too large (${formatFileSize(firstFile.size)}). Maximum file size: 5 MB.`);
+        attachment1.value = '';
+        return false;
+    }
+
+    if(!isAcceptedFileSize(secondFile)){
+        alert(`Attachment 2 is too large (${formatFileSize(secondFile.size)}). Maximum file size: 5 MB.`);
+        attachment2.value = '';
+        return false;
+    }
+
+    if(firstFile && secondFile && firstFile.name === secondFile.name && firstFile.size === secondFile.size){
+        alert('Please upload different files. Duplicate attachments are not allowed.');
+        attachment2.value = '';
+        return false;
+    }
+
+    return true;
+}
+
+attachment1.addEventListener('change', validateAttachments);
+attachment2.addEventListener('change', validateAttachments);
+
+function formatDate(dateValue){
+    const date = new Date(dateValue + 'T00:00:00');
+    return date.toLocaleDateString('en-US', {
+        year:'numeric',
+        month:'long',
+        day:'numeric'
+    });
+}
+
+function formatTime(timeValue){
+    const selectedOption = document.querySelector('#time option[value="' + timeValue + '"]');
+    return selectedOption ? selectedOption.textContent : timeValue;
+}
+
+// Fixed missing structural function declaration
+function getDateParts(dateValue){
+    const date = new Date(dateValue + 'T00:00:00');
+    return {
+        month:date.toLocaleDateString('en-US', { month:'short' }).toUpperCase(),
+        day:String(date.getDate()).padStart(2, '0')
+    };
+}
+
+function getFullName(){
+    const firstName = document.getElementById('firstName').value.trim();
+    const middleName = document.getElementById('middleName').value.trim();
+    const surname = document.getElementById('surname').value.trim();
+    const suffix = document.getElementById('suffix').value;
+
+    return [firstName, middleName, surname, suffix].filter(Boolean).join(' ');
+}
+
+appointmentForm.addEventListener('submit', function(event){
+    event.preventDefault();
+
+    clearAppointmentError();
+
+    if(!validateAttachments()){
+        return;
+    }
+
+    if(dateInput.value < dateInput.min){
+        showAppointmentError('Please choose today or a future date only.');
+        return;
+    }
+
+    // Fail-Safe Time Constraint Verification Guard
+    if (dateInput.value === currentDateString && timeSelect) {
+        const now = new Date();
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+        const [selectedHour, selectedMinute] = timeSelect.value.split(':').map(Number);
+
+        if (selectedHour < currentHour || (selectedHour === currentHour && selectedMinute <= currentMinute)) {
+            alert('The selected time slot has already passed for today. Please choose an upcoming time.');
+            return;
+        }
+    }
+
+    const dateParts = getDateParts(dateInput.value);
+    const selectedMedicalAttention = medicalAttention.value === 'Other' ? otherAttention.value.trim() : medicalAttention.value;
+    
+    // Fixed: Complete object setup & submission handler
+    const appointment = {
+        fullName: getFullName(),
+        contactInfo: document.getElementById('contactInfo').value.trim(),
+        medicalAttention: selectedMedicalAttention,
+        doctorName: selectedDoctorName,
+        date: dateInput.value,
+        formattedDate: formatDate(dateInput.value),
+        time: formatTime(timeSelect.value),
+        month: dateParts.month,
+        day: dateParts.day
+    };
+
+    if (hasOverlappingAppointment(appointment)) {
+        showAppointmentError('This time slot is already booked for this doctor. Please pick another.');
+        return;
+    }
+
+    const referenceNum = generateReferenceNumber();
+    saveAppointment(appointment);
+
+    // Update UI Elements with details
+    appointmentSchedule.innerHTML = `<strong>Schedule:</strong> ${appointment.formattedDate} at ${appointment.time}`;
+    appointmentReference.innerHTML = `<strong>Reference Code:</strong> ${referenceNum}`;
+    
+    appointmentForm.style.display = 'none';
+    successMessage.classList.add('show');
+});
+</script>
+
+</body>
+</html>

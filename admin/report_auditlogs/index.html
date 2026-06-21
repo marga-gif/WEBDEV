@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Reports & Audit Logs - Barangay Admin Panel</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+
+    <body>
+
+        <div class="app-container" id="app-theme-wrapper">
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <img src="../../images/brgy_logo.jpg" alt="Barangay Logo" class="logo" id="dynamic-barangay-logo"
+                        onerror="this.src='https://placehold.co/42x42?text=BRGY'">
+                    <div class="header-text">
+                        <h2>Barangay Assistance System</h2>
+                        <p>Admin Panel</p>
+                    </div>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="../dashboard/index.html" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+                    <span class="nav-section-title">Manage</span>
+                    <a href="../citizens/index.html" class="nav-item"><i class="fas fa-users"></i> SenEtizens</a>
+                    <a href="../doc_reqs/index.html" class="nav-item"><i class="fas fa-file-alt"></i> Document
+                        Requests</a>
+                    <a href="../financial/index.html" class="nav-item"><i class="fas fa-wallet"></i> Financial Assistance</a>
+                    <a href="../medical/index.html" class="nav-item"><i class="fas fa-notes-medical"></i> Medical Assistance</a>
+                    <a href="../social_wellness/index.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Social
+                        Wellness (Events)</a>
+                    <a href="../cont_mngmnt/index.html" class="nav-item"><i class="fas fa-bullhorn"></i> Content
+                        Management</a>
+
+                    <span class="nav-section-title">System</span>
+                    <a href="index.html" class="nav-item active"><i class="fas fa-chart-line"></i> Reports  &
+                        Audit Logs</a>
+                    <a href="../system_settings/index.html" class="nav-item"><i class="fas fa-cog"></i> System
+                        Settings</a>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <a href="../profile/index.html" class="admin-profile clickable-profile" style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:8px;border-radius:8px;transition:background 0.2s;cursor:pointer;">
+                        <i class="fas fa-user-circle profile-icon"></i>
+                        <div class="admin-info">
+                            <span class="admin-name" id="auth-admin-name">Admin User</span>
+                            <span class="admin-role" id="auth-admin-role">Administrator</span>
+                        </div>
+                    </a>
+                    <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </aside>
+
+            <main class="main-content">
+                <header class="topbar">
+                    <div class="topbar-left">
+                        <button class="menu-toggle" id="menu-toggle"><i class="fas fa-bars"></i></button>
+                        <div class="search-box global-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="global-search-input"
+                                placeholder="Global search seniors, documents, or logs...">
+                        </div>
+                    </div>
+                    <div class="topbar-right" style="gap: 12px; display: flex;"></div>
+                </header>
+
+                <div class="dashboard-viewport">
+
+                    <div class="page-header-text">
+                        <h1>Reports & Audit Logs</h1>
+                        <p class="text-muted-subtitle">System analytics, structural insights, and operational audit trails.</p>
+                    </div>
+
+                    <section class="kpi-metrics-row-grid">
+                        <div class="kpi-metric-card">
+                            <span class="kpi-card-label">Total Registered Seniors</span>
+                            <h2 class="kpi-card-value" id="kpi-total">0</h2>
+                        </div>
+                        <div class="kpi-metric-card">
+                            <span class="kpi-card-label">New This Month</span>
+                            <div class="kpi-card-value-group">
+                                <h2 class="kpi-card-value" id="kpi-new">0</h2>
+                                <span class="kpi-card-trend-badge positive-green" id="kpi-new-trend"><i
+                                        class="fas fa-arrow-up"></i> 0%</span>
+                            </div>
+                        </div>
+                        <div class="kpi-metric-card">
+                            <span class="kpi-card-label">Active Mobile Users</span>
+                            <div class="kpi-card-value-group">
+                                <h2 class="kpi-card-value" id="kpi-mobile">0</h2>
+                                <span class="kpi-card-subtext-label" id="kpi-mobile-pct">(0%)</span>
+                            </div>
+                        </div>
+                        <div class="kpi-metric-card">
+                            <span class="kpi-card-label">Average Age</span>
+                            <div class="kpi-card-value-group">
+                                <h2 class="kpi-card-value" id="kpi-age">0.0</h2>
+                                <span class="kpi-card-subtext-label">Yrs. Old</span>
+                            </div>
+                        </div>
+                        <div class="kpi-metric-card">
+                            <span class="kpi-card-label">Verified Accounts</span>
+                            <div class="kpi-card-value-group">
+                                <h2 class="kpi-card-value" id="kpi-verified">0</h2>
+                                <span class="kpi-card-subtext-label" id="kpi-verified-pct">(0%)</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="content-panel-card mt-4">
+                        <div class="panel-header-wrapper border-none-override">
+                            <h3><i class="fas fa-chart-bar" style="color: var(--primary-green);"></i> Most Requested
+                                Documents</h3>
+                        </div>
+                        <div class="panel-body-area" style="padding: 24px 30px;">
+                            <div class="custom-bar-chart-flex-canvas" id="document-chart-container">
+                                <div class="table-empty-state">Rendering analytics canvas...</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="content-panel-card mt-4">
+                        <div class="panel-header-wrapper">
+                            <h3><i class="fas fa-history" style="color: var(--primary-dark);"></i> System Audit Logs
+                            </h3>
+                            <select class="select-input-dropdown" id="audit-filter">
+                                <option value="all">All Actions</option>
+                                <option value="Citizens">User Management</option>
+                                <option value="Document Requests">Document Requests</option>
+                                <option value="Financial Assistance">Financial Assistance</option>
+                                <option value="Social Wellness">Social Wellness</option>
+                            </select>
+                        </div>
+
+                        <div class="table-frame-interior">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 200px;">Timestamp</th>
+                                        <th>Admin Name</th>
+                                        <th>Action Taken</th>
+                                        <th>Module</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="audit-logs-body">
+                                    <tr>
+                                        <td colspan="5" class="table-empty-state"><i class="fas fa-spinner fa-spin"></i>
+                                            Fetching secure audit logs from database...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="table-pagination-footer">
+                           <span id="audit-showing">Showing 0 entries</span>
+                            <div class="page-buttons" id="pagination-wrapper"></div>
+                        </div>
+                        
+                        <div class="panel-footer-action-bar" style="display: flex; justify-content: flex-end; padding: 16px 20px; border-top: 1px solid var(--border-color); background-color: #F9FAFB;">
+                            <button class="btn-primary btn-success-override" id="btn-download-report">
+                                <i class="fas fa-file-export"></i> Download Report
+                            </button>
+                        </div>
+                    </section>
+
+                </div>
+                <!--<button class="fab-action-trigger-btn" id="btn-add-manual-log" title="Add Manual Log Entry"><i class="fas fa-plus"></i></button>-->
+            </main>
+        </div>
+
+        <script src="../api-config.js"></script>
+        <script src="report.js"></script>
+    </body>
+
+</html>

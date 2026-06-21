@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Financial Assistance - Barangay Admin Panel</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+
+    <body>
+        <div class="app-container">
+
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <img src="../../images/brgy_logo.jpg" alt="Barangay Logo" class="logo" id="dynamic-barangay-logo"
+                        onerror="this.src='https://placehold.co/42x42?text=BRGY'">
+                    <div class="header-text">
+                        <h2 id="dynamic-barangay-name">Barangay Assistance System</h2>
+                        <p>Admin Panel</p>
+                    </div>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="../dashboard/index.html" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+                    <span class="nav-section-title">Manage</span>
+                    <a href="../citizens/index.html" class="nav-item"><i class="fas fa-users"></i> SenEtizens</a>
+                    <a href="../doc_reqs/index.html" class="nav-item"><i class="fas fa-file-alt"></i> Document
+                        Requests</a>
+                    <a href="index.html" class="nav-item active"><i class="fas fa-wallet"></i> Financial Assistance</a>
+                    <a href="../medical/index.html" class="nav-item"><i class="fas fa-notes-medical"></i> Medical Assistance</a>
+                    <a href="../social_wellness/index.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Social
+                        Wellness (Events)</a>
+                    <a href="../cont_mngmnt/index.html" class="nav-item"><i class="fas fa-bullhorn"></i> Content Management</a>
+
+                    <span class="nav-section-title">System</span>
+                    <a href="../report_auditlogs/index.html" class="nav-item"><i class="fas fa-chart-line"></i> Reports & Audit Logs</a>
+                    <a href="../system_settings/index.html" class="nav-item"><i class="fas fa-cog"></i> System
+                        Settings</a>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <a href="../profile/index.html" class="admin-profile clickable-profile" style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:8px;border-radius:8px;transition:background 0.2s;cursor:pointer;">
+                        <i class="fas fa-user-circle profile-icon"></i>
+                        <div class="admin-info">
+                            <span class="admin-name" id="auth-admin-name">Admin User</span>
+                            <span class="admin-role" id="auth-admin-role">Administrator</span>
+                        </div>
+                    </a>
+                    <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </aside>
+
+            <main class="main-content">
+                <header class="topbar">
+                    <div class="topbar-left">
+                        <button class="menu-toggle" id="menu-toggle"><i class="fas fa-bars"></i></button>
+                        <div class="page-title">
+                            <h1>Financial Assistance</h1>
+                            <span>Manage pension payouts, batches, and master roster</span>
+                        </div>
+                    </div>
+                    <div class="topbar-right action-group">
+                        <button class="btn-secondary" id="btn-generate-global-report"><i class="fas fa-file-export"></i>
+                            Generate Report</button>
+                    </div>
+                </header>
+
+                <div class="dashboard-viewport">
+
+                    <section class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="card-body">
+                                <div class="icon-frame bg-light-emerald"><i class="fas fa-money-bill-wave"></i></div>
+                                <div class="card-data">
+                                    <span class="card-label">Total Funds Disbursed</span>
+                                    <h2 class="card-value" id="metric-disbursed">₱0.00</h2>
+                                </div>
+                            </div>
+                            <div class="card-footer text-green"><i class="fas fa-check-circle"></i> Based on completed
+                                payouts</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-body">
+                                <div class="icon-frame bg-light-blue"><i class="fas fa-lock"></i></div>
+                                <div class="card-data">
+                                    <span class="card-label">Remaining Budget</span>
+                                    <h2 class="card-value" id="metric-budget">₱0.00</h2>
+                                </div>
+                            </div>
+                            <div class="card-footer text-muted"><i class="fas fa-info-circle"></i> Out of total
+                                allocated budget</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-body">
+                                <div class="icon-frame bg-light-gold"><i class="fas fa-calendar-alt"></i></div>
+                                <div class="card-data">
+                                    <span class="card-label">Upcoming Payout Date</span>
+                                    <h2 class="card-value" id="metric-next-payout">-- / -- / ----</h2>
+                                </div>
+                            </div>
+                            <div class="card-footer text-muted" id="metric-next-batch-id">Waiting for batch data...
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="pension-layout-split">
+                        <div class="content-panel-card batch-panel">
+                            <div class="panel-header-wrapper">
+                                <h3 class="header-title-flex"><i class="fas fa-users-cog"></i> Payout Batches</h3>
+                                <div class="header-button-group">
+                                    <button class="btn-secondary-compact" id="btn-filter-batches"
+                                        title="Filter Status"><i class="fas fa-filter"></i> <span
+                                            id="batch-filter-label">All</span></button>
+                                    <button class="btn-primary-compact" id="btn-add-new-batch"><i
+                                            class="fas fa-plus"></i> New Batch</button>
+                                </div>
+                            </div>
+                            <div class="batch-list-scrollable" id="batch-list-container">
+                            </div>
+                        </div>
+
+                        <div class="content-panel-card roster-panel">
+                            <div class="panel-header-wrapper">
+                                <div class="roster-title-header-group">
+                                    <h3 id="selected-batch-title" style="margin: 0; font-size: 15px;">Select a batch to
+                                        view details</h3>
+                                    <span class="badge" id="selected-batch-status" style="display:none;">Status</span>
+                                </div>
+                                <button class="btn-secondary-compact" id="btn-export-batch"><i
+                                        class="fas fa-download"></i> Export List</button>
+                            </div>
+
+                            <div class="roster-metadata-bar" id="roster-meta">
+                                <span><i class="far fa-calendar"></i> Payout Date: <strong
+                                        id="meta-date">-</strong></span>
+                                <span><i class="fas fa-coins"></i> Total Amount: <strong
+                                        id="meta-amount">₱0.00</strong></span>
+                                <span><i class="fas fa-users"></i> Beneficiaries: <strong
+                                        id="meta-count">0</strong></span>
+                            </div>
+
+                            <div class="table-controls-bar interior-controls">
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="search-citizen-in-batch"
+                                        placeholder="Search citizen in batch...">
+                                </div>
+
+                                <div class="roster-actions-button-wrapper">
+                                    <button class="btn-secondary-compact" id="btn-select-all-toggle"><i
+                                            class="fas fa-check-square"></i> Select All</button>
+                                    <button class="btn-primary-compact btn-success-override"
+                                        id="btn-mark-as-paid-action"><i class="fas fa-check"></i> Mark as Paid</button>
+                                </div>
+                            </div>
+
+                            <div class="table-frame-interior">
+                                <table class="data-table">
+                                    <thead style="position: sticky; top: 0; z-index: 10;">
+                                        <tr>
+                                            <th style="width: 40px;"><!--<input type="checkbox" id="header-master-checkbox">
+                                            </th>-->
+                                            <th>Senior ID</th>
+                                            <th>Citizen Name</th>
+                                            <th>Purok</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="roster-table-body">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <div id="custom-modal-overlay" class="modal-overlay" style="display: none;"></div>
+        <div id="add-batch-modal" class="custom-modal" style="display: none;">
+            <div class="modal-header">
+                <h3 id="modal-title">
+                    <i class="fas fa-wallet" style="color: var(--primary-green); margin-right: 8px;"></i> Create Payout Batch
+                </h3>
+                <button class="btn-close-modal" id="close-batch-modal-btn"><i class="fas fa-times"></i></button>
+            </div>
+    
+            <div class="modal-body settings-form-grid" style="grid-template-columns: 1fr; padding: 20px; gap: 16px;">
+                <div class="form-input-group">
+                    <label>BATCH TITLE <span style="color:#EF4444;">*</span></label>
+                    <input type="text" id="new-batch-title" placeholder="e.g., July 2026 Senior Subsidy">
+                </div>
+        
+                <div class="form-input-group">
+                    <label>PAYOUT DATE <span style="color:#EF4444;">*</span></label>
+                    <input type="date" id="new-batch-date">
+                </div>
+
+                <div style="display: flex; gap: 16px;">
+                    <div class="form-input-group" style="flex: 1;">
+                        <label>NUMBER OF BENEFICIARIES <span style="color:#EF4444;">*</span></label>
+                        <input type="number" id="new-batch-count" placeholder="e.g., 50" min="1">
+                    </div>
+                    <div class="form-input-group" style="flex: 1;">
+                        <label>TOTAL ALLOCATED AMOUNT (₱) <span style="color:#EF4444;">*</span></label>
+                        <input type="number" id="new-batch-amount" placeholder="e.g., 150000" min="1" step="0.01">
+                    </div>
+                 </div>
+            </div>
+    
+            <div class="modal-footer">
+                <button id="cancel-batch-modal-btn" style="padding: 12px 20px; background: #E5E7EB; color: #374151; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.25s ease;">Cancel</button>
+                <button class="btn-primary btn-success-override" id="save-batch-btn"><i class="fas fa-check"></i> Save Batch</button>
+            </div>
+        </div>
+        <script src="../api-config.js"></script>
+        <script src="financial.js"></script>
+    </body>
+
+</html>

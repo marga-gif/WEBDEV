@@ -1,0 +1,61 @@
+{
+  "appointments": [],
+  "contacts": [],
+  "doctors": [
+    {
+      "id": "doctor-1",
+      "name": "Dr. Maria Santos",
+      "specialty": "General Practitioner",
+      "clinic": "Barangay Health Center",
+      "phone": "0912-345-6789",
+      "available": "Mon - Fri, 8:00 AM - 4:00 PM"
+    },
+    {
+      "id": "doctor-2",
+      "name": "Dr. Jose dela Cruz",
+      "specialty": "Geriatrics",
+      "clinic": "City Medical Center",
+      "phone": "0912-987-6543",
+      "available": "Tue - Sat, 9:00 AM - 5:00 PM"
+    }
+  ],
+  "events": [
+    {
+      "id": "event-1",
+      "title": "Senior Citizen Zumba",
+      "date": "2026-07-15",
+      "time": "8:00 AM - 10:00 AM",
+      "location": "Barangay Covered Court",
+      "description": "A low-impact fitness session for seniors."
+    },
+    {
+      "id": "event-2",
+      "title": "Social Wellness Gathering",
+      "date": "2026-08-03",
+      "time": "10:00 AM - 12:00 PM",
+      "location": "Barangay Hall",
+      "description": "Meet other seniors and join group activities."
+    }
+  ],
+  "announcements": [
+    {
+      "id": "announcement-1",
+      "title": "Free Health Checkup",
+      "message": "A free health screening will be held at the Barangay Health Center on July 20.",
+      "date": "2026-07-20"
+    }
+  ],
+  "about": [
+    {
+      "title": "SenEtizen",
+      "mission": "To provide quality assistance and services that promote the well-being, dignity and independence of senior citizens.",
+      "vision": "A community where senior citizens are valued, healthy, empowered and given access to equal opportunities.",
+      "contact": {
+        "address": "Barangay Hall, Brgy. Malaya, City",
+        "phone": "(0912) 345 6789",
+        "email": "senetizen@barangay.gov.ph",
+        "hours": "Mon - Fri, 8:00 AM - 5:00 PM"
+      }
+    }
+  ]
+}

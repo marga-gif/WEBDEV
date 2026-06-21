@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../css/Socialwellness.css">
+
+<title>SenEtizen - Social Wellness</title>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Fixed nav -->
+    <header class="top-nav">
+        <div class="brand">SenEtizen</div>
+
+        <button class="menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mainNav">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <nav id="mainNav">
+            <a href="index.html">HOME</a>
+            <a href="Medical.html">MEDICAL</a>
+            <a href="Socialwellness.html" class="active">SOCIAL WELLNESS</a>
+            <a href="gov.html">GOVERNMENT</a>
+            <a href="finance.html">FINANCIAL</a>
+            <a href="Aboutus.html">ABOUT US</a>
+        </nav>
+    </header>
+
+    <div class="content-wrapper">
+
+        <div class="social-layout">
+
+            <!-- Main cards -->
+            <section class="social-main">
+
+                <!-- Featured event -->
+                <div class="event-section">
+                    <div class="event-header">UPCOMING EVENT</div>
+
+                    <div class="event-body">
+                        <div class="event-image-panel">
+                            <img src="../images/pickle%20ball.png" alt="Seniors playing pickleball">
+                        </div>
+
+                        <div class="date-box">
+                            <span>JUN</span>
+                            <h2>15</h2>
+                        </div>
+
+                        <div class="event-details">
+                            <h2>Pickleball for Seniors</h2>
+                            <p><i class="fa-regular fa-clock"></i> 7:30 AM</p>
+                            <p><i class="fa-solid fa-location-dot"></i> Community Sports Court</p>
+                        </div>
+
+                        <button class="join-btn" onclick="confirmJoinFromMainEvent()">JOIN EVENT</button>
+                    </div>
+                </div>
+
+                <div class="cards">
+
+                    <div class="card" onclick="openModal('classes')">
+                        <img src="../images/groupclasses.png" alt="Seniors joining a group exercise class">
+                        <div class="card-content">
+                            <div class="icon-box"><i class="fa-solid fa-users"></i></div>
+                            <div>
+                                <h2>GROUP CLASSES</h2>
+                                <p>Join fun and healthy activities</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" onclick="openModal('hobbies')">
+                        <img src="../images/hobby.png" alt="Seniors painting in a hobby class">
+                        <div class="card-content">
+                            <div class="icon-box"><i class="fa-solid fa-palette"></i></div>
+                            <div>
+                                <h2>HOBBIES</h2>
+                                <p>Discover and share your passions</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" onclick="openModal('volunteer')">
+                        <img src="../images/volounteer.png" alt="Senior volunteers helping the community">
+                        <div class="card-content">
+                            <div class="icon-box"><i class="fa-solid fa-handshake"></i></div>
+                            <div>
+                                <h2>VOLUNTEER</h2>
+                                <p>Give time, help our community</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" onclick="openModal('events')">
+                        <img src="../images/pickle%20ball.png" alt="Seniors playing pickleball">
+                        <div class="card-content">
+                            <div class="icon-box"><i class="fa-solid fa-calendar-days"></i></div>
+                            <div>
+                                <h2>UPCOMING EVENTS</h2>
+                                <p>See events and join activities</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- Joined list -->
+            <aside class="joined-section">
+                <div class="joined-header">
+                    <h2><i class="fa-solid fa-calendar-check"></i> ACTIVITIES JOINED</h2>
+                </div>
+
+                <p class="joined-subtitle">See your registered activities and upcoming schedule.</p>
+
+                <div id="joinedPreview"></div>
+            </aside>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- Popup -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modalTitle"></h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<script>
+// Popup elements
+const menuToggle = document.querySelector(".menu-toggle");
+const mainNav = document.getElementById("mainNav");
+const modalOverlay = document.getElementById("modalOverlay");
+const modalTitle = document.getElementById("modalTitle");
+const modalBody = document.getElementById("modalBody");
+const joinedPreview = document.getElementById("joinedPreview");
+
+// Save joined items
+const joinedStorageKey = "senetizenJoinedActivities";
+let joinedActivities = JSON.parse(localStorage.getItem(joinedStorageKey)) || [];
+
+// Featured event
+const mainEvent = {
+    name: "Pickleball for Seniors",
+    icon: "\u{1F3D3}",
+    date: "June 15, 2026",
+    time: "7:30 AM",
+    place: "Community Sports Court",
+    info: "A fun low-impact sport activity for seniors who want to stay active. The game encourages movement, coordination, and friendly social interaction.",
+    meta: [
+        "Date: June 15, 2026",
+        "Time: 7:30 AM - 9:00 AM",
+        "Location: Community Sports Court"
+    ],
+    joinText: "Join Event"
+};
+
+// Popup data
+const activities = {
+    classes: [
+        {
+            name: "Senior Citizen Zumba",
+            icon: "\u{1F389}",
+            date: "June 17, 2026",
+            time: "8:00 AM",
+            place: "Barangay Covered Court",
+            info: "A light and enjoyable dance fitness class for seniors. This helps improve movement, balance, and energy. The session is beginner-friendly and guided by an instructor.",
+            meta: [
+                "Schedule: Monday, Wednesday, Friday",
+                "Time: 8:00 AM - 9:00 AM",
+                "Location: Barangay Covered Court",
+                "Slots Left: 15"
+            ],
+            joinText: "Join Class"
+        },
+        {
+            name: "Yoga for Seniors",
+            icon: "\u{1F9D8}",
+            date: "June 18, 2026",
+            time: "9:00 AM",
+            place: "Multi-Purpose Hall",
+            info: "A calm class focused on stretching, breathing, and gentle movement. It is helpful for flexibility, relaxation, and body balance. Seniors may join even without yoga experience.",
+            meta: [
+                "Schedule: Tuesday, Thursday",
+                "Time: 9:00 AM - 10:00 AM",
+                "Location: Multi-Purpose Hall",
+                "Slots Left: 8"
+            ],
+            joinText: "Join Class"
+        },
+        {
+            name: "Pickleball for Seniors",
+            icon: "\u{1F3D3}",
+            date: "June 15, 2026",
+            time: "7:30 AM",
+            place: "Community Sports Court",
+            info: "A fun low-impact sport activity for seniors who want to stay active. The game encourages movement, coordination, and friendly social interaction.",
+            meta: [
+                "Schedule: Saturday",
+                "Time: 7:30 AM - 9:00 AM",
+                "Location: Community Sports Court",
+                "Slots Left: 12"
+            ],
+            joinText: "Join Class"
+        }
+    ],
+
+    hobbies: [
+        {
+            name: "Painting Club",
+            icon: "\u{1F3A8}",
+            date: "June 19, 2026",
+            time: "10:00 AM",
+            place: "Community Center",
+            info: "Members create simple artworks using guided themes. Activities include basic sketching, coloring, watercolor, and sharing finished pieces with the group.",
+            meta: [
+                "Schedule: Every Saturday",
+                "Time: 10:00 AM - 12:00 PM",
+                "Location: Community Center"
+            ],
+            joinText: "Join Group"
+        },
+        {
+            name: "Music Club",
+            icon: "\u{1F3B5}",
+            date: "June 23, 2026",
+            time: "3:00 PM",
+            place: "Session Hall",
+            info: "A social music group where seniors can sing, listen, and enjoy familiar songs. Activities include group singing, simple instrument practice, and music sharing.",
+            meta: [
+                "Schedule: Every Wednesday",
+                "Time: 3:00 PM - 4:30 PM",
+                "Location: Session Hall"
+            ],
+            joinText: "Join Group"
+        },
+        {
+            name: "Book Reading Circle",
+            icon: "\u{1F4DA}",
+            date: "June 25, 2026",
+            time: "1:00 PM",
+            place: "Library Room",
+            info: "A quiet and friendly reading group for seniors. Members read short stories, discuss lessons, and share personal reflections.",
+            meta: [
+                "Schedule: Every Friday",
+                "Time: 1:00 PM - 2:30 PM",
+                "Location: Library Room"
+            ],
+            joinText: "Join Group"
+        },
+        {
+            name: "Gardening Club",
+            icon: "\u{1F331}",
+            date: "June 27, 2026",
+            time: "8:00 AM",
+            place: "Community Garden",
+            info: "A relaxing outdoor group focused on planting and caring for community plants. Activities include watering, seed planting, basic garden care, and harvesting.",
+            meta: [
+                "Schedule: Every Sunday",
+                "Time: 8:00 AM - 9:30 AM",
+                "Location: Community Garden"
+            ],
+            joinText: "Join Group"
+        }
+    ],
+
+    volunteer: [
+        {
+            name: "Tree Planting",
+            icon: "\u{1F333}",
+            date: "June 20, 2026",
+            time: "7:00 AM",
+            place: "Barangay Park",
+            info: "Volunteers will help plant trees and clean the surrounding area. This activity supports a greener and healthier community.",
+            meta: [
+                "Date: June 20, 2026",
+                "Time: 7:00 AM - 10:00 AM",
+                "Location: Barangay Park",
+                "Volunteers Needed: 20"
+            ],
+            joinText: "Volunteer Now"
+        },
+        {
+            name: "Community Feeding Program",
+            icon: "\u{1F372}",
+            date: "June 25, 2026",
+            time: "9:00 AM",
+            place: "Barangay Hall",
+            info: "Volunteers will assist in preparing, organizing, and distributing meals. This is a meaningful way to help families in the community.",
+            meta: [
+                "Date: June 25, 2026",
+                "Time: 9:00 AM - 12:00 PM",
+                "Location: Barangay Hall",
+                "Volunteers Needed: 10"
+            ],
+            joinText: "Volunteer Now"
+        },
+        {
+            name: "Reading Assistance Program",
+            icon: "\u{1F4D6}",
+            date: "July 1, 2026",
+            time: "10:00 AM",
+            place: "Library Room",
+            info: "Volunteers will help children and fellow residents with reading practice. The activity encourages learning and community support.",
+            meta: [
+                "Date: July 1, 2026",
+                "Time: 10:00 AM - 12:00 PM",
+                "Location: Library Room",
+                "Volunteers Needed: 15"
+            ],
+            joinText: "Volunteer Now"
+        }
+    ],
+
+    events: [
+        mainEvent,
+        {
+            name: "Senior Citizen Zumba",
+            icon: "\u{1F389}",
+            date: "June 17, 2026",
+            time: "8:00 AM",
+            place: "Barangay Covered Court",
+            info: "A community fitness event for seniors with music, movement, and social interaction. It is open for beginners and regular participants.",
+            meta: [
+                "Date: June 17, 2026",
+                "Time: 8:00 AM - 9:00 AM",
+                "Location: Barangay Covered Court"
+            ],
+            joinText: "Join Event"
+        },
+        {
+            name: "Free Medical Assistance Check-Up",
+            icon: "\u{1F3E5}",
+            date: "June 18, 2026",
+            time: "9:00 AM",
+            place: "Health Center",
+            info: "A free health check-up event for seniors. Basic consultation, blood pressure checking, and health reminders will be provided.",
+            meta: [
+                "Date: June 18, 2026",
+                "Time: 9:00 AM - 12:00 PM",
+                "Location: Health Center"
+            ],
+            joinText: "Join Event"
+        },
+        {
+            name: "Birthday Celebration for Seniors",
+            icon: "\u{1F382}",
+            date: "June 25, 2026",
+            time: "2:00 PM",
+            place: "Barangay Hall",
+            info: "A simple celebration for senior citizens with games, greetings, and light snacks. This event encourages bonding and appreciation.",
+            meta: [
+                "Date: June 25, 2026",
+                "Time: 2:00 PM - 4:00 PM",
+                "Location: Barangay Hall"
+            ],
+            joinText: "Join Event"
+        },
+        {
+            name: "Talent Showcase",
+            icon: "\u{1F3A4}",
+            date: "July 5, 2026",
+            time: "1:00 PM",
+            place: "Activity Hall",
+            info: "Seniors can share talents such as singing, dancing, poetry, or storytelling. Family and community members may watch and support.",
+            meta: [
+                "Date: July 5, 2026",
+                "Time: 1:00 PM - 3:00 PM",
+                "Location: Activity Hall"
+            ],
+            joinText: "Join Event"
+        }
+    ]
+};
+// Open popup
+function openModal(type){
+    const titles = {
+        classes: "AVAILABLE CLASSES",
+        hobbies: "HOBBY GROUPS",
+        volunteer: "VOLUNTEER OPPORTUNITIES",
+        events: "UPCOMING EVENTS"
+    };
+
+    let list = activities[type];
+
+    if(type === "events"){
+        list = [...list].sort(function(a,b){
+            return new Date(a.date) - new Date(b.date);
+        });
+    }
+
+    modalTitle.textContent = titles[type];
+
+    // SIGURADUHING CLOSE ANG GAGAWIN NG 'X' KAPAG NASA LISTAHAN
+    document.querySelector('.close-btn').setAttribute('onclick', 'closeModal()');
+
+    modalBody.innerHTML = `
+        ${type === "classes" ? '<input class="search-box" type="text" placeholder="\u{1F50D} Search Class">' : ""}
+        ${list.map(function(item){
+            return activityCard(item, type); // Pinasok natin yung 'type' dito
+        }).join("")}
+    `;
+
+    modalOverlay.classList.add("active");
+}
+
+// Activity card
+function activityCard(item, type){
+    return `
+        <div class="list-item">
+            <h3>${item.icon} ${item.name}</h3>
+            ${item.meta.map(function(line){
+                return `<p>${formatMeta(line)}</p>`;
+            }).join("")}
+
+            <div class="item-buttons">
+                <button class="action-btn join-action" onclick='confirmJoin(${JSON.stringify(item)})'>${item.joinText}</button>
+                <button class="action-btn detail-action" onclick='showDetails(${JSON.stringify(item)}, "${type}")'>View Details</button>
+            </div>
+        </div>
+    `;
+}
+
+// Label formatter
+function formatMeta(line){
+    if(!line.includes(":")){
+        return line;
+    }
+
+    const label = line.substring(0, line.indexOf(":"));
+    const value = line.substring(line.indexOf(":") + 1);
+
+    return `<strong>${label}:</strong>${value}`;
+}
+
+// Big card join
+function confirmJoinFromMainEvent(){
+    confirmJoin(mainEvent);
+}
+
+// Confirm join
+function confirmJoin(item){
+    const conflict = joinedActivities.find(function(joined){
+        return joined.date === item.date && joined.time === item.time;
+    });
+
+    modalTitle.textContent = "CONFIRM JOIN";
+
+    modalBody.innerHTML = `
+        <div class="confirm-box">
+            <h2>Are you sure you want to join?</h2>
+            <p>${item.icon} <strong>${item.name}</strong></p>
+            <p>${item.date} at ${item.time}</p>
+
+            ${conflict ? `<p class="conflict-text"><strong>Schedule Conflict:</strong> You already joined ${conflict.name} at this time.</p>` : ""}
+
+            <div class="confirm-buttons">
+                <button class="action-btn join-action" onclick='joinActivity(${JSON.stringify(item)})'>Yes, Join</button>
+                <button class="action-btn no-btn" onclick="closeModal()">No</button>
+            </div>
+        </div>
+    `;
+
+    modalOverlay.classList.add("active");
+}
+
+// Save joined
+function joinActivity(item){
+    const alreadyJoined = joinedActivities.some(function(joined){
+        return joined.name === item.name;
+    });
+
+    if(!alreadyJoined){
+        joinedActivities.push(item);
+        localStorage.setItem(joinedStorageKey, JSON.stringify(joinedActivities));
+    }
+
+    renderJoinedPreview();
+
+
+    modalTitle.textContent = "THANK YOU";
+
+    modalBody.innerHTML = `
+        <div class="success-message">
+            <h2>Successfully Joined</h2>
+            <p>Thank you for joining. Your participation is appreciated.</p>
+        </div>
+    `;
+}
+
+// Details popup
+function showDetails(item, type){
+    modalTitle.textContent = "ACTIVITY DETAILS";
+
+    // HIJACK ANG 'X' BUTTON PARA BUMALIK SA LISTAHAN
+    document.querySelector('.close-btn').setAttribute('onclick', `openModal("${type}")`);
+
+    modalBody.innerHTML = `
+        <div class="details-box">
+            <h2>${item.icon} ${item.name}</h2>
+            <p>${item.info}</p>
+            <br>
+            <p><strong>Date:</strong> ${item.date}</p>
+            <p><strong>Time:</strong> ${item.time}</p>
+            <p><strong>Location:</strong> ${item.place}</p>
+        </div>
+    `;
+
+    modalOverlay.classList.add("active");
+}
+
+// Joined list
+function renderJoinedPreview(){
+    if(joinedActivities.length === 0){
+        joinedPreview.innerHTML = `
+            <div class="joined-empty">
+                <p>No activities joined yet.</p>
+            </div>
+        `;
+        return;
+    }
+
+    const sortedActivities = [...joinedActivities].sort(function(a,b){
+        return new Date(a.date) - new Date(b.date);
+    });
+
+    joinedPreview.innerHTML = sortedActivities.map(function(item){
+        return `
+            <div class="joined-card">
+                <h3>${item.icon} ${item.name}</h3>
+                <p><i class="fa-regular fa-calendar"></i> ${item.date}</p>
+                <p><i class="fa-regular fa-clock"></i> ${item.time}</p>
+                <p><i class="fa-solid fa-location-dot"></i> ${item.place}</p>
+                <span class="confirmed">CONFIRMED</span>
+            </div>
+        `;
+    }).join("");
+}
+
+
+// Close popup
+function closeModal(){
+    modalOverlay.classList.remove("active");
+}
+
+modalOverlay.addEventListener("click", function(e){
+    if(e.target === modalOverlay){
+        closeModal();
+    }
+});
+
+menuToggle.addEventListener("click", function(){
+    const isOpen = mainNav.classList.toggle("show");
+    menuToggle.setAttribute("aria-expanded", isOpen);
+});
+
+mainNav.querySelectorAll("a").forEach(function(link){
+    link.addEventListener("click", function(){
+        mainNav.classList.remove("show");
+        menuToggle.setAttribute("aria-expanded", "false");
+    });
+});
+
+renderJoinedPreview();
+</script>
+
+</body>
+</html>

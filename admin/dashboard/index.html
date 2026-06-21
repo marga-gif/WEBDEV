@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dashboard - Barangay Assistance System</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+
+    <body>
+        <div class="app-container">
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <img src="../../images/brgy_logo.jpg" alt="Barangay Logo" class="logo" id="dynamic-barangay-logo"
+                        onerror="this.src='https://placehold.co/42x42?text=BRGY'">
+                    <div class="header-text">
+                        <h2 id="dynamic-barangay-name">Barangay Assistance System</h2>
+                        <p>Admin Panel</p>
+                    </div>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="index.html" class="nav-item active"><i class="fas fa-home"></i> Dashboard</a>
+                    <span class="nav-section-title">Manage</span>
+                    <a href="../citizens/index.html" class="nav-item"><i class="fas fa-users"></i> SenEtizens</a>
+                    <a href="../doc_reqs/index.html" class="nav-item"><i class="fas fa-file-alt"></i> Document
+                        Requests</a>
+                    <a href="../financial/index.html" class="nav-item"><i class="fas fa-wallet"></i> Financial Assistance</a>
+                    <a href="../medical/index.html" class="nav-item"><i class="fas fa-notes-medical"></i> Medical Assistance</a>
+                    <a href="../social_wellness/index.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Social
+                        Wellness (Events)</a>
+                    <a href="../cont_mngmnt/index.html" class="nav-item"><i class="fas fa-bullhorn"></i> Content
+                        Management</a>
+
+                    <span class="nav-section-title">System</span>
+                    <a href="../report_auditlogs/index.html" class="nav-item"><i class="fas fa-chart-line"></i> Reports & Audit Logs</a>
+                    <a href="../system_settings/index.html" class="nav-item"><i class="fas fa-cog"></i> System
+                        Settings</a>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <a href="../profile/index.html" class="admin-profile clickable-profile" style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:8px;border-radius:8px;transition:background 0.2s;cursor:pointer;">
+                        <i class="fas fa-user-circle profile-icon"></i>
+                        <div class="admin-info">
+                            <span class="admin-name" id="auth-admin-name">Admin User</span>
+                            <span class="admin-role" id="auth-admin-role">Administrator</span>
+                        </div>
+                    </a>
+                    <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </aside>
+
+            <main class="main-content">
+                <header class="top-bar">
+                    <div class="topbar-left" style="display: flex; align-items: center; gap: 15px;">
+                        <button class="menu-toggle" id="menu-toggle"
+                            style="background: transparent; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; display: none;"><i
+                                class="fas fa-bars"></i></button>
+                        <div class="page-title">
+                            <h1>Dashboard</h1>
+                            <span>Overview & Analytics</span>
+                        </div>
+                    </div>
+                    <div class="top-bar-actions">
+                        <div class="search-box" style="position: relative;">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="system-search-input" placeholder="Search system...">
+                            <div id="search-dropdown-panel" class="dropdown-overlay-card" style="display: none;"></div>
+                        </div>
+                        <div class="notification-bell" id="notification-bell-btn" style="position: relative;">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge" id="notification-counter">0</span>
+                            <div id="notification-dropdown-panel" class="dropdown-overlay-card" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="dashboard-viewport">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="card-body">
+                                <div class="icon-frame bg-light-blue"><i class="fas fa-users"></i></div>
+                                <div class="card-data">
+                                    <span class="card-label">Total Registered</span>
+                                    <h3 class="card-value" id="metric-total-registered">...</h3>
+                                </div>
+                            </div>
+                            <div class="card-footer text-green">
+                                <i class="fas fa-arrow-up"></i> 12% <span
+                                    style="color: var(--text-muted); font-weight: 400; margin-left: 2px;">this month</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-body">
+                                <div class="icon-frame bg-light-gold"><i class="fas fa-file-invoice"></i></div>
+                                <div class="card-data">
+                                    <span class="card-label">Pending Documents</span>
+                                    <h3 class="card-value" id="metric-pending-docs">...</h3>
+                                </div>
+                            </div>
+                            <div class="card-footer text-muted">Awaiting review</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-body">
+                                <div class="icon-frame bg-light-emerald"><i class="fas fa-calendar-check"></i></div>
+                                <div class="card-data">
+                                    <span class="card-label">Upcoming Event RSVPs</span>
+                                    <h3 class="card-value" id="metric-event-rsvps">...</h3>
+                                </div>
+                            </div>
+                            <div class="card-footer text-muted">Next 7 days</div>
+                        </div>
+
+                        <div class="metric-card alert-highlight">
+                            <div class="card-body">
+                                <div class="icon-frame bg-light-crimson"><i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="card-data">
+                                    <span class="card-label">Active Emergency Alerts</span>
+                                    <h3 class="card-value" id="metric-active-alerts">...</h3>
+                                </div>
+                            </div>
+                            <div class="card-footer text-crimson font-medium">Requires immediate action</div>
+                        </div>
+                    </div>
+
+                    <div class="split-activity-grid">
+                        <div class="content-panel">
+                            <div class="panel-header">
+                                <h3>Recent Activity</h3>
+                                <!--<button class="btn-text-action" id="btn-view-all-activity">View All</button>-->
+                            </div>
+                            <div class="panel-body" id="recent-activity-box">
+                                <div class="pulse-spinner"></div>
+                                <p style="text-align: center; color: var(--text-muted); margin-top: 10px;">Loading activities...</p>
+                            </div>
+                        </div>
+
+                        <div class="content-panel">
+                            <div class="panel-header">
+                                <h3>Today's Appointments</h3>
+                                <!--<button class="btn-text-action" id="btn-view-calendar">View Calendar</button>-->
+                            </div>
+                            <div class="panel-body" id="today-appointments-box">
+                                <div class="pulse-spinner"></div>
+                                <p style="text-align: center; color: var(--text-muted); margin-top: 10px;">Loading
+                                    appointments...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <script src="../api-config.js"></script>
+        <script src="dashboard.js"></script>
+    </body>
+
+</html>

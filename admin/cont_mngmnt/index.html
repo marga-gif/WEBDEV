@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Content Management - Barangay Admin Panel</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+
+    <body>
+        <div class="app-container">
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <img src="../../images/brgy_logo.jpg" alt="Barangay Logo" class="logo" id="dynamic-barangay-logo"
+                        onerror="this.src='https://placehold.co/42x42?text=BRGY'">
+                    <div class="header-text">
+                        <h2 id="dynamic-barangay-name">Barangay Assistance System</h2>
+                        <p>Admin Panel</p>
+                    </div>
+                </div>
+                <nav class="sidebar-nav">
+                    <a href="../dashboard/index.html" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+                    <span class="nav-section-title">Manage</span>
+                    <a href="../citizens/index.html" class="nav-item"><i class="fas fa-users"></i> SenEtizens</a>
+                    <a href="../doc_reqs/index.html" class="nav-item"><i class="fas fa-file-alt"></i> Document
+                        Requests</a>
+                    <a href="../financial/index.html" class="nav-item"><i class="fas fa-wallet"></i> Financial Assistance</a>
+                    <a href="../medical/index.html" class="nav-item"><i class="fas fa-notes-medical"></i> Medical Assistance</a>
+                    <a href="../social_wellness/index.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Social Wellness (Events)</a>
+                    <a href="index.html" class="nav-item active"><i class="fas fa-bullhorn"></i> Content Management</a>
+
+                    <span class="nav-section-title">System</span>
+                    <a href="../report_auditlogs/index.html" class="nav-item"><i class="fas fa-chart-line"></i> Reports & Audit Logs</a>
+                    <a href="../system_settings/index.html" class="nav-item"><i class="fas fa-cog"></i> System
+                        Settings</a>
+                </nav>
+                <div class="sidebar-footer">
+                    <a href="../profile/index.html" class="admin-profile clickable-profile" style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:8px;border-radius:8px;transition:background 0.2s;cursor:pointer;">
+                        <i class="fas fa-user-circle profile-icon"></i>
+                        <div class="admin-info">
+                            <span class="admin-name" id="auth-admin-name">Admin User</span>
+                            <span class="admin-role" id="auth-admin-role">Administrator</span>
+                        </div>
+                    </a>
+                    <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </aside>
+
+            <main class="main-content">
+                <header class="topbar content-topbar">
+                    <div class="topbar-left">
+                        <button class="menu-toggle" id="menu-toggle"><i class="fas fa-bars"></i></button>
+                        <div class="page-title">
+                            <h1>Content Management</h1>
+                            <span>Compose and broadcast announcements to citizen mobile portals</span>
+                        </div>
+                    </div>
+                    <div class="topbar-right action-group">
+                        <div class="toggle-group-wrapper" title="Enable to send as SMS notification">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="push-sms-toggle">
+                                <span class="slider"></span>
+                            </label>
+                            <span class="toggle-label">Push as SMS Alert <i class="fas fa-info-circle text-muted"
+                                    style="margin-left: 2px;"></i></span>
+                        </div>
+                        <button class="btn-secondary" id="btn-save-draft"><i class="far fa-save"></i> Save as
+                            Draft</button>
+                        <button class="btn-primary" id="btn-publish"><i class="fas fa-paper-plane"></i> Publish</button>
+                    </div>
+                </header>
+
+                <div class="dashboard-viewport">
+                    <div class="content-manager-layout-split">
+                        <div class="editor-column">
+                            <div class="accordion-item card-bounding active">
+                                <div class="accordion-header">
+                                    <h3><i class="fas fa-bullhorn"></i> Announcements</h3>
+                                    <i class="fas fa-chevron-down accordion-icon"></i>
+                                </div>
+                                <div class="accordion-body-canvas">
+                                    <div class="form-input-group">
+                                        <label>Title <span class="text-danger">*</span></label>
+                                        <div class="input-with-counter-wrapper">
+                                            <input type="text" id="editor-title"
+                                                placeholder="Enter announcement title..." maxlength="100">
+                                            <span class="char-count" id="title-counter">0/100</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-input-group mt-4">
+                                        <label>Content <span class="text-danger">*</span></label>
+                                        <div class="rich-text-editor-container">
+                                            <div class="editor-toolbar-bar">
+                                                <select class="toolbar-select-dropdown">
+                                                    <option>Paragraph</option>
+                                                    <option>Heading 1</option>
+                                                </select>
+                                                <div class="toolbar-divider-line"></div>
+                                                <button class="toolbar-action-btn" type="button" title="Bold"><i
+                                                        class="fas fa-bold"></i></button>
+                                                <button class="toolbar-action-btn" type="button" title="Italic"><i
+                                                        class="fas fa-italic"></i></button>
+                                                <button class="toolbar-action-btn" type="button" title="Underline"><i
+                                                        class="fas fa-underline"></i></button>
+                                                <div class="toolbar-divider-line"></div>
+                                                <button class="toolbar-action-btn" type="button" title="Bullet List"><i
+                                                        class="fas fa-list-ul"></i></button>
+                                                <button class="toolbar-action-btn" type="button"
+                                                    title="Numbered List"><i class="fas fa-list-ol"></i></button>
+                                                <div class="toolbar-divider-line"></div>
+                                                <button class="toolbar-action-btn" type="button" title="Insert Link"><i
+                                                        class="fas fa-link"></i></button>
+                                                <button class="toolbar-action-btn" type="button" title="Insert Image"><i
+                                                        class="fas fa-image"></i></button>
+                                            </div>
+                                            <textarea id="editor-content"
+                                                placeholder="Type your announcement details here..."></textarea>
+                                        </div>
+                                        <div class="editor-metadata-footer">
+                                            <span class="word-count" id="content-word-count">Words: 0 | Characters:
+                                                0</span>
+                                            <span class="save-status-badge text-success" id="save-status"
+                                                style="display:none;"><i class="fas fa-check-circle"></i> Saved just
+                                                now</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="info-alert-banner mt-4" id="sms-info-banner" style="transition: all 0.2s ease;">
+                                <i class="fas fa-info-circle" id="banner-icon"></i>
+                                <p id="banner-text">Enable "Push as SMS Alert" to send this announcement as an SMS
+                                    notification to all registered senior citizens.</p>
+                            </div>
+                        </div>
+
+                        <div class="preview-column-panel">
+                            <div class="preview-header-bar">
+                                <h4>Mobile Preview</h4>
+                                <div class="preview-device-toggles-group">
+                                    <button class="btn-icon active" title="Mobile View"><i
+                                            class="fas fa-mobile-alt"></i></button>
+                                    <button class="btn-icon" title="Tablet View"
+                                        onclick="alert('Device viewport adjustment option locked to responsive standard grid layout.')"><i
+                                            class="fas fa-tablet-alt"></i></button>
+                                </div>
+                            </div>
+
+                            <div class="mobile-screen-display">
+                                <div class="mock-app-header">
+                                    <i class="fas fa-chevron-left"></i>
+                                    <span>Announcements</span>
+                                    <i class="far fa-bell"></i>
+                                </div>
+
+                                <div class="mock-app-body">
+                                    <div class="mock-preview-card">
+                                        <div class="mock-preview-hero-banner">
+                                            <h2>IMPORTANT ANNOUNCEMENT</h2>
+                                            <i class="fas fa-bullhorn hero-icon-watermark"></i>
+                                        </div>
+                                        <div class="mock-preview-content-area">
+                                            <h3 id="preview-title" class="placeholder-text-italic">Announcement Title
+                                            </h3>
+                                            <div class="mock-preview-meta-row">
+                                                <i class="far fa-calendar-alt"></i> <span id="preview-date">Date &
+                                                    Time</span>
+                                            </div>
+                                            <div id="preview-body"
+                                                class="mock-preview-body-text placeholder-text-italic">The content of
+                                                your announcement will appear here as you type.</div>
+                                            <div class="mock-preview-footer-signature">Thank you!<br>— Barangay Admin
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <script src="../api-config.js"></script>
+        <script src="content.js"></script>
+    </body>
+
+</html>

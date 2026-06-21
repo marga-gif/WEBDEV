@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration - Barangay System</title>
+    <link rel="stylesheet" href="../css/register.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script async src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="banner-side">
+            <div class="banner-graphics"></div>
+            <div class="banner-content">
+                <div class="logo-placeholder"></div>
+                <h1>Barangay San Jose</h1>
+                <p class="subtitle">Senior Citizen Assistance System</p>
+                <p class="portal-type">Secure User Portal</p>
+            </div>
+        </div>
+
+        <div class="form-side">
+            <h2>Create Account</h2>
+            <p class="form-instruction">Fill in your details to register as a system user.</p>
+
+            <form id="registerForm" novalidate>
+                <div class="step-wizard" id="stepWizard">
+                    <div class="step-item active" data-step="1"><span>1</span><small>Account</small></div>
+                    <div class="step-item disabled" data-step="2"><span>2</span><small>Address</small></div>
+                    <div class="step-item disabled" data-step="3"><span>3</span><small>ID Verify</small></div>
+                    <div class="step-item disabled" data-step="4"><span>4</span><small>Profile</small></div>
+                    <div class="step-item disabled" data-step="5"><span>5</span><small>Privacy</small></div>
+                    <div class="step-item disabled" data-step="6"><span>6</span><small>Review</small></div>
+                </div>
+
+                <div class="form-error" id="formErrorMessage"></div>
+
+                <div class="form-step active" data-step="1">
+                    <h3>Step 1 — Basic Account Information</h3>
+                    <p class="step-description">Provide your personal details to create your account.</p>
+                    <div class="form-row">
+                        <div class="input-group flex-1">
+                            <label for="firstName">First Name</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-user input-icon"></i>
+                                <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
+                            </div>
+                        </div>
+                        <div class="input-group flex-1">
+                            <label for="middleName">Middle Name <span class="optional">(optional)</span></label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-user input-icon"></i>
+                                <input type="text" id="middleName" name="middleName" placeholder="Middle Name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group flex-1">
+                            <label for="lastName">Last Name / Surname</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-user input-icon"></i>
+                                <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
+                            </div>
+                        </div>
+                        <div class="input-group flex-1">
+                            <label for="suffix">Suffix</label>
+                            <div class="input-wrapper select-wrapper">
+                                <i class="fa-solid fa-caret-down input-icon"></i>
+                                <select id="suffix" name="suffix">
+                                    <option value="None">None</option>
+                                    <option value="Jr.">Jr.</option>
+                                    <option value="Sr.">Sr.</option>
+                                    <option value="II">II</option>
+                                    <option value="III">III</option>
+                                    <option value="IV">IV</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group flex-1">
+                            <label for="birthDate">Birth Date</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-calendar-days input-icon"></i>
+                                <input type="date" id="birthDate" name="birthDate" min="1900-01-01" required>
+                            </div>
+                        </div>
+                        <div class="input-group flex-1">
+                            <label for="gender">Gender <span class="optional">(optional)</span></label>
+                            <div class="input-wrapper select-wrapper">
+                                <i class="fa-solid fa-venus-mars input-icon"></i>
+                                <select id="gender" name="gender">
+                                    <option value="">Prefer not to say</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="email">Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-envelope input-icon"></i>
+                            <input type="email" id="email" name="email" placeholder="user@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="mobile">Mobile Number</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-phone input-icon"></i>
+                            <input type="tel" id="mobile" name="mobile" placeholder="09123456789" inputmode="numeric"
+                                maxlength="11" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group flex-1">
+                            <label for="password">Password</label>
+                            <div class="input-wrapper password-wrapper">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" id="password" name="password" placeholder="Enter password"
+                                    minlength="8" maxlength="16" required>
+                                <button type="button" class="password-toggle" data-target="password"
+                                    aria-label="Show password"><i class="fa-solid fa-eye"></i></button>
+                            </div>
+                            <div class="password-checklist" id="passwordChecklist" aria-live="polite" hidden>
+                                <div class="password-rule" data-rule="length"><i
+                                        class="fa-solid fa-xmark"></i><span>8-16 characters</span></div>
+                                <div class="password-rule" data-rule="uppercase"><i
+                                        class="fa-solid fa-xmark"></i><span>At least one uppercase letter</span></div>
+                                <div class="password-rule" data-rule="number"><i class="fa-solid fa-xmark"></i><span>At
+                                        least one number</span></div>
+                                <div class="password-rule" data-rule="special"><i class="fa-solid fa-xmark"></i><span>At
+                                        least one special character</span></div>
+                            </div>
+                        </div>
+                        <div class="input-group flex-1">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <div class="input-wrapper password-wrapper">
+                                <i class="fa-solid fa-shield-halved input-icon"></i>
+                                <input type="password" id="confirmPassword" name="confirmPassword"
+                                    placeholder="Confirm password" minlength="8" maxlength="16" required>
+                                <button type="button" class="password-toggle" data-target="confirmPassword"
+                                    aria-label="Show confirm password"><i class="fa-solid fa-eye"></i></button>
+                            </div>
+                            <p class="field-error" id="confirmPasswordError">Password must match.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-step" data-step="2">
+                    <h3>Step 2 — Address Information</h3>
+                    <p class="step-description">Enter the address details for your service location.</p>
+                    <div class="input-group">
+                        <label for="street">Street</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-house input-icon"></i>
+                            <input type="text" id="street" name="street" placeholder="Street" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="barangay">Barangay</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-map-pin input-icon"></i>
+                            <input type="text" id="barangay" name="barangay" placeholder="Barangay" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group flex-1">
+                            <label for="city">City / Municipality</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-city input-icon"></i>
+                                <input type="text" id="city" name="city" placeholder="City / Municipality" required>
+                            </div>
+                        </div>
+                        <div class="input-group flex-1">
+                            <label for="province">Province</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-map-location-dot input-icon"></i>
+                                <input type="text" id="province" name="province" placeholder="Province" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="zipCode">ZIP Code</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-mailbox input-icon"></i>
+                            <input type="text" id="zipCode" name="zipCode" placeholder="ZIP Code" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-step" data-step="3">
+                    <h3>Step 3 — ID Verification</h3>
+                    <p class="step-description">Choose your ID type, then capture or upload both the front and back of
+                        your verification ID.</p>
+                    <div class="input-group">
+                        <label for="idType">Select ID Type</label>
+                        <div class="input-wrapper select-wrapper">
+                            <i class="fa-solid fa-caret-down input-icon"></i>
+                            <select id="idType" name="idType" required>
+                                <option value="" disabled selected hidden>Choose ID Type</option>
+                                <option value="philhealth">PhilHealth ID</option>
+                                <option value="senior_citizen">Senior Citizen ID</option>
+                                <option value="solo_parent">Solo Parent ID</option>
+                                <option value="government_id">Government ID</option>
+                                <option value="others">Other valid ID</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="id-verification-grid">
+                        <div class="verification-card">
+                            <h4>Capture or Upload your Valid ID </h4>
+                            <p>Use our camera to take a sharp image of the front and back of your ID.</p>
+                            <div class="camera-frame landscape">
+                                <video id="idCameraVideo" autoplay muted playsinline></video>
+                                <div class="camera-overlay">
+                                    <div class="overlay-label">Landscape ID view</div>
+                                </div>
+                            </div>
+                            <div class="camera-actions centered">
+                                <button type="button" class="btn-camera btn-camera-start" id="startCameraBtn"><i
+                                        class="fa-solid fa-video"></i> Start Camera</button>
+                                <button type="button" class="btn-camera btn-camera-capture" id="captureIdBtn"><i
+                                        class="fa-solid fa-camera"></i> Capture ID</button>
+                                <button type="button" class="btn-camera btn-camera-capture btn-side"
+                                    id="captureFrontBtn">Front Capture</button>
+                                <button type="button" class="btn-camera btn-camera-capture btn-side"
+                                    id="captureBackBtn">Back Capture</button>
+                            </div>
+                            <div class="or-divider"><span>or</span></div>
+                            <div class="upload-section">
+                                <input type="file" id="idUploadInputFront" accept="image/*" hidden>
+                                <input type="file" id="idUploadInputBack" accept="image/*" hidden>
+                                <button type="button" class="btn-upload btn-upload-blue" id="uploadFrontBtn"><i
+                                        class="fa-solid fa-upload"></i> Upload Front</button>
+                                <button type="button" class="btn-upload btn-upload-blue" id="uploadBackBtn"><i
+                                        class="fa-solid fa-upload"></i> Upload Back</button>
+                            </div>
+                            <div class="capture-preview-card">
+                                <h4>Captured Preview</h4>
+                                <div class="capture-preview-frame">
+                                    <img id="capturePreviewImg" src="" alt="Captured ID preview" hidden>
+                                    <div class="spinner" id="captureSpinner" hidden></div>
+                                    <span id="capturePreviewLabel">No capture yet. Use the camera or upload an
+                                        ID.</span>
+                                </div>
+                            </div>
+                            <div class="id-side-toggle">
+                                <button type="button" class="btn-side active" id="frontSideBtn">Front</button>
+                                <button type="button" class="btn-side" id="backSideBtn">Back</button>
+                            </div>
+                        </div>
+                        <div class="verification-card">
+                            <h4>Captured / Uploaded ID</h4>
+                            <p>Preview the front and back images you provided for verification.</p>
+                            <div class="id-preview-grid">
+                                <div class="id-preview id-preview-front" id="idPreviewFront">
+                                    <div class="preview-side-heading">Front ID</div>
+                                    <div class="preview-image-content"><span>Front image not ready.</span></div>
+                                </div>
+                                <div class="id-preview id-preview-back" id="idPreviewBack">
+                                    <div class="preview-side-heading">Back ID</div>
+                                    <div class="preview-image-content"><span>Back image not ready.</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-step" data-step="4">
+                    <h3>Step 4 — Profile Setup</h3>
+                    <p class="step-description">Upload a profile photo for your account.</p>
+                    <div class="profile-photo-wrapper">
+                        <div class="photo-preview" id="photoPreview">
+                            <i class="fa-solid fa-circle-user photo-placeholder-icon"></i>
+                            <img id="photoPreviewImg" alt="Profile preview">
+                        </div>
+                        <input type="file" id="profilePhotoInput" accept="image/*" hidden>
+                    </div>
+                    <div class="photo-buttons">
+                        <button type="button" class="btn-alt" id="uploadPhotoBtn"><i class="fa-solid fa-upload"></i>
+                            Upload Photo</button>
+                    </div>
+                </div>
+
+                <div class="form-step" data-step="5">
+                    <h3>Step 5 — Data Privacy & Terms</h3>
+                    <p class="step-description">Review and accept the terms required for registration.</p>
+                    <div class="privacy-note">
+                        <p>In compliance with Republic Act No. 10173 (Data Privacy Act of 2012), SenEtizen and the
+                            Barangay Office collect personal information solely for the purpose of processing your
+                            requested document.</p>
+                        <p>The information you provide will be treated confidentially and will only be accessed by
+                            authorized personnel.</p>
+                        <p>By proceeding, you agree to the collection, processing, storage, and verification of your
+                            personal information for document issuance and government-related services.</p>
+                    </div>
+                    <div class="checkbox-list">
+                        <label><input type="checkbox" id="agreeTerms" required> I agree to the Terms and
+                            Conditions</label>
+                        <label><input type="checkbox" id="agreePrivacy" required> I agree to the Privacy Policy</label>
+                        <label><input type="checkbox" id="agreeConsent" required> I consent to the collection of my
+                            personal information</label>
+                    </div>
+                </div>
+
+                <div class="form-step" data-step="6">
+                    <h3>Step 6 — Review & Submit</h3>
+                    <p class="step-description">Confirm your information before completing registration.</p>
+                    <div class="review-summary">
+                        <div class="review-card full-width">
+                            <h4>Personal Information</h4>
+                            <div class="review-row"><span>Name</span><span id="reviewFullName"></span></div>
+                            <div class="review-row"><span>Birthday</span><span id="reviewBirthday"></span></div>
+                            <div class="review-row"><span>Age</span><span id="reviewAge"></span></div>
+                            <div class="review-row"><span>Gender</span><span id="reviewGender"></span></div>
+                            <div class="review-row"><span>Email</span><span id="reviewEmail"></span></div>
+                            <div class="review-row"><span>Mobile Number</span><span id="reviewMobile"></span></div>
+                        </div>
+                        <div class="review-card full-width">
+                            <h4>Address</h4>
+                            <div class="review-row"><span>Street</span><span id="reviewStreet"></span></div>
+                            <div class="review-row"><span>Barangay</span><span id="reviewBarangay"></span></div>
+                            <div class="review-row"><span>City / Municipality</span><span id="reviewCity"></span></div>
+                            <div class="review-row"><span>Province</span><span id="reviewProvince"></span></div>
+                            <div class="review-row"><span>ZIP Code</span><span id="reviewZip"></span></div>
+                        </div>
+                    </div>
+                    <div class="review-card full-width">
+                        <h4>Profile Photo</h4>
+                        <div class="review-photo" id="reviewPhoto"></div>
+                    </div>
+                    <div class="review-card full-width">
+                        <h4>ID Verification</h4>
+                        <div class="review-row"><span>ID Type</span><span id="reviewIDType"></span></div>
+                        <div class="review-row"><span>Front ID</span><span id="reviewIDFrontStatus"></span></div>
+                        <div class="review-row"><span>Back ID</span><span id="reviewIDBackStatus"></span></div>
+                    </div>
+                </div>
+
+                <div class="step-controls">
+                    <button type="button" class="btn-back" id="prevStep">Back</button>
+                    <button type="button" class="btn-alt" id="skipPhotoBtn">Skip for Now</button>
+                    <button type="button" class="btn-next" id="nextStep">Next</button>
+                    <button type="button" class="btn-submit" id="submitStep">Submit Registration</button>
+                </div>
+            </form>
+
+            <div class="modal-overlay" id="modalOverlay"></div>
+            <div class="success-modal" id="successModal" role="dialog" aria-modal="true" aria-labelledby="successTitle">
+                <button type="button" class="modal-close" id="closeModal">×</button>
+                <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+                <h3 id="successTitle">Registration Complete</h3>
+                <p>Your account has been created successfully.</p>
+                <button type="button" class="btn-submit btn-modal" id="goLoginButton">Proceed to Login</button>
+            </div>
+
+            <p class="switch-portal">Already have an account? <a href="login.html">Log In here</a></p>
+        </div>
+    </div>
+
+    <script>
+        const stepOrder = [1, 2, 3, 4, 5, 6];
+        let currentStepIndex = 0;
+        const registerForm = document.getElementById('registerForm');
+        const formSteps = Array.from(document.querySelectorAll('.form-step'));
+        const stepItems = Array.from(document.querySelectorAll('.step-item'));
+        const prevStepButton = document.getElementById('prevStep');
+        const nextStepButton = document.getElementById('nextStep');
+        const submitStepButton = document.getElementById('submitStep');
+        const goLoginButton = document.getElementById('goLoginButton');
+        const profilePhotoInput = document.getElementById('profilePhotoInput');
+        const photoPreview = document.getElementById('photoPreview');
+        const photoPreviewImg = document.getElementById('photoPreviewImg');
+        const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
+        const skipPhotoBtn = document.getElementById('skipPhotoBtn');
+        const reviewPhoto = document.getElementById('reviewPhoto');
+        const reviewFullName = document.getElementById('reviewFullName');
+        const reviewBirthday = document.getElementById('reviewBirthday');
+        const reviewAge = document.getElementById('reviewAge');
+        const reviewGender = document.getElementById('reviewGender');
+        const reviewStreet = document.getElementById('reviewStreet');
+        const reviewBarangay = document.getElementById('reviewBarangay');
+        const reviewCity = document.getElementById('reviewCity');
+        const reviewProvince = document.getElementById('reviewProvince');
+        const reviewZip = document.getElementById('reviewZip');
+        const reviewEmail = document.getElementById('reviewEmail');
+        const reviewMobile = document.getElementById('reviewMobile');
+        const formErrorMessage = document.getElementById('formErrorMessage');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const successModal = document.getElementById('successModal');
+        const closeModal = document.getElementById('closeModal');
+        const birthDateInput = document.getElementById('birthDate');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const confirmPasswordError = document.getElementById('confirmPasswordError');
+        const passwordChecklist = document.getElementById('passwordChecklist');
+        const passwordRules = Array.from(document.querySelectorAll('.password-rule'));
+        const passwordToggles = Array.from(document.querySelectorAll('.password-toggle'));
+        const idTypeInput = document.getElementById('idType');
+        const idUploadInputFront = document.getElementById('idUploadInputFront');
+        const idUploadInputBack = document.getElementById('idUploadInputBack');
+        const uploadFrontBtn = document.getElementById('uploadFrontBtn');
+        const uploadBackBtn = document.getElementById('uploadBackBtn');
+        const idPreviewFront = document.getElementById('idPreviewFront');
+        const idPreviewBack = document.getElementById('idPreviewBack');
+        const captureFrontBtn = document.getElementById('captureFrontBtn');
+        const captureBackBtn = document.getElementById('captureBackBtn');
+        const capturePreviewImg = document.getElementById('capturePreviewImg');
+        const capturePreviewLabel = document.getElementById('capturePreviewLabel');
+        const startCameraBtn = document.getElementById('startCameraBtn');
+        const captureIdBtn = document.getElementById('captureIdBtn');
+        const idCameraVideo = document.getElementById('idCameraVideo');
+        const frontSideBtn = document.getElementById('frontSideBtn');
+        const backSideBtn = document.getElementById('backSideBtn');
+        let cameraStream = null;
+        let idVerificationFront = null;
+        let idVerificationBack = null;
+        let idFrontIsValid = false;
+        let idBackIsValid = false;
+        let currentIdSide = 'front';
+        let pendingValidations = 0;
+
+        const setValidationPending = (start) => {
+            pendingValidations = Math.max(0, pendingValidations + (start ? 1 : -1));
+            const spinner = document.getElementById('captureSpinner');
+            if (spinner) spinner.hidden = pendingValidations === 0;
+            if (nextStepButton) nextStepButton.disabled = pendingValidations > 0;
+        };
+
+        const toDateInputValue = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
+            const getMaxBirthDate = () => {
+            const today = new Date();
+            return new Date(today.getFullYear() - 60, today.getMonth(), today.getDate());
+        };
+        
+        birthDateInput.min = '1900-01-01';
+        birthDateInput.max = toDateInputValue(getMaxBirthDate());
+
+        const getPasswordChecks = (password) => ({
+            length: password.length >= 8 && password.length <= 16,
+            uppercase: /[A-Z]/.test(password),
+            number: /\d/.test(password),
+            special: /[^A-Za-z0-9]/.test(password),
+        });
+
+        const isPasswordValid = (password) => Object.values(getPasswordChecks(password)).every(Boolean);
+
+        const updatePasswordChecklist = () => {
+            passwordChecklist.hidden = passwordInput.value.length === 0;
+            const checks = getPasswordChecks(passwordInput.value);
+            passwordRules.forEach((rule) => {
+                const passed = checks[rule.dataset.rule];
+                rule.classList.toggle('valid', passed);
+                rule.classList.toggle('invalid', !passed);
+                const icon = rule.querySelector('i');
+                icon.className = passed ? 'fa-solid fa-check' : 'fa-solid fa-xmark';
+            });
+        };
+
+        const updatePasswordMatch = () => {
+            const showMismatch = confirmPasswordInput.value.length > 0 && passwordInput.value !== confirmPasswordInput.value;
+            confirmPasswordError.classList.toggle('visible', showMismatch);
+            confirmPasswordInput.classList.toggle('invalid-field', showMismatch);
+        };
+
+        const getAge = (birthDateValue) => {
+            if (!birthDateValue) return '';
+            const birthDate = new Date(birthDateValue);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age -= 1;
+            }
+            return age;
+        };
+
+        const showError = (message) => {
+            formErrorMessage.textContent = message;
+            formErrorMessage.style.display = 'block';
+            formErrorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        };
+
+        const clearError = () => {
+            formErrorMessage.textContent = '';
+            formErrorMessage.style.display = 'none';
+        };
+
+        const saveUser = (user) => {
+            localStorage.setItem('senetizenUser', JSON.stringify(user));
+        };
+
+               const validateStep = () => {
+            clearError();
+            const currentStep = stepOrder[currentStepIndex];
+            if (currentStep === 1) {
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const birthDate = document.getElementById('birthDate').value;
+                const email = document.getElementById('email').value.trim();
+                const mobile = document.getElementById('mobile').value.trim();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                if (!firstName) { showError('First Name is required.'); return false; }
+                if (!lastName) { showError('Last Name is required.'); return false; }
+                                if (!birthDate) { showError('Birth Date is required.'); return false; }
+               const age = getAge(birthDate);
+                if (age < 60) {showError('Only senior citizens aged 60 years old and above may register.');return false;}
+                if (!email) { showError('Email Address is required.'); return false; }
+                if (!mobile) { showError('Mobile Number is required.'); return false; }
+                if (!/^09\d{9}$/.test(mobile)) {showError('Mobile Number must be 11 digits and start with 09.');return false;}
+                                if (!password) { showError('Password is required.'); return false; }
+                if (!isPasswordValid(password)) { showError('Password must meet all password requirements.'); return false; }
+                if (!confirmPassword) { showError('Confirm Password is required.'); return false; }
+                if (password !== confirmPassword) { showError('Password must match.'); return false; }
+                return true;
+            }
+            if (currentStep === 2) {
+                const street = document.getElementById('street').value.trim();
+                const barangay = document.getElementById('barangay').value.trim();
+                const city = document.getElementById('city').value.trim();
+                const province = document.getElementById('province').value.trim();
+                const zipCode = document.getElementById('zipCode').value.trim();
+                if (!street) { showError('Street is required.'); return false; }
+                if (!barangay) { showError('Barangay is required.'); return false; }
+                if (!city) { showError('City / Municipality is required.'); return false; }
+                if (!province) { showError('Province is required.'); return false; }
+                if (!zipCode) { showError('ZIP Code is required.'); return false; }
+                return true;
+            }
+            if (currentStep === 3) {
+                const idType = idTypeInput.value;
+                if (!idType) { showError('Please select the ID type for verification.'); return false; }
+                if (!idVerificationFront) { showError('Please capture or upload the front of your ID.'); return false; }
+                if (!idVerificationBack) { showError('Please capture or upload the back of your ID.'); return false; }
+                if (!idFrontIsValid) { showError('Front ID looks invalid. Capture or upload a valid ID.'); return false; }
+                if (!idBackIsValid) { showError('Back ID looks invalid. Capture or upload a valid ID.'); return false; }
+                return true;
+            }
+            if (currentStep === 4) {
+                if (!photoPreview.classList.contains('has-photo')) { showError('Please upload a profile photo or click Skip for Now to continue without one.'); return false; }
+                return true;
+            }
+            if (currentStep === 5) {
+                const agreeTerms = document.getElementById('agreeTerms').checked;
+                const agreePrivacy = document.getElementById('agreePrivacy').checked;
+                const agreeConsent = document.getElementById('agreeConsent').checked;
+                if (!agreeTerms) { showError('You must agree to the Terms and Conditions.'); return false; }
+                if (!agreePrivacy) { showError('You must agree to the Privacy Policy.'); return false; }
+                if (!agreeConsent) { showError('You must consent to information collection.'); return false; }
+                return true;
+            }
+            if (currentStep === 6) {
+                return true;
+            }
+            return true;
+        };
+
+        const updateReview = () => {
+            const firstName = document.getElementById('firstName').value.trim();
+            const middleName = document.getElementById('middleName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const suffix = document.getElementById('suffix').value;
+            const birthDate = document.getElementById('birthDate').value;
+            const gender = document.getElementById('gender').value || 'Not specified';
+            const email = document.getElementById('email').value.trim();
+            const mobile = document.getElementById('mobile').value.trim();
+            const street = document.getElementById('street').value.trim();
+            const barangay = document.getElementById('barangay').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const province = document.getElementById('province').value.trim();
+            const zipCode = document.getElementById('zipCode').value.trim();
+            let fullName = `${firstName}`;
+            if (middleName) fullName += ` ${middleName}`;
+            fullName += ` ${lastName}`;
+            if (suffix && suffix !== 'None') fullName += `, ${suffix}`;
+            reviewFullName.textContent = fullName;
+            reviewBirthday.textContent = birthDate;
+            reviewAge.textContent = getAge(birthDate);
+            reviewGender.textContent = gender;
+            reviewStreet.textContent = street;
+            reviewBarangay.textContent = barangay;
+            reviewCity.textContent = city;
+            reviewProvince.textContent = province;
+            reviewZip.textContent = zipCode;
+            reviewEmail.textContent = email;
+            reviewMobile.textContent = mobile;
+            const idTypeText = idTypeInput.options[idTypeInput.selectedIndex].text || 'Not selected';
+            const frontStatus = idVerificationFront ? 'Front image provided' : 'Front missing';
+            const backStatus = idVerificationBack ? 'Back image provided' : 'Back missing';
+            document.getElementById('reviewIDType').textContent = idTypeText;
+            document.getElementById('reviewIDFrontStatus').textContent = frontStatus;
+            document.getElementById('reviewIDBackStatus').textContent = backStatus;
+            if (photoPreview.classList.contains('has-photo')) {
+                reviewPhoto.innerHTML = `<img src="${photoPreviewImg.src}" alt="Profile photo preview">`;
+            } else {
+                reviewPhoto.innerHTML = '<div class="review-photo-placeholder"><i class="fa-solid fa-circle-user"></i><span>No photo selected</span></div>';
+            }
+        };
+
+        const updateStepIndicators = () => {
+            stepItems.forEach((item) => {
+                const stepValue = Number(item.dataset.step);
+                item.classList.toggle('active', stepValue === stepOrder[currentStepIndex]);
+                item.classList.toggle('completed', stepValue < stepOrder[currentStepIndex]);
+                item.classList.toggle('disabled', stepValue > stepOrder[currentStepIndex]);
+            });
+        };
+
+        const stopCamera = () => {
+            if (!cameraStream) return;
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+            idCameraVideo.srcObject = null;
+        };
+
+        const showStepIndex = (index) => {
+            currentStepIndex = index;
+            const currentStep = stepOrder[currentStepIndex];
+            formSteps.forEach((step) => {
+                step.classList.toggle('active', Number(step.dataset.step) === currentStep);
+            });
+            updateStepIndicators();
+            prevStepButton.style.display = currentStep === 1 ? 'none' : 'inline-flex';
+            nextStepButton.style.display = currentStep === 6 ? 'none' : 'inline-flex';
+            submitStepButton.style.display = currentStep === 6 ? 'inline-flex' : 'none';
+            skipPhotoBtn.classList.toggle('step-skip-visible', currentStep === 4);
+            if (currentStep === 6) {
+                updateReview();
+            }
+            if (currentStep !== 3) {
+                stopCamera();
+            }
+        };
+
+        stepItems.forEach((item, itemIndex) => {
+            item.addEventListener('click', () => {
+                if (itemIndex <= currentStepIndex) {
+                    showStepIndex(itemIndex);
+                }
+            });
+        });
+
+        const goNext = () => {
+            if (!validateStep()) return;
+            if (currentStepIndex < stepOrder.length - 1) {
+                showStepIndex(currentStepIndex + 1);
+            }
+        };
+
+        const goPrev = () => {
+            if (currentStepIndex > 0) {
+                showStepIndex(currentStepIndex - 1);
+            }
+        };
+
+        registerForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if (stepOrder[currentStepIndex] !== 6) return;
+            if (!validateStep()) return;
+            clearError();
+
+            const firstName = document.getElementById('firstName').value.trim();
+            const middleName = document.getElementById('middleName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const suffix = document.getElementById('suffix').value;
+            const birthDate = document.getElementById('birthDate').value;
+            const gender = document.getElementById('gender').value;
+            const email = document.getElementById('email').value.trim();
+            const mobile = document.getElementById('mobile').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const street = document.getElementById('street').value.trim();
+            const barangay = document.getElementById('barangay').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const province = document.getElementById('province').value.trim();
+            const zipCode = document.getElementById('zipCode').value.trim();
+            const photoData = photoPreview.classList.contains('has-photo') ? photoPreviewImg.src : null;
+            const idType = document.getElementById('idType').value;
+            const registrationPayload = {
+                firstName,
+                middleName,
+                lastName,
+                suffix,
+                birthDate,
+                gender,
+                email,
+                mobile,
+                street,
+                barangay,
+                city,
+                province,
+                zipCode,
+                password,
+                confirmPassword,
+                photoData,
+                idType,
+                idVerificationFront,
+                idVerificationBack,
+            };
+
+            submitStepButton.disabled = true;
+            const originalText = submitStepButton.innerHTML;
+            submitStepButton.textContent = 'Submitting...';
+
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(registrationPayload),
+                });
+
+                const body = await response.json();
+                if (!response.ok) {
+                    throw new Error(body.error || 'Registration failed.');
+                }
+
+                saveUser({ ...registrationPayload, fullName: `${firstName} ${middleName ? middleName + ' ' : ''}${lastName}` });
+                modalOverlay.classList.add('visible');
+                successModal.classList.add('visible');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            } catch (error) {
+                showError(error.message || 'Registration failed. Please try again.');
+            } finally {
+                submitStepButton.disabled = false;
+                submitStepButton.innerHTML = originalText;
+            }
+        });
+
+        nextStepButton.addEventListener('click', goNext);
+        prevStepButton.addEventListener('click', goPrev);
+        submitStepButton.addEventListener('click', () => registerForm.requestSubmit());
+        uploadPhotoBtn.addEventListener('click', () => profilePhotoInput.click());
+        skipPhotoBtn.addEventListener('click', () => {
+            clearError();
+            photoPreview.classList.remove('has-photo');
+            photoPreviewImg.src = '';
+            photoPreviewImg.hidden = true;
+            if (stepOrder[currentStepIndex] === 4 && currentStepIndex < stepOrder.length - 1) {
+                showStepIndex(currentStepIndex + 1);
+            }
+        });
+        passwordInput.addEventListener('input', () => {
+            if (passwordInput.value.trim() === '') {
+                passwordChecklist.classList.remove('show');
+            } else {
+                passwordChecklist.classList.add('show');
+            }
+            updatePasswordChecklist();
+            updatePasswordMatch();
+        });
+        confirmPasswordInput.addEventListener('input', updatePasswordMatch);
+        passwordToggles.forEach((toggle) => {
+            toggle.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+            toggle.addEventListener('click', () => {
+                const targetInput = document.getElementById(toggle.dataset.target);
+                const isHidden = targetInput.type === 'password';
+                targetInput.type = isHidden ? 'text' : 'password';
+                toggle.innerHTML = `<i class="fa-solid ${isHidden ? 'fa-eye' : 'fa-eye-slash'}"></i>`;
+                toggle.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+            });
+        });
+        passwordChecklist.hidden = true;
+
+        const updateCapturePreview = () => {
+            const currentImage = currentIdSide === 'front' ? idVerificationFront : idVerificationBack;
+            const sideLabel = currentIdSide === 'front' ? 'Front' : 'Back';
+            if (currentImage) {
+                capturePreviewImg.src = currentImage;
+                capturePreviewImg.hidden = false;
+                capturePreviewLabel.textContent = `${sideLabel} ID selected — ready to submit`;
+            } else {
+                capturePreviewImg.hidden = true;
+                capturePreviewLabel.textContent = `Current side: ${sideLabel} — use the camera or upload an ID.`;
+            }
+        };
+
+        const validateIdImage = async (dataUrl) => {
+            try {
+                if (!dataUrl) return false;
+
+                // Check if Tesseract is loaded
+                if (typeof Tesseract === 'undefined') {
+                    console.warn('Tesseract.js not loaded, using fallback validation');
+                    return true;
+                }
+
+                // Use Tesseract to extract text from image
+                const { data: { text } } = await Tesseract.recognize(dataUrl, 'eng');
+                const extractedText = text.toUpperCase();
+
+                if (!extractedText || extractedText.trim().length < 10) {
+                    return false;
+                }
+
+                // Look for ID-like patterns
+                const hasDatePattern = /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(extractedText);
+                const hasIdNumber = /\b\d{4,}\b|\b[A-Z]{1,3}\d{4,}\b/.test(extractedText);
+                const hasIdKeywords = /(ID|IDENTIFICATION|CARD|VALID|EXPIR|DATE|BIRTH|NAME|NUMBER|SERIAL)/i.test(extractedText);
+                const hasStructuredContent = extractedText.split('\n').length >= 2 || extractedText.split(' ').length >= 5;
+
+                // Accept if it has multiple ID-like indicators
+                const indicators = [hasDatePattern, hasIdNumber, hasIdKeywords, hasStructuredContent].filter(Boolean).length;
+
+                if (indicators >= 2) {
+                    return true;
+                }
+
+                return false;
+            } catch (error) {
+                console.error('OCR validation error:', error);
+                return false;
+            }
+        };
+
+        const updateIdPreview = (side, imageSrc) => {
+            const targetPreview = side === 'front' ? idPreviewFront : idPreviewBack;
+            const previewContent = targetPreview.querySelector('.preview-image-content');
+            if (side === 'front') {
+                idVerificationFront = imageSrc;
+                previewContent.innerHTML = imageSrc
+                    ? `<img src="${imageSrc}" alt="Front ID preview">`
+                    : '<span>Front image not ready.</span>';
+            } else {
+                idVerificationBack = imageSrc;
+                previewContent.innerHTML = imageSrc
+                    ? `<img src="${imageSrc}" alt="Back ID preview">`
+                    : '<span>Back image not ready.</span>';
+            }
+            // run quick validation for the new image and update UI
+            if (imageSrc) {
+                capturePreviewLabel.textContent = 'Validating ID image...';
+                document.querySelector('.capture-preview-frame')?.classList.remove('invalid');
+                setValidationPending(true);
+                validateIdImage(imageSrc).then((valid) => {
+                    if (side === 'front') {
+                        idFrontIsValid = valid;
+                        idPreviewFront.classList.toggle('invalid-id', !valid);
+                    } else {
+                        idBackIsValid = valid;
+                        idPreviewBack.classList.toggle('invalid-id', !valid);
+                    }
+                    if (!valid) {
+                        capturePreviewLabel.textContent = 'Invalid ID detected. Please capture or upload a valid ID image.';
+                        document.querySelector('.capture-preview-frame')?.classList.add('invalid');
+                    } else {
+                        capturePreviewLabel.textContent = 'Valid ID detected. You may proceed to the next step.';
+                        document.querySelector('.capture-preview-frame')?.classList.remove('invalid');
+                    }
+                    updateCapturePreview();
+                }).finally(() => {
+                    setValidationPending(false);
+                });
+            } else {
+                if (side === 'front') idFrontIsValid = false;
+                else idBackIsValid = false;
+                updateCapturePreview();
+            }
+        };
+
+        const setActiveSide = (side) => {
+            currentIdSide = side;
+            frontSideBtn.classList.toggle('active', side === 'front');
+            backSideBtn.classList.toggle('active', side === 'back');
+            if (typeof captureFrontBtn !== 'undefined') captureFrontBtn.classList.toggle('active', side === 'front');
+            if (typeof captureBackBtn !== 'undefined') captureBackBtn.classList.toggle('active', side === 'back');
+            updateCapturePreview();
+        };
+
+        uploadFrontBtn.addEventListener('click', () => idUploadInputFront.click());
+        uploadBackBtn.addEventListener('click', () => idUploadInputBack.click());
+
+        idUploadInputFront.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                updateIdPreview('front', reader.result);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        idUploadInputBack.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                updateIdPreview('back', reader.result);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        frontSideBtn.addEventListener('click', () => setActiveSide('front'));
+        backSideBtn.addEventListener('click', () => setActiveSide('back'));
+
+        const startCamera = async () => {
+            if (cameraStream) return;
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                idCameraVideo.srcObject = cameraStream;
+            } catch (error) {
+                showError('Unable to access camera. Please allow camera permissions or upload your ID instead.');
+            }
+        };
+
+        const captureId = () => {
+            if (!cameraStream) {
+                showError('Start the camera first to capture your ID.');
+                return;
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = idCameraVideo.videoWidth;
+            canvas.height = idCameraVideo.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(idCameraVideo, 0, 0, canvas.width, canvas.height);
+            updateIdPreview(currentIdSide, canvas.toDataURL('image/jpeg'));
+            stopCamera();
+        };
+
+        startCameraBtn.addEventListener('click', async () => {
+            clearError();
+            await startCamera();
+        });
+        captureIdBtn.addEventListener('click', () => {
+            clearError();
+            captureId();
+        });
+        captureFrontBtn.addEventListener('click', () => {
+            clearError();
+            setActiveSide('front');
+            captureId();
+        });
+        captureBackBtn.addEventListener('click', () => {
+            clearError();
+            setActiveSide('back');
+            captureId();
+        });
+
+    profilePhotoInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Allowed file types
+    const allowedTypes = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png'
+    ];
+
+    // Check file type
+    if (!allowedTypes.includes(file.type)) {
+        showError('Only JPG, JPEG, and PNG files are allowed.');
+        profilePhotoInput.value = '';
+        return;
+    }
+
+    // Check file size (5MB maximum)
+    const maxSize = 5 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+        showError('File size must not exceed 5MB.');
+        profilePhotoInput.value = '';
+        return;
+    }
+
+    clearError();
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+        photoPreviewImg.src = reader.result;
+        photoPreviewImg.hidden = false;
+        photoPreview.classList.add('has-photo');
+    };
+
+    reader.readAsDataURL(file);
+});
+
+        closeModal.addEventListener('click', () => {
+            modalOverlay.classList.remove('visible');
+            successModal.classList.remove('visible');
+        });
+        modalOverlay.addEventListener('click', () => {
+            modalOverlay.classList.remove('visible');
+            successModal.classList.remove('visible');
+        });
+        goLoginButton.addEventListener('click', () => {
+            window.location.href = 'login.html';
+        });
+
+        showStepIndex(currentStepIndex);
+        updatePasswordMatch();
+
+        const mobileInput = document.getElementById('mobile');
+
+        mobileInput.addEventListener('input', function () {
+
+    // Numbers only
+    this.value = this.value.replace(/[^0-9]/g, '');
+
+    // Maximum 11 digits
+    if (this.value.length > 11) {
+        this.value = this.value.slice(0, 11);
+    }
+
+});
+    </script>
+</body>
+</html>
