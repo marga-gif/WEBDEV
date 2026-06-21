@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <title>SenEtizen - Barangay Admin Panel</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="styles.css">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </head>
+    <body>
+        <div class="app-container">
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <img src="../../images/brgy_logo.jpg" alt="Barangay Logo" class="logo" id="dynamic-barangay-logo" onerror="this.src='https://placehold.co/42x42?text=BRGY'">
+                    <div class="header-text">
+                        <h2 id="dynamic-barangay-name">Barangay Assistance System</h2>
+                        <p>Admin Panel</p>
+                    </div>
+                </div>
+                <nav class="sidebar-nav">
+                    <a href="../dashboard/index.html" class="nav-item">
+                        <i class="fas fa-home"></i> Dashboard </a>
+                    <span class="nav-section-title">Manage</span>
+                    <a href="index.html" class="nav-item active">
+                        <i class="fas fa-users"></i> SenEtizens </a>
+                    <a href="../doc_reqs/index.html" class="nav-item">
+                        <i class="fas fa-file-alt"></i> Document Requests </a>
+                    <a href="../financial/index.html" class="nav-item">
+                        <i class="fas fa-wallet"></i> Financial Assistance </a>
+                    <a href="../medical/index.html" class="nav-item">
+                        <i class="fas fa-notes-medical"></i> Medical Appointments </a>
+                    <a href="../social_wellness/index.html" class="nav-item">
+                        <i class="fas fa-calendar-alt"></i> Social Wellness (Events) </a>
+                    <a href="../cont_mngmnt/index.html" class="nav-item">
+                        <i class="fas fa-bullhorn"></i> Content Management </a>
+                    <span class="nav-section-title">System</span>
+                    <a href="../report_auditlogs/index.html" class="nav-item">
+                        <i class="fas fa-chart-line"></i> Reports & Audit Logs </a>
+                    <a href="../system_settings/index.html" class="nav-item">
+                        <i class="fas fa-cog"></i> System Settings </a>
+                </nav>
+                <div class="sidebar-footer">
+                    <a href="../profile/index.html" class="admin-profile clickable-profile">
+                        <i class="fas fa-user-circle profile-icon"></i>
+                        <div class="admin-info">
+                            <span class="admin-name" id="auth-admin-name">admin@barangay.gov.ph</span>
+                            <span class="admin-role" id="auth-admin-role">Administrator</span>
+                        </div>
+                    </a>
+                    <button id="logout-btn" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Logout </button>
+                </div>
+            </aside>
+            <main class="main-content">
+                <header class="top-bar">
+                    <div class="topbar-left">
+                        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <div class="page-title">
+                            <h1>SenEtizens</h1>
+                            <span>Barangay San Jose, Antipolo, Rizal - Resident Directory</span>
+                        </div>
+                    </div>
+                    <div class="topbar-right hidden-mobile" style="display: flex; gap: 12px;">
+                        <button class="btn-primary" id="btn-export-directory">
+                            <i class="fas fa-file-csv"></i> Download CSV 
+                        </button>
+                    </div>
+                </header>
+                <div class="dashboard-viewport">
+                    <!-- REVISION: Implemented highlighted bar layout rule -->
+                    <div class="charts-grid highlighted-bar-layout">
+                        <div class="content-panel chart-main">
+                            <div class="panel-header">
+                                <h3>Age Demographics</h3>
+                            </div>
+                            <div class="panel-body chart-container">
+                                <canvas id="ageDemographicsChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="content-panel chart-side">
+                            <div class="panel-header">
+                                <h3>Registration Status</h3>
+                            </div>
+                            <div class="panel-body chart-container" style="display: flex; justify-content: center; align-items: center;">
+                                <canvas id="statusDistributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-controls-bar" style="margin-top: 10px;">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="search-citizen" placeholder="Search by Name or Senior ID...">
+                        </div>
+                    </div>
+                    <div class="table-container-card">
+                        <div class="table-scroll-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Senior ID</th>
+                                        <th class="dropdown-header" tabindex="0">
+                                            <div class="th-content" onclick="toggleHeaderMenu('menu-name', event)"> Full Name <i class="fas fa-chevron-down sort-icon"></i>
+                                            </div>
+                                            <div class="header-menu" id="menu-name">
+                                                <div class="menu-item" onclick="applyHeaderAction('sort', 'name', 'asc')">
+                                                    <i class="fas fa-sort-alpha-down"></i> Sort A to Z
+                                                </div>
+                                                <div class="menu-item" onclick="applyHeaderAction('sort', 'name', 'desc')">
+                                                    <i class="fas fa-sort-alpha-up"></i> Sort Z to A
+                                                </div>
+                                                <div class="menu-item" onclick="applyHeaderAction('sort', 'name', 'none')">
+                                                    <i class="fas fa-times"></i> Clear Sort
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th>Birthday</th>
+                                        <th class="dropdown-header" tabindex="0">
+                                            <div class="th-content" onclick="toggleHeaderMenu('menu-age', event)"> Age <i class="fas fa-chevron-down sort-icon"></i>
+                                            </div>
+                                            <div class="header-menu" id="menu-age">
+                                                <div class="menu-item" onclick="applyHeaderAction('sort', 'age', 'asc')">
+                                                    <i class="fas fa-sort-numeric-down"></i> Youngest First
+                                                </div>
+                                                <div class="menu-item" onclick="applyHeaderAction('sort', 'age', 'desc')">
+                                                    <i class="fas fa-sort-numeric-up"></i> Oldest First
+                                                </div>
+                                                <div class="menu-item" onclick="applyHeaderAction('sort', 'age', 'none')">
+                                                    <i class="fas fa-times"></i> Clear Sort
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th>Complete Address</th>
+                                        <th class="dropdown-header" tabindex="0" style="width: 200px;">
+                                            <div class="th-content" onclick="toggleHeaderMenu('menu-status', event)"> Status <i class="fas fa-chevron-down sort-icon"></i>
+                                            </div>
+                                            <div class="header-menu" id="menu-status">
+                                                <div class="menu-item" onclick="applyHeaderAction('filter', 'status', 'All')">All Statuses</div>
+                                                <div class="menu-item" onclick="applyHeaderAction('filter', 'status', 'Registered')">Registered</div>
+                                                <div class="menu-item" onclick="applyHeaderAction('filter', 'status', 'Pending')">Pending</div>
+                                                <div class="menu-item" onclick="applyHeaderAction('filter', 'status', 'Verified')">Verified</div>
+                                                <div class="menu-item" onclick="applyHeaderAction('filter', 'status', 'Rejected')">Rejected</div>
+                                            </div>
+                                        </th>
+                                        <!-- Actions Header Removed -->
+                                    </tr>
+                                </thead>
+                                <tbody id="citizens-table-body">
+                                    <tr>
+                                        <td colspan="6" class="table-empty-state">
+                                            <i class="fas fa-spinner fa-spin"></i> Loading resident records...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-pagination-footer">
+                            <span id="showing-entries">Showing 0 entries</span>
+                            <div class="page-buttons" id="pagination-controls-wrapper"></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Mobile Fixed Action Bar -->
+        <div class="mobile-fixed-bottom-action">
+            <button class="btn-primary" id="btn-export-directory-mobile">
+                <i class="fas fa-file-csv"></i> Download CSV 
+            </button>
+        </div>
+
+        <script src="../api-config.js"></script>
+        <script src="citizens.js"></script>
+    </body>
+</html>

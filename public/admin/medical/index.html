@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <title>Medical Appointments - Barangay Admin Panel</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <div class="app-container">
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <img src="../../images/brgy_logo.jpg" alt="Barangay Logo" class="logo" id="dynamic-barangay-logo" onerror="this.src='https://placehold.co/42x42?text=BRGY'">
+                    <div class="header-text">
+                        <h2 id="dynamic-barangay-name">Barangay Assistance System</h2>
+                        <p>Admin Panel</p>
+                    </div>
+                </div>
+                <nav class="sidebar-nav">
+                    <a href="../dashboard/index.html" class="nav-item">
+                        <i class="fas fa-home"></i> Dashboard </a>
+                    <span class="nav-section-title">Manage</span>
+                    <a href="../citizens/index.html" class="nav-item">
+                        <i class="fas fa-users"></i> SenEtizens </a>
+                    <a href="../doc_reqs/index.html" class="nav-item">
+                        <i class="fas fa-file-alt"></i> Document Requests </a>
+                    <a href="../financial/index.html" class="nav-item">
+                        <i class="fas fa-wallet"></i> Financial Assistance </a>
+                    <a href="index.html" class="nav-item active">
+                        <i class="fas fa-notes-medical"></i> Medical Appointments </a>
+                    <a href="../social_wellness/index.html" class="nav-item">
+                        <i class="fas fa-calendar-alt"></i> Social Wellness (Events) </a>
+                    <a href="../cont_mngmnt/index.html" class="nav-item">
+                        <i class="fas fa-bullhorn"></i> Content Management </a>
+                    <span class="nav-section-title">System</span>
+                    <a href="../report_auditlogs/index.html" class="nav-item">
+                        <i class="fas fa-chart-line"></i> Reports & Audit Logs </a>
+                    <a href="../system_settings/index.html" class="nav-item">
+                        <i class="fas fa-cog"></i> System Settings </a>
+                </nav>
+                <div class="sidebar-footer">
+                    <a href="../profile/index.html" class="admin-profile clickable-profile">
+                        <i class="fas fa-user-circle profile-icon"></i>
+                        <div class="admin-info">
+                            <span class="admin-name" id="auth-admin-name">admin@barangay.gov.ph</span>
+                            <span class="admin-role" id="auth-admin-role">Administrator</span>
+                        </div>
+                    </a>
+                    <button id="logout-btn" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Logout </button>
+                </div>
+            </aside>
+            <main class="main-content">
+                <header class="topbar">
+                    <div class="topbar-left">
+                        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <div class="page-title">
+                            <h1>Medical Appointments</h1>
+                            <span>Manage facility schedules and healthcare providers</span>
+                        </div>
+                    </div>
+                    <div class="topbar-right"></div>
+                </header>
+                <div class="dashboard-viewport">
+                    <div class="module-tabs">
+                        <button class="tab-btn active" data-target="view-appointments">
+                            <i class="far fa-calendar-alt"></i> Appointments </button>
+                        <button class="tab-btn" data-target="view-directory">
+                            <i class="fas fa-address-book"></i> Healthcare Directory </button>
+                    </div>
+                    <div id="view-appointments" class="medical-appointments-layout view-section active-grid">
+                        <section class="metrics-grid" style="margin-bottom: 5px;">
+                            <div class="metric-card">
+                                <div class="card-body">
+                                    <div class="icon-frame bg-light-blue">
+                                        <i class="fas fa-calendar-check"></i>
+                                    </div>
+                                    <div class="card-data">
+                                        <span class="card-label">Total Appointments</span>
+                                        <h2 class="card-value" id="metric-total-appt">0</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="card-body">
+                                    <div class="icon-frame bg-light-gold">
+                                        <i class="fas fa-hashtag"></i>
+                                    </div>
+                                    <div class="card-data">
+                                        <span class="card-label">Active Ref. Codes</span>
+                                        <h2 class="card-value" id="metric-active-ref">0</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="card-body">
+                                    <div class="icon-frame bg-light-emerald">
+                                        <i class="fas fa-user-md"></i>
+                                    </div>
+                                    <div class="card-data">
+                                        <span class="card-label">Active Providers</span>
+                                        <h2 class="card-value" id="metric-active-prov">0</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <div class="content-panel-card h-100">
+                            <div class="panel-header-wrapper calendar-header">
+                                <h3>
+                                    <i class="far fa-calendar-alt"></i> Master Schedule
+                                </h3>
+                                <div class="calendar-controls-group">
+                                    <button class="btn-secondary-compact" id="btn-calendar-today">Today</button>
+                                    <div class="month-navigation-arrows">
+                                        <button class="btn-icon" id="btn-calendar-prev" aria-label="Previous Month">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <button class="btn-icon" id="btn-calendar-next" aria-label="Next Month">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                    <span class="current-month-display-label" id="calendar-month-display">Loading...</span>
+                                </div>
+                            </div>
+                            <div class="panel-body-area table-scroll-wrapper" style="padding: 20px; flex-grow: 1;">
+                                <div class="calendar-grid-canvas" id="calendar-grid"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="view-directory" class="view-section h-100">
+                        <div class="content-panel-card h-100">
+                            <div class="panel-header-wrapper">
+                                <h3>
+                                    <i class="fas fa-address-book"></i> Healthcare Provider Directory
+                                </h3>
+                                <div class="mobile-fixed-bottom-action">
+                                    <button class="btn-primary" id="open-add-provider-btn">
+                                        <i class="fas fa-plus"></i> Add Provider 
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="table-controls-bar interior-controls">
+                                <div class="search-box" style="width: 300px;">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="search-provider-input" placeholder="Search Clinic or Doctor...">
+                                </div>
+                                <div class="directory-filter-selection-group">
+                                    <select class="select-input-dropdown" id="filter-provider-status-select">
+                                        <option value="All Statuses">All Statuses</option>
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
+                                    <select class="select-input-dropdown" id="filter-provider-type-select">
+                                        <option value="All Types">All Types</option>
+                                        <option value="Primary Care">Primary Care</option>
+                                        <option value="Dental">Dental</option>
+                                        <option value="Optical">Optical</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="panel-body-area" style="padding: 20px; flex-grow: 1; display: flex; flex-direction: column;">
+                                <div id="global-action-msg" class="validation-msg" style="margin-bottom: 12px;"></div>
+                                <div class="provider-cards-layout-grid" id="provider-grid-container" style="flex-grow: 1;"></div>
+                                <div class="table-pagination-footer mt-4" style="border-top: 1px solid var(--border-color); padding-top: 15px; background: transparent; padding-inline: 0;">
+                                    <span id="directory-showing">Showing 0 of 0 providers</span>
+                                    <div class="page-buttons" id="directory-pagination-container"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- System Modals Overlay -->
+        <div id="custom-modal-overlay" class="modal-overlay" style="display: none;"></div>
+
+        <!-- Appointment Details Modal (Replaces Native Alert) -->
+        <div id="appointment-details-modal" class="custom-modal" style="display: none;">
+            <div class="modal-header">
+                <h3><i class="fas fa-calendar-check" style="color: var(--primary-green); margin-right: 8px;"></i> Appointment Details</h3>
+                <button class="btn-close-modal" onclick="closeApptModal()" aria-label="Close Modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="appt-details-body" style="padding: 20px; line-height: 1.6; font-size: 14px; color: var(--text-main);">
+                <!-- Dynamic Content Injection -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeApptModal()">Close</button>
+            </div>
+        </div>
+
+        <!-- Add Healthcare Provider Modal -->
+        <div id="add-provider-modal" class="custom-modal" style="display: none;">
+            <div class="modal-header">
+                <h3 id="modal-title">
+                    <i class="fas fa-notes-medical" style="color: var(--primary-green); margin-right: 8px;"></i> Add Healthcare Provider
+                </h3>
+                <button class="btn-close-modal" id="close-prov-modal-btn" aria-label="Close Modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body settings-form-grid" style="grid-template-columns: 1fr; padding: 20px; gap: 16px;">
+                <div class="form-input-group">
+                    <label>PROVIDER NAME <span class="text-danger">*</span></label>
+                    <input type="text" id="new-prov-name" class="val-input" placeholder="e.g., Dr. Maria Santos" maxlength="60">
+                    <span class="validation-msg" id="msg-prov-name">Provider name must be at least 3 characters.</span>
+                </div>
+                <div style="display: flex; gap: 16px;">
+                    <div class="form-input-group" style="flex: 1;">
+                        <label>SPECIALTY TYPE <span class="text-danger">*</span></label>
+                        <select id="new-prov-type" class="select-input-dropdown val-input" style="width: 100%;">
+                            <option value="Primary Care">Primary Care</option>
+                            <option value="Dental">Dental</option>
+                            <option value="Optical">Optical</option>
+                            <option value="Other">Other (specify)</option>
+                        </select>
+                    </div>
+                    <div class="form-input-group" style="flex: 1;">
+                        <label>CONTACT NUMBER <span class="text-danger">*</span></label>
+                        <input type="text" id="new-prov-contact" class="val-input" placeholder="e.g., 0917-123-4567" maxlength="13">
+                        <span class="validation-msg" id="msg-prov-contact">Valid contact number required.</span>
+                    </div>
+                </div>
+                <div class="form-input-group">
+                    <label>LOCATION / ADDRESS <span class="text-danger">*</span></label>
+                    <input type="text" id="new-prov-location" class="val-input" placeholder="e.g., Area 7, Health Center" maxlength="100">
+                    <span class="validation-msg" id="msg-prov-location">Location must be at least 5 characters.</span>
+                </div>
+                <div class="form-input-group">
+                    <label>OPERATING HOURS <span class="text-danger">*</span></label>
+                    <select id="new-prov-hours" class="select-input-dropdown val-input" style="width: 100%;">
+                        <option value="Mon-Fri: 8:00 AM - 5:00 PM">Mon-Fri: 8:00 AM - 5:00 PM</option>
+                        <option value="Mon-Sat: 8:00 AM - 5:00 PM">Mon-Sat: 8:00 AM - 5:00 PM</option>
+                        <option value="24/7 Operations">24/7 Operations</option>
+                        <option value="By Appointment Only">By Appointment Only</option>
+                        <option value="Weekends Only">Weekends Only</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="cancel-prov-modal-btn">Cancel</button>
+                <button class="btn-primary btn-success-override" id="save-prov-btn">
+                    <i class="fas fa-check"></i>
+                    <span id="save-prov-text">Save Provider</span>
+                </button>
+            </div>
+        </div>
+        <script src="../api-config.js"></script>
+        <script src="medical.js"></script>
+    </body>
+</html>

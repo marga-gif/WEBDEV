@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Login - Barangay Senior Citizen Assistance System</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="auth.css"> 
+    </head>
+    
+    <body class="auth-body">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-brand">
+                    <button type="button" class="btn-back-to-user-login" title="Back to User Login">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div class="brand-metallic-seal-bg"></div>
+                    <div class="brand-content">
+                        <h2>Barangay San Jose</h2>
+                        <p class="brand-subtitle">Senior Citizen Assistance System</p>
+                        <div class="brand-divider-line"></div>
+                        <span class="brand-portal-label">Administrator Portal</span>
+                    </div>
+                </div>
+                
+                <div class="auth-forms">
+                    <div class="form-section active" id="login-section">
+                        <div class="form-header">
+                            <h3>Welcome Back</h3>
+                            <p>Enter your credentials to access the dashboard.</p>
+                        </div>
+                        
+                        <form id="login-form">
+                            <div class="input-group">
+                                <label>Email Address</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-envelope"></i>
+                                    <input type="email" id="login-email" placeholder="admin@barangay.com" required>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Password</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-lock"></i>
+                                    <input type="password" id="login-password" class="password-field" placeholder="••••••••" required>
+                                    <button type="button" class="btn-toggle-password" data-target="login-password" title="Toggle password visibility">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-actions-row">
+                                <label class="remember-me-checkbox">
+                                    <input type="checkbox" id="remember-me-checkbox"> Remember Me
+                                </label>
+                                <a href="#" class="forgot-password-link" id="forgot-password-trigger">Forgot Password?</a>
+                            </div>
+                            <button type="submit" class="btn-auth-submit w-100" id="btn-login">
+                                <i class="fas fa-sign-in-alt"></i> Log In
+                            </button>
+                        </form>
+                        <div class="form-footer-switch">
+                            <p>Need admin access? <button type="button" class="text-link-toggle" onclick="toggleAuthMode('register')">Register here</button></p>
+                        </div>
+                    </div>
+
+                    <div class="form-section" id="register-section">
+                        <div class="form-header">
+                            <h3>Register Admin</h3>
+                            <p>Create a new administrator account.</p>
+                        </div>
+                        <form id="register-form">
+                            <div class="input-group">
+                                <label>First Name</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" id="reg-firstname" placeholder="Juan" required>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Middle Name</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" id="reg-middlename" placeholder="Montoya">
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Last Name</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" id="reg-lastname" placeholder="Dela Cruz" required>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Email Address</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-envelope"></i>
+                                    <input type="email" id="reg-email" placeholder="admin@barangay.com" required>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Admin Registration Token</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-key"></i>
+                                    <input type="password" id="reg-admin-token" placeholder="Enter admin registration token" required>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Password</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-lock"></i>
+                                    <input type="password" id="reg-password" class="password-field" placeholder="Create strong password (min. 6 characters)" required>
+                                    <button type="button" class="btn-toggle-password" data-target="reg-password" title="Toggle password visibility">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Confirm Password</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-lock"></i>
+                                    <input type="password" id="reg-password-confirm" class="password-field" placeholder="Confirm your password" required>
+                                    <button type="button" class="btn-toggle-password" data-target="reg-password-confirm" title="Toggle password visibility">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-auth-submit w-100" style="margin-top: 15px;" id="btn-register">
+                                <i class="fas fa-user-plus"></i> Create Account
+                            </button>
+                        </form>
+                        <div class="form-footer-switch">
+                            <p>Already have an account? <button type="button" class="text-link-toggle" onclick="toggleAuthMode('login')">Log In</button></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="custom-modal-overlay" class="modal-overlay" style="display: none;"></div>
+        
+        <div id="forgot-password-modal" class="custom-modal" style="display: none;">
+            <form id="password-recovery-form">
+                <div class="modal-header">
+                    <h3>
+                        <i class="fas fa-shield-alt" style="color: var(--auth-brand-green);"></i> Security Credentials Reset
+                    </h3>
+                    <button type="button" class="btn-close-modal" id="close-recovery-modal-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="modal-body" style="padding: 20px; max-height: 65vh; overflow-y: auto;">
+                    <p style="font-size: 13px; color: var(--auth-text-muted); margin-bottom: 20px; line-height: 1.5;">
+                        Complete the verification steps below to change your account access credentials securely.
+                    </p>
+                    
+                    <div class="input-group">
+                        <label style="font-size: 12px; text-transform: uppercase; color: var(--auth-text-muted);">Admin ID Reference <span style="color:#EF4444;">*</span></label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-id-badge"></i>
+                            <input 
+                                type="text" 
+                                id="recovery-admin-id" 
+                                placeholder="ADM-2026-XXXX" 
+                                minlength="13" 
+                                maxlength="13" 
+                                title="Admin ID must be exactly 13 characters long." 
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label style="font-size: 12px; text-transform: uppercase; color: var(--auth-text-muted);">Old Password <span style="color:#EF4444;">*</span></label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-unlock-alt"></i>
+                            <input type="password" id="recovery-old-password" placeholder="Enter previous password" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label style="font-size: 12px; text-transform: uppercase; color: var(--auth-text-muted);">New Password <span style="color:#EF4444;">*</span></label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="recovery-new-password" placeholder="Create new strong password" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label style="font-size: 12px; text-transform: uppercase; color: var(--auth-text-muted);">Registered Mobile Number <span style="color:#EF4444;">*</span></label>
+                        <div class="sms-row">
+                            <div class="input-with-icon" style="margin-bottom: 0;">
+                                <i class="fas fa-phone"></i>
+                                <input type="tel" id="recovery-phone" placeholder="09XXXXXXXXX" pattern="09[0-9]{9}" title="Please match the standard PH phone formatting (e.g. 09123456789)" required>
+                            </div>
+                            <button type="button" class="btn-inline-sms" id="btn-send-otp">Send Code</button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label style="font-size: 12px; text-transform: uppercase; color: var(--auth-text-muted);">SMS Verification Code <span style="color:#EF4444;">*</span></label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-comment-dots"></i>
+                            <input type="text" id="recovery-otp" placeholder="Enter 6-digit SMS code" pattern="[0-9]{6}" maxlength="6" title="Enter the 6-digit numeric OTP code sent to your phone" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer" style="border-top: 1px solid var(--auth-border-color); background: #F9FAFB; padding: 16px 20px; display: flex; justify-content: flex-end; gap: 10px; border-radius: 0 0 16px 16px;">
+                    <button type="button" id="cancel-recovery-btn" style="padding: 10px 18px; background: #E5E7EB; color: #374151; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: var(--auth-smooth);">Cancel</button>
+                    <button type="submit" class="btn-auth-submit" id="confirm-reset-btn" style="padding: 10px 18px; font-size: 13px; width: auto; margin: 0;">
+                        <i class="fas fa-check-circle"></i> Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <script src="../api-config.js"></script>
+        <script src="auth.js"></script>
+    </body>
+</html>
