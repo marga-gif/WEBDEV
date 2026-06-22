@@ -428,14 +428,15 @@
         let currentIdSide = 'front';
         let pendingValidations = 0;
 
-        // --- DYNAMIC API ROUTING ENGINE ---
-        const PROD_API_URL = 'https://webdev-r8m4.onrender.com';
-        let API_BASE_URL = PROD_API_URL; // Default to production
+    // --- DYNAMIC API ROUTING ENGINE ---
+    const PROD_API_URL = 'https://webdev-r8m4.onrender.com/api'; // Add /api here!
+    let API_BASE_URL = PROD_API_URL; 
 
-        // Only use localhost if explicitly running on a local development server
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            API_BASE_URL = 'https://webdev-r8m4.onrender.com';
-        }
+    // Only use localhost if explicitly running on a local development server
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        API_BASE_URL = 'https://webdev-r8m4.onrender.com/api'; // Add /api here too!
+    }
+
         const setValidationPending = (start) => {
             pendingValidations = Math.max(0, pendingValidations + (start ? 1 : -1));
             const spinner = document.getElementById('captureSpinner');

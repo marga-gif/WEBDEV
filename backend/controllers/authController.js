@@ -1,27 +1,12 @@
 import { auth, isFirebaseReady } from "../config/firebase.js";
 import { addRecord, getRecordById, updateRecord, queryCollection } from "../services/firestoreService.js";
-import { logAudit, logAdminAudit, logAdminAuthAudit } from "../middleware/audit.js";
+import { logAudit, logAdminAudit, logAdminAuthAudit, logSuperAdminAuthAudit } from "../middleware/audit.js";
 
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
 const ADMIN_REGISTRATION_TOKEN = process.env.ADMIN_REGISTRATION_TOKEN || "1234567890123";
-const OTP_EXPIRATION_MS = 5 * 60 * 1000;
-const otpStore = new Map();
 
-function normalizePhoneNumber(phone) {
-  let normalized = String(phone || "").trim();
-  if (normalized.startsWith("+63")) {
-    normalized = "0" + normalized.slice(3);
-  }
-  return normalized;
-}
-
-function isValidPhoneNumber(phone) {
-  const normalized = normalizePhoneNumber(phone);
-  return /^09\d{9}$/.test(normalized);
-}
-
-function generateOtpCode() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+function normalizeRole(role) {
+  return String(role || "").trim().toLowerCase().replace(/\s+/g, "");
 }
 
 async function signInWithPassword(email, password) {
@@ -53,6 +38,16 @@ async function buildAuthResponse(firebaseData) {
     throw new Error("This account has been disabled.");
   }
 
+  let normalizedRole = normalizeRole(profile.role || "user");
+  if (auth) {
+    try {
+      const authUser = await auth.getUser(firebaseData.localId);
+      normalizedRole = normalizeRole(authUser.customClaims?.role || normalizedRole);
+    } catch {
+      // fallback to Firestore role if auth lookup fails
+    }
+  }
+
   return {
     idToken: firebaseData.idToken,
     refreshToken: firebaseData.refreshToken,
@@ -61,7 +56,7 @@ async function buildAuthResponse(firebaseData) {
       uid: firebaseData.localId,
       email: profile.email,
       fullName: profile.fullName,
-      role: profile.role,
+      role: normalizedRole,
       firstName: profile.firstName || "",
       middleName: profile.middleName || "",
       lastName: profile.lastName || "",
@@ -102,17 +97,12 @@ export async function registerUser(req, res) {
 
     const normalizedFirstName = (firstName || "").trim();
     const normalizedLastName = (lastName || "").trim();
-    const normalizedMobile = normalizePhoneNumber(mobile);
     const displayName = [normalizedFirstName, (middleName || "").trim(), normalizedLastName]
       .filter(Boolean)
       .join(" ");
 
     if (!normalizedFirstName || !normalizedLastName || !email || !password) {
       return res.status(400).json({ error: "First name, last name, email, and password are required." });
-    }
-
-    if (!normalizedMobile || !isValidPhoneNumber(normalizedMobile)) {
-      return res.status(400).json({ error: "Mobile number must be 11 digits starting with 09 or +639." });
     }
 
     if (password !== confirmPassword) {
@@ -146,7 +136,7 @@ export async function registerUser(req, res) {
       birthDate: birthDate || "",
       gender: gender || "",
       email,
-      mobile: normalizedMobile || "",
+      mobile: mobile || "",
       street: street || "",
       barangay: barangay || "",
       city: city || "",
@@ -174,7 +164,7 @@ export async function registerUser(req, res) {
 
 export async function registerAdmin(req, res) {
   try {
-    const { firstName, middleName, lastName, email, password, adminToken } = req.body;
+    const { firstName, middleName, lastName, email, password, adminToken, portal } = req.body;
 
     if (!firstName || !lastName || !email || !password || !adminToken) {
       return res.status(400).json({ error: "All admin registration fields are required." });
@@ -193,6 +183,7 @@ export async function registerAdmin(req, res) {
     }
 
     const fullName = [firstName, middleName, lastName].filter(Boolean).join(" ");
+    const role = portal === "superadmin" ? "superadmin" : "admin";
 
     const userRecord = await auth.createUser({
       email,
@@ -200,7 +191,7 @@ export async function registerAdmin(req, res) {
       displayName: fullName,
     });
 
-    await auth.setCustomUserClaims(userRecord.uid, { role: "admin" });
+    await auth.setCustomUserClaims(userRecord.uid, { role });
 
     const profile = await addRecord("users", {
       id: userRecord.uid,
@@ -210,14 +201,15 @@ export async function registerAdmin(req, res) {
       middleName: middleName || "",
       lastName,
       email,
-      role: "admin",
+      role,
       status: "active",
     });
 
-    await logAdminAuthAudit(email, "ADMIN_REGISTRATION", { uid: userRecord.uid, email, fullName });
+    const auditType = role === "superadmin" ? "SUPERADMIN_REGISTRATION" : "ADMIN_REGISTRATION";
+    await logAdminAuthAudit(email, auditType, { uid: userRecord.uid, email, fullName });
 
     res.status(201).json({
-      message: "Admin account created successfully.",
+      message: `${role === "superadmin" ? "SuperAdmin" : "Admin"} account created successfully.`,
       user: { uid: profile.uid, email: profile.email, fullName: profile.fullName, role: profile.role },
     });
   } catch (error) {
@@ -244,18 +236,27 @@ export async function loginUser(req, res) {
     const firebaseData = await signInWithPassword(email, password);
     const response = await buildAuthResponse(firebaseData);
 
-    if (portal === "admin" && response.user.role !== "admin") {
-      return res.status(403).json({ error: "Admin access only. Use the user portal to sign in." });
+    // Role validation based on portal
+    const normalizedRole = normalizeRole(response.user.role || "");
+
+    if (portal === "superadmin" && normalizedRole !== "superadmin") {
+      return res.status(403).json({ error: "SuperAdmin access only. Use the SuperAdmin portal to sign in." });
     }
 
-    if (portal === "user" && response.user.role === "admin") {
+    if (portal === "admin" && normalizedRole !== "admin") {
+      return res.status(403).json({ error: "Admin access only. Use the administrator portal to sign in." });
+    }
+
+    if (portal === "user" && (normalizedRole === "admin" || normalizedRole === "superadmin")) {
       return res.status(403).json({ error: "Please use the Administrator Portal to sign in." });
     }
 
-    const auditReq = { ...req, user: response.user };
-    if (portal === 'admin') {
-      await logAdminAudit(auditReq, "ADMIN_LOGIN", { email });
+    if (portal === 'superadmin') {
+      await logSuperAdminAuthAudit(email, "SUPERADMIN_LOGIN", { uid: response.user.uid, email });
+    } else if (portal === 'admin') {
+      await logAdminAuthAudit(email, "ADMIN_LOGIN", { uid: response.user.uid, email });
     } else {
+      const auditReq = { ...req, user: response.user };
       await logAudit(auditReq, "USER_LOGIN", { email });
     }
 
@@ -272,16 +273,12 @@ export async function loginUser(req, res) {
 export async function forgotPassword(req, res) {
   try {
     const { phone } = req.body;
-    const normalizedPhone = normalizePhoneNumber(phone);
+    const normalizedPhone = String(phone || "").trim();
 
     if (!normalizedPhone) {
       return res.status(400).json({ error: "Phone number is required." });
     }
 
-    if (!isValidPhoneNumber(normalizedPhone)) {
-      return res.status(400).json({ error: "Phone number must be 11 digits starting with 09 or +639." });
-    }
-
     const matchedUsers = await queryCollection("users", [
       { field: "mobile", op: "==", value: normalizedPhone },
     ]);
@@ -291,95 +288,16 @@ export async function forgotPassword(req, res) {
     }
 
     const user = matchedUsers[0];
-    const otpCode = generateOtpCode();
-    const expiration = Date.now() + OTP_EXPIRATION_MS;
-    otpStore.set(normalizedPhone, { code: otpCode, expiresAt: expiration });
-
-    console.log(`Forgot password OTP for ${normalizedPhone}: ${otpCode} (expires in 5 minutes)`);
-
-    return res.json({ message: "Verification code sent. Use the code shown in the server logs for demo purposes." });
-  } catch (error) {
-    console.error("Forgot password request failed:", error);
-    return res.status(500).json({ error: "Forgot password request could not be processed." });
-  }
-}
-
-function getStoredOtp(phone) {
-  const stored = otpStore.get(phone);
-  if (!stored) return null;
-  if (Date.now() > stored.expiresAt) {
-    otpStore.delete(phone);
-    return null;
-  }
-  return stored;
-}
-
-export async function verifyOtp(req, res) {
-  try {
-    const { phone, otp } = req.body;
-    const normalizedPhone = normalizePhoneNumber(phone);
-
-    if (!normalizedPhone || !otp) {
-      return res.status(400).json({ error: "Phone and OTP are required." });
-    }
-
-    const stored = getStoredOtp(normalizedPhone);
-    if (!stored || stored.code !== String(otp).trim()) {
-      return res.status(400).json({ error: "Invalid or expired verification code." });
-    }
-
-    return res.json({ message: "OTP verified." });
-  } catch (error) {
-    console.error("OTP verification failed:", error);
-    return res.status(500).json({ error: "OTP verification could not be processed." });
-  }
-}
-
-export async function resetPassword(req, res) {
-  try {
-    const { phone, otp, newPassword } = req.body;
-    const normalizedPhone = normalizePhoneNumber(phone);
-
-    if (!normalizedPhone || !otp || !newPassword) {
-      return res.status(400).json({ error: "Phone, OTP, and new password are required." });
-    }
-
-    if (newPassword.length < 6) {
-      return res.status(400).json({ error: "New password must be at least 6 characters long." });
-    }
-
-    const stored = getStoredOtp(normalizedPhone);
-    if (!stored || stored.code !== String(otp).trim()) {
-      return res.status(400).json({ error: "Invalid or expired verification code." });
-    }
-
-    const matchedUsers = await queryCollection("users", [
-      { field: "mobile", op: "==", value: normalizedPhone },
-    ]);
-
-    if (!matchedUsers.length) {
-      return res.status(404).json({ error: "Mobile number is not registered." });
-    }
-
-    const user = matchedUsers[0];
-
-    if (isFirebaseReady && auth) {
-      await auth.updateUser(user.uid, { password: newPassword });
-    } else {
-      await updateRecord("users", user.uid, { password: newPassword });
-    }
-
-    otpStore.delete(normalizedPhone);
-    await logAudit(req, "PASSWORD_RESET_COMPLETED", {
+    await logAudit(req, "PASSWORD_RESET_REQUESTED", {
       uid: user.uid,
       email: user.email,
       mobile: normalizedPhone,
     });
 
-    return res.json({ message: "Password reset successfully." });
+    return res.json({ message: "Verification code sent. Follow the instructions on your mobile device." });
   } catch (error) {
-    console.error("Password reset failed:", error);
-    return res.status(500).json({ error: "Password reset could not be completed." });
+    console.error("Forgot password request failed:", error);
+    return res.status(500).json({ error: "Forgot password request could not be processed." });
   }
 }
 
@@ -393,18 +311,56 @@ export async function getProfile(req, res) {
     email: profile.email,
     fullName: profile.fullName,
     role: profile.role,
-    phone: profile.phone || "",
-    purok: profile.purok || "",
+    firstName: profile.firstName || "",
+    middleName: profile.middleName || "",
+    lastName: profile.lastName || "",
+    suffix: profile.suffix || "",
+    birthDate: profile.birthDate || "",
+    gender: profile.gender || "",
+    phone: profile.phone || profile.mobile || "",
+    purok: profile.purok || profile.street || "",
+    street: profile.street || "",
+    barangay: profile.barangay || "",
+    city: profile.city || "",
+    province: profile.province || "",
+    zipCode: profile.zipCode || profile.zip || "",
     seniorId: profile.seniorId || "",
   });
 }
 
 export async function updateProfile(req, res) {
-  const { fullName, phone, purok } = req.body;
-  const updated = await updateRecord("users", req.user.uid, {
+  const {
+    firstName,
+    middleName,
+    lastName,
     fullName,
     phone,
     purok,
+    street,
+    barangay,
+    city,
+    province,
+    zipCode,
+  } = req.body;
+
+  if (!firstName || !lastName) {
+    return res.status(400).json({ error: "First name and last name are required." });
+  }
+
+  const resolvedFullName = fullName || [firstName, middleName, lastName].filter(Boolean).join(" ");
+
+  const updated = await updateRecord("users", req.user.uid, {
+    firstName,
+    middleName,
+    lastName,
+    fullName: resolvedFullName,
+    phone,
+    purok,
+    street,
+    barangay,
+    city,
+    province,
+    zipCode,
   });
 
   if (!updated) {
