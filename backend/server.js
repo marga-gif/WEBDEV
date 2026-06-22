@@ -20,10 +20,10 @@ app.use(cors({
 }));
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(publicRoot, "html")));
-app.use("/css", express.static(path.join(publicRoot, "css")));
-app.use("/images", express.static(path.join(publicRoot, "images")));
-app.use("/admin", express.static(path.join(publicRoot, "admin")));
+// app.use(express.static(path.join(publicRoot, "html")));
+// app.use("/css", express.static(path.join(publicRoot, "css")));
+// app.use("/images", express.static(path.join(publicRoot, "images")));
+// app.use("/admin", express.static(path.join(publicRoot, "admin")));
 
 app.get("/api", (req, res) => {
   res.json({ message: "Welcome to the SenEtizen API!" });

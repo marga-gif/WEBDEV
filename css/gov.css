@@ -490,37 +490,6 @@ body{
 }
 
 .request-submit{
-}
-
-.textarea-counter {
-    margin-top: 6px;
-    font-size: 0.85rem;
-    color: #475569;
-}
-
-.input-error {
-    border-color: #ef4444;
-    background: #fff1f2;
-}
-
-.request-error-summary ul {
-    margin: 8px 0 0 16px;
-}
-
-.request-error-summary strong {
-    display: block;
-    margin-bottom: 8px;
-}
-
-.request-error-summary li {
-    margin-bottom: 4px;
-}
-
-.request-error-summary {
-    font-size: 0.95rem;
-}
-
-.request-submit{
     grid-column:1 / -1;
     height:55px;
     border:none;
@@ -548,7 +517,7 @@ body{
 }
 
 .gov-popup{
-    width:min(950px,100%);
+    width:min(1080px,100%);
     height:85vh;
     background:white;
     border-radius:18px;
@@ -597,8 +566,275 @@ body{
 
 .appointment-form{
     flex:1;
+    overflow:hidden;
+    padding:0;
+}
+
+/* Split: sample document preview (left) + input form (right) */
+
+.document-split{
+    display:grid;
+    grid-template-columns:1fr 1.2fr;
+    height:100%;
+}
+
+.preview-pane{
+    background:#f3f4f6;
+    border-right:1px solid #ececec;
+    padding:34px 28px;
     overflow-y:auto;
-    padding:25px 40px 35px;
+}
+
+.form-pane{
+    overflow-y:auto;
+    padding:25px 36px 35px;
+}
+
+.form-pane .request-form{
+    column-gap:28px;
+}
+
+.preview-pane::-webkit-scrollbar,
+.form-pane::-webkit-scrollbar{
+    width:8px;
+}
+
+.preview-pane::-webkit-scrollbar-track,
+.form-pane::-webkit-scrollbar-track{
+    background:#f1f1f1;
+}
+
+.preview-pane::-webkit-scrollbar-thumb,
+.form-pane::-webkit-scrollbar-thumb{
+    background:#087a35;
+    border-radius:20px;
+}
+
+/* Sample document "paper" */
+
+.preview-label{
+    text-align:center;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:2px;
+    color:#087a35;
+    text-transform:uppercase;
+    margin-bottom:16px;
+}
+
+.cert-paper{
+    position:relative;
+    background:#fffdf8;
+    border:1px solid #e3ddc9;
+    border-radius:10px;
+    padding:30px 26px 26px;
+    box-shadow:0 6px 20px rgba(0,0,0,.08);
+    overflow:hidden;
+}
+
+.cert-paper::before{
+    content:"";
+    position:absolute;
+    inset:10px;
+    border:1px dashed #d8d2bd;
+    border-radius:6px;
+    pointer-events:none;
+}
+
+.cert-watermark{
+    position:absolute;
+    top:48%;
+    left:50%;
+    transform:translate(-50%,-50%) rotate(-22deg);
+    font-size:50px;
+    font-weight:800;
+    letter-spacing:6px;
+    color:rgba(8,122,53,.07);
+    pointer-events:none;
+    user-select:none;
+    white-space:nowrap;
+}
+
+.cert-emblem{
+    width:58px;
+    height:58px;
+    margin:0 auto 14px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:22px;
+    background:#032c63;
+    box-shadow:0 0 0 4px #fffdf8,0 0 0 6px #087a35;
+    position:relative;
+}
+
+.cert-emblem-svg{
+    margin:0 auto 10px;
+    position:relative;
+}
+
+/* Two real logos flanking the center header text */
+
+.cert-header-row{
+    display:grid;
+    grid-template-columns:76px 1fr 76px;
+    align-items:center;
+    gap:8px;
+    margin-bottom:12px;
+    position:relative;
+}
+
+.cert-logo{
+    width:76px;
+    height:76px;
+    object-fit:contain;
+    border-radius:50%;
+    flex-shrink:0;
+    box-shadow:0 2px 8px rgba(0,0,0,.12);
+}
+
+.cert-header-text{
+    text-align:center;
+    min-width:0;
+}
+
+.cert-header-text .cert-kicker{
+    text-align:center;
+    font-size:9.5px;
+    letter-spacing:1.5px;
+}
+
+.cert-header-text .cert-location{
+    font-size:11.5px;
+    text-align:center;
+}
+
+.cert-header-text .cert-brgy{
+    font-size:13px;
+    font-weight:700;
+    text-align:center;
+    line-height:1.35;
+}
+
+.cert-kicker{
+    text-align:center;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    font-size:11px;
+    color:#888;
+    font-weight:600;
+    position:relative;
+}
+
+.cert-location,
+.cert-brgy{
+    text-align:center;
+    color:#032c63;
+    font-weight:700;
+    font-size:13px;
+    margin-top:3px;
+    position:relative;
+}
+
+.cert-brgy{
+    font-size:16px;
+    margin-bottom:14px;
+}
+
+.cert-divider{
+    width:64px;
+    height:3px;
+    margin:0 auto 18px;
+    background:linear-gradient(90deg,#087a35,#032c63);
+    border-radius:3px;
+    position:relative;
+}
+
+.cert-title{
+    text-align:center;
+    font-size:19px;
+    font-weight:700;
+    letter-spacing:.5px;
+    color:#032c63;
+    margin-bottom:20px;
+    text-transform:uppercase;
+    position:relative;
+}
+
+.cert-body{
+    position:relative;
+}
+
+.cert-body p{
+    font-family:Georgia,'Times New Roman',serif;
+    font-size:14.5px;
+    line-height:1.95;
+    color:#333;
+    text-align:justify;
+    margin-bottom:14px;
+}
+
+.cert-body span[data-preview]{
+    display:inline-block;
+    min-width:80px;
+    padding:0 4px;
+    border-bottom:1px dotted #999;
+    color:#999;
+    font-style:italic;
+}
+
+.cert-body span[data-preview].filled{
+    border-bottom:1px solid #087a35;
+    color:#087a35;
+    font-weight:700;
+    font-style:normal;
+}
+
+.cert-footer{
+    position:relative;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-top:32px;
+    gap:18px;
+}
+
+.cert-date{
+    font-size:13px;
+    color:#555;
+    font-family:Georgia,'Times New Roman',serif;
+}
+
+.cert-date span[data-preview]{
+    min-width:auto;
+}
+
+.cert-sign{
+    text-align:center;
+}
+
+.sign-line{
+    width:170px;
+    border-top:1px solid #999;
+    margin-bottom:4px;
+}
+
+.sign-official{
+    font-size:11px;
+    font-weight:800;
+    color:#032c63;
+    letter-spacing:.5px;
+    margin-bottom:1px;
+    white-space:nowrap;
+}
+
+.sign-name{
+    font-size:11px;
+    font-weight:700;
+    color:#032c63;
+    letter-spacing:1px;
 }
 .name-row{
     display:grid;
@@ -654,8 +890,49 @@ body{
         border-radius:15px;
     }
 
+    .appointment-header{
+        min-height:auto;
+        padding:16px 46px;
+    }
+
+    .appointment-header h2{
+        font-size:17px;
+        letter-spacing:1px;
+        text-align:center;
+    }
+
+    .close-btn{
+        top:14px;
+        transform:none;
+        width:34px;
+        height:34px;
+        font-size:15px;
+    }
+
     .appointment-form{
+        overflow-y:auto;
+    }
+
+    .document-split{
+        grid-template-columns:1fr;
+        height:auto;
+    }
+
+    .preview-pane{
+        border-right:none;
+        border-bottom:1px solid #ececec;
+        max-height:340px;
+        padding:24px 20px;
+    }
+
+    .form-pane{
         padding:20px;
+        overflow-y:visible;
+    }
+
+    .form-pane .request-form{
+        grid-template-columns:1fr;
+        column-gap:0;
     }
 
 }
