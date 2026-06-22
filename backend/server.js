@@ -20,6 +20,8 @@ app.use(cors({
 }));
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
+
+// Static asset folders commented out since frontend is hosted on Vercel
 // app.use(express.static(path.join(publicRoot, "html")));
 // app.use("/css", express.static(path.join(publicRoot, "css")));
 // app.use("/images", express.static(path.join(publicRoot, "images")));
@@ -29,8 +31,9 @@ app.get("/api", (req, res) => {
   res.json({ message: "Welcome to the SenEtizen API!" });
 });
 
+// Updated root route to send a JSON status instead of a broken static redirect
 app.get("/", (req, res) => {
-  res.redirect("/login.html");
+  res.json({ status: "online", message: "SenEtizen Backend API Gateway is active." });
 });
 
 app.use("/api", apiRoutes);
@@ -44,13 +47,11 @@ app.use((req, res) => {
   res.status(404).json({ error: "Route not found." });
 });
 
-// Only start the listening loop if we are NOT running on Vercel production
-if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(`SenEtizen backend running on http://localhost:${PORT}`);
-    console.log(`Firebase: ${process.env.FIREBASE_PROJECT_ID ? "configured" : "not configured (local JSON fallback)"}`);
-  });
-}
+// FORCE SERVER TO LISTEN: Essential for persistent cloud hosting providers like Render
+app.listen(PORT, () => {
+  console.log(`SenEtizen backend running on port ${PORT}`);
+  console.log(`Firebase: ${process.env.FIREBASE_PROJECT_ID ? "configured" : "not configured (local JSON fallback)"}`);
+});
 
-// CRITICAL FOR VERCEL ES MODULES: Export the application instance
+// Retain export instance for local environment parity / serverless testing frameworks
 export default app;
