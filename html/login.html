@@ -361,19 +361,14 @@ If you have any questions, concerns, clarifications, or requests regarding your 
         emailInput.addEventListener('input', clearLoginError);
         passwordInput.addEventListener('input', clearLoginError);
 
-        // --- DYNAMIC API ROUTING ENGINE ---
-        const PROD_API_URL = 'https://webdev-r8m4.onrender.com';
-
-        // 1. Declare it globally using 'let' so it has script-wide scope
-        let API_BASE_URL = PROD_API_URL; 
-
-        // 2. Fallback check for local environments
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            API_BASE_URL = 'http://localhost:5001';
+// --- DYNAMIC API ROUTING ENGINE ---
+        // A single, bulletproof function to get the API URL anywhere in this script
+        function getApiUrl() {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                return 'http://localhost:5001';
+            }
+            return 'https://webdev-r8m4.onrender.com';
         }
-
-        // 3. Bind it to window just in case other scripts need it
-        window.API_BASE_URL = API_BASE_URL;
 
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -387,7 +382,10 @@ If you have any questions, concerns, clarifications, or requests regarding your 
             loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                // Get the base URL securely here
+                const baseUrl = getApiUrl();
+                
+                const response = await fetch(`${baseUrl}/api/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password, portal: 'user' }),
@@ -521,7 +519,7 @@ If you have any questions, concerns, clarifications, or requests regarding your 
             forgotSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+                const response = await fetch(`${getApiUrl()}/api/auth/forgot-password`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone: normalizedPhone })
@@ -564,7 +562,7 @@ If you have any questions, concerns, clarifications, or requests regarding your 
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
+                const response = await fetch(`${getApiUrl()}/api/auth/verify-otp`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone: verifiedSessionPhone, otp: otpValue })
@@ -612,7 +610,7 @@ If you have any questions, concerns, clarifications, or requests regarding your 
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+                const response = await fetch(`${getApiUrl()}/api/auth/reset-password`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone: verifiedSessionPhone, otp: otpCode.value.trim(), newPassword: newPasswordValue })
