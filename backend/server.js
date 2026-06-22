@@ -16,10 +16,11 @@ const PORT = process.env.PORT || 5001;
 
 app.use(cors({
   origin: [
-    "https://webdev-eosin-five.vercel.app", // Your live production Vercel link
-    "http://localhost:3000",                // For local development testing
-    "http://127.0.0.1:5500",                // Live Server fallback helper
-    /vercel\.app$/                          // <-- ADD THIS: Allows all Vercel preview/branch builds!
+    "https://frontend-r8zx.onrender.com",         // <-- ADD THIS: Your live Render frontend URL
+    "https://webdev-eosin-five.vercel.app",       // Your live production Vercel link
+    "http://localhost:3000",                      // For local development testing
+    "http://127.0.0.1:5500",                      // Live Server fallback helper
+    /vercel\.app$/                                // Allows all Vercel preview/branch builds!
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
