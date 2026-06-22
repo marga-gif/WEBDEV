@@ -15,9 +15,16 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || "*",
+  origin: [
+    "https://webdev-eosin-five.vercel.app", // Your live Vercel frontend link
+    "http://localhost:3000",                // For local development testing
+    "http://127.0.0.1:5500"                 // Live Server fallback helper
+  ],
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
 
