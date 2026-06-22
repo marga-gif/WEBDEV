@@ -310,7 +310,6 @@ If you have any questions, concerns, clarifications, or requests regarding your 
 </p>
     </div>
 </div>
-
 <script>
         // --- LOGIN FORM ENGINE VARIABLES ---
         const loginForm = document.getElementById('loginForm');
@@ -361,8 +360,8 @@ If you have any questions, concerns, clarifications, or requests regarding your 
         emailInput.addEventListener('input', clearLoginError);
         passwordInput.addEventListener('input', clearLoginError);
 
-// --- DYNAMIC API ROUTING ENGINE ---
-        const PROD_API_URL = 'https://webdev-r8m4.onrender.com'; // Replace with your live Render/Heroku backend URL if you have one
+        // --- DYNAMIC API ROUTING ENGINE ---
+        const PROD_API_URL = 'https://webdev-r8m4.onrender.com'; 
         const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:5001'
             : PROD_API_URL;
@@ -379,7 +378,6 @@ If you have any questions, concerns, clarifications, or requests regarding your 
             loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
 
             try {
-                // Use a relative URL so Vercel automatically routes it to its own domain
                 const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -419,7 +417,6 @@ If you have any questions, concerns, clarifications, or requests regarding your 
             forgotModalWrapper.style.display = 'flex';
             setTimeout(() => {
                 forgotModalWrapper.classList.add('show');
-                // Reset to default step layout view state
                 forgotStep1.style.display = 'block';
                 forgotStep2.style.display = 'none';
                 forgotStep3.style.display = 'none';
@@ -466,7 +463,6 @@ If you have any questions, concerns, clarifications, or requests regarding your 
             return normalized;
         }
 
-        // Enforce strictly numerical values during entries
         forgotPhone.addEventListener('input', (e) => {
             let value = e.target.value.replace(/[^\d+]/g, '');
             if (value.indexOf('+') > 0) {
@@ -505,7 +501,7 @@ If you have any questions, concerns, clarifications, or requests regarding your 
             }
 
             if (!phoneRegex.test(phoneValue) && !phoneRegex.test(normalizedPhone)) {
-                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Must be 11 digits starting with 09 or +63 (e.g., 09171234567 or +639171234567).';
+                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Must be 11 digits starting with 09 or +63.';
                 forgotError.style.display = 'flex';
                 showForgotFieldError('Enter 11 digits starting with 09 or +63.');
                 return;
@@ -529,10 +525,9 @@ If you have any questions, concerns, clarifications, or requests regarding your 
                 }
 
                 verifiedSessionPhone = normalizedPhone;
-                forgotSuccess.innerHTML = '<i class="fa-solid fa-circle-check"></i> Verification code sent! Please check your mobile messages.';
+                forgotSuccess.innerHTML = '<i class="fa-solid fa-circle-check"></i> Verification code sent!';
                 forgotSuccess.style.display = 'flex';
 
-                // Transition viewport content layout states gracefully
                 forgotStep1.style.display = 'none';
                 forgotStep2.style.display = 'block';
                 setTimeout(() => otpCode.focus(), 50);
@@ -553,15 +548,9 @@ If you have any questions, concerns, clarifications, or requests regarding your 
             const otpValue = otpCode.value.trim();
 
             if (otpValue.length !== 6) {
-                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Please enter the complete 6-digit verification code.';
+                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Enter the complete 6-digit code.';
                 forgotError.style.display = 'flex';
                 otpCodeWrapper.style.borderColor = '#ef4444';
-                return;
-            }
-
-            if (!verifiedSessionPhone) {
-                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Please request an OTP first.';
-                forgotError.style.display = 'flex';
                 return;
             }
 
@@ -577,7 +566,7 @@ If you have any questions, concerns, clarifications, or requests regarding your 
                     throw new Error(data.error || 'OTP verification failed.');
                 }
 
-                forgotSuccess.innerHTML = '<i class="fa-solid fa-circle-check"></i> Identity successfully verified! Enter your new credentials.';
+                forgotSuccess.innerHTML = '<i class="fa-solid fa-circle-check"></i> Identity verified! Set your new password.';
                 forgotSuccess.style.display = 'flex';
 
                 forgotStep2.style.display = 'none';
@@ -596,25 +585,19 @@ If you have any questions, concerns, clarifications, or requests regarding your 
             const confirmNewPasswordValue = confirmNewPassword.value;
 
             if (!newPasswordValue || !confirmNewPasswordValue) {
-                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> All password entry fields are required.';
+                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> All fields are required.';
                 forgotError.style.display = 'flex';
                 return;
             }
 
             if (newPasswordValue !== confirmNewPasswordValue) {
-                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Passwords do not match. Please re-enter credentials.';
+                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Passwords do not match.';
                 forgotError.style.display = 'flex';
                 return;
             }
 
             if (newPasswordValue.length < 6) {
-                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Password must contain at least 6 characters.';
-                forgotError.style.display = 'flex';
-                return;
-            }
-
-            if (!verifiedSessionPhone) {
-                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Please request and verify your OTP before resetting your password.';
+                forgotError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Must be at least 6 characters.';
                 forgotError.style.display = 'flex';
                 return;
             }
@@ -631,7 +614,7 @@ If you have any questions, concerns, clarifications, or requests regarding your 
                     throw new Error(data.error || 'Password reset failed.');
                 }
 
-                forgotSuccess.innerHTML = '<i class="fa-solid fa-circle-check"></i> Password successfully updated! Redirecting to login context...';
+                forgotSuccess.innerHTML = '<i class="fa-solid fa-circle-check"></i> Password updated! Redirecting...';
                 forgotSuccess.style.display = 'flex';
 
                 setTimeout(() => {
@@ -643,39 +626,45 @@ If you have any questions, concerns, clarifications, or requests regarding your 
             }
         }
 
-        // Terms & Privacy Modal
-const termsLink = document.getElementById('termsLink');
-const privacyLink = document.getElementById('privacyLink');
+        // --- MASTER FORM INTERCEPTOR FOR MODAL STEPS ---
+        forgotPasswordForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (forgotStep1.style.display !== 'none') {
+                handleRequestOtp();
+            } else if (forgotStep2.style.display !== 'none') {
+                handleVerifyOtp();
+            } else if (forgotStep3.style.display !== 'none') {
+                handleSubmitNewPassword();
+            }
+        });
 
-const termsModal = document.getElementById('termsModal');
-const privacyModal = document.getElementById('privacyModal');
+        // --- Terms & Privacy Modal ---
+        const termsLink = document.getElementById('termsLink');
+        const privacyLink = document.getElementById('privacyLink');
+        const termsModal = document.getElementById('termsModal');
+        const privacyModal = document.getElementById('privacyModal');
 
-termsLink.addEventListener('click', function(e){
-    e.preventDefault();
-    termsModal.style.display = 'flex';
-});
+        termsLink.addEventListener('click', function(e){
+            e.preventDefault();
+            termsModal.style.display = 'flex';
+        });
 
-privacyLink.addEventListener('click', function(e){
-    e.preventDefault();
-    privacyModal.style.display = 'flex';
-});
+        privacyLink.addEventListener('click', function(e){
+            e.preventDefault();
+            privacyModal.style.display = 'flex';
+        });
 
-document.querySelectorAll('.close-modal').forEach(btn => {
-    btn.addEventListener('click', () => {
-        termsModal.style.display = 'none';
-        privacyModal.style.display = 'none';
-    });
-});
+        document.querySelectorAll('.close-modal').forEach(btn => {
+            btn.addEventListener('click', () => {
+                termsModal.style.display = 'none';
+                privacyModal.style.display = 'none';
+            });
+        });
 
-window.addEventListener('click', function(e){
-    if(e.target === termsModal){
-        termsModal.style.display = 'none';
-    }
-
-    if(e.target === privacyModal){
-        privacyModal.style.display = 'none';
-    }
-});
+        window.addEventListener('click', function(e){
+            if(e.target === termsModal) termsModal.style.display = 'none';
+            if(e.target === privacyModal) privacyModal.style.display = 'none';
+        });
 </script>
 </body>
 </html>
