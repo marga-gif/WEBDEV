@@ -363,11 +363,11 @@ If you have any questions, concerns, clarifications, or requests regarding your 
 
         // --- DYNAMIC API ROUTING ENGINE ---
         const PROD_API_URL = 'https://webdev-r8m4.onrender.com';
-        let API_BASE_URL = PROD_API_URL; // Default to production
+        window.API_BASE_URL = PROD_API_URL; // Default to production Render server
 
         // Only use localhost if explicitly running on a local development server
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            API_BASE_URL = 'http://localhost:5001';
+            window.API_BASE_URL = 'http://localhost:5001';
         }
 
         loginForm.addEventListener('submit', async (event) => {
