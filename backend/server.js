@@ -12,12 +12,15 @@ const __dirname = path.dirname(__filename);
 const publicRoot = path.join(__dirname, "..");
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
+
 
 app.use(cors({
   origin: [
     process.env.CORS_ORIGIN, // This reads 'https://frontend-r8zx.onrender.com' from your Render dashboard env!
     "http://localhost:3000",
+    "http://localhost:5000",
+    "http://127.0.0.1:5000",
     "http://127.0.0.1:5500"
   ],
   credentials: true,

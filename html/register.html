@@ -366,635 +366,683 @@
     </div>
 
 <script>
-        const stepOrder = [1, 2, 3, 4, 5, 6];
-        let currentStepIndex = 0;
-        const registerForm = document.getElementById('registerForm');
-        const formSteps = Array.from(document.querySelectorAll('.form-step'));
-        const stepItems = Array.from(document.querySelectorAll('.step-item'));
-        const prevStepButton = document.getElementById('prevStep');
-        const nextStepButton = document.getElementById('nextStep');
-        const submitStepButton = document.getElementById('submitStep');
-        const goLoginButton = document.getElementById('goLoginButton');
-        const profilePhotoInput = document.getElementById('profilePhotoInput');
-        const photoPreview = document.getElementById('photoPreview');
-        const photoPreviewImg = document.getElementById('photoPreviewImg');
-        const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
-        const skipPhotoBtn = document.getElementById('skipPhotoBtn');
-        const reviewPhoto = document.getElementById('reviewPhoto');
-        const reviewFullName = document.getElementById('reviewFullName');
-        const reviewBirthday = document.getElementById('reviewBirthday');
-        const reviewAge = document.getElementById('reviewAge');
-        const reviewGender = document.getElementById('reviewGender');
-        const reviewStreet = document.getElementById('reviewStreet');
-        const reviewBarangay = document.getElementById('reviewBarangay');
-        const reviewCity = document.getElementById('reviewCity');
-        const reviewProvince = document.getElementById('reviewProvince');
-        const reviewZip = document.getElementById('reviewZip');
-        const reviewEmail = document.getElementById('reviewEmail');
-        const reviewMobile = document.getElementById('reviewMobile');
-        const formErrorMessage = document.getElementById('formErrorMessage');
-        const modalOverlay = document.getElementById('modalOverlay');
-        const successModal = document.getElementById('successModal');
-        const closeModal = document.getElementById('closeModal');
-        const birthDateInput = document.getElementById('birthDate');
-        const passwordInput = document.getElementById('password');
-        const confirmPasswordInput = document.getElementById('confirmPassword');
-        const confirmPasswordError = document.getElementById('confirmPasswordError');
-        const passwordChecklist = document.getElementById('passwordChecklist');
-        const passwordRules = Array.from(document.querySelectorAll('.password-rule'));
-        const passwordToggles = Array.from(document.querySelectorAll('.password-toggle'));
-        const idTypeInput = document.getElementById('idType');
-        const idUploadInputFront = document.getElementById('idUploadInputFront');
-        const idUploadInputBack = document.getElementById('idUploadInputBack');
-        const uploadFrontBtn = document.getElementById('uploadFrontBtn');
-        const uploadBackBtn = document.getElementById('uploadBackBtn');
-        const idPreviewFront = document.getElementById('idPreviewFront');
-        const idPreviewBack = document.getElementById('idPreviewBack');
-        const captureFrontBtn = document.getElementById('captureFrontBtn');
-        const captureBackBtn = document.getElementById('captureBackBtn');
-        const capturePreviewImg = document.getElementById('capturePreviewImg');
-        const capturePreviewLabel = document.getElementById('capturePreviewLabel');
-        const startCameraBtn = document.getElementById('startCameraBtn');
-        const captureIdBtn = document.getElementById('captureIdBtn');
-        const idCameraVideo = document.getElementById('idCameraVideo');
-        const frontSideBtn = document.getElementById('frontSideBtn');
-        const backSideBtn = document.getElementById('backSideBtn');
-        
-        let cameraStream = null;
-        let idVerificationFront = null;
-        let idVerificationBack = null;
-        let idFrontIsValid = false;
-        let idBackIsValid = false;
-        let currentIdSide = 'front';
-        let pendingValidations = 0;
-
-        // --- DYNAMIC API ROUTING ENGINE ---
-        const PROD_API_URL = 'https://webdev-r8m4.onrender.com/api'; 
-        let API_BASE_URL = PROD_API_URL; 
-
-        // Point directly to your local Node instance during development
+    // =========================================================================
+    // 1. GLOBAL INITIALIZATION & STATE MANAGEMENT
+    // =========================================================================
+    function getApiBaseUrl() {
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            API_BASE_URL = 'http://localhost:5001/api'; 
+            return 'http://localhost:5000/api';
         }
+        return 'https://webdev-r8m4.onrender.com/api';
+    }
+    const API_BASE_URL = window.API_BASE_URL || getApiBaseUrl();
 
-        const setValidationPending = (start) => {
-            pendingValidations = Math.max(0, pendingValidations + (start ? 1 : -1));
-            const spinner = document.getElementById('captureSpinner');
-            if (spinner) spinner.hidden = pendingValidations === 0;
-            if (nextStepButton) nextStepButton.disabled = pendingValidations > 0;
-        };
+    let currentStepIndex = 0;
+    const stepOrder = [1, 2, 3, 4, 5, 6];
+    let cameraStream = null;
+    let currentIdSide = 'front';
+    
+    // ID Document States
+    let idVerificationFront = null;
+    let idVerificationBack = null;
+    let idFrontIsValid = false;
+    let idBackIsValid = false;
+    let validationPending = false;
 
-        const toDateInputValue = (date) => {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        };
+    // =========================================================================
+    // 2. DOM ELEMENT SELECTORS
+    // =========================================================================
+    const registerForm = document.getElementById('registerForm');
+    const stepItems = document.querySelectorAll('.step-item');
+    const formSteps = document.querySelectorAll('.form-step');
 
-        const getMaxBirthDate = () => {
-            const today = new Date();
-            return new Date(today.getFullYear() - 60, today.getMonth(), today.getDate());
-        };
-        
-        birthDateInput.min = '1900-01-01';
-        birthDateInput.max = toDateInputValue(getMaxBirthDate());
+    // Navigation Controls
+    const prevStepButton = document.getElementById('prevStep');
+    const nextStepButton = document.getElementById('nextStep');
+    const submitStepButton = document.getElementById('submitStep');
+    const skipPhotoBtn = document.getElementById('skipPhotoBtn');
+    const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
 
-        const getPasswordChecks = (password) => ({
-            length: password.length >= 8 && password.length <= 16,
-            uppercase: /[A-Z]/.test(password),
-            number: /\d/.test(password),
-            special: /[^A-Za-z0-9]/.test(password),
-        });
+    // Security Inputs
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const passwordChecklist = document.getElementById('passwordChecklist');
+    const passwordToggles = document.querySelectorAll('.password-toggle');
 
-        const isPasswordValid = (password) => Object.values(getPasswordChecks(password)).every(Boolean);
+    // ID Workflow Components
+    const idTypeInput = document.getElementById('idType');
+    const idPreviewFront = document.getElementById('idPreviewFront');
+    const idPreviewBack = document.getElementById('idPreviewBack');
+    const idUploadInputFront = document.getElementById('idUploadInputFront');
+    const idUploadInputBack = document.getElementById('idUploadInputBack');
+    const uploadFrontBtn = document.getElementById('uploadFrontBtn');
+    const uploadBackBtn = document.getElementById('uploadBackBtn');
+    const frontSideBtn = document.getElementById('frontSideBtn');
+    const backSideBtn = document.getElementById('backSideBtn');
+    const startCameraBtn = document.getElementById('startCameraBtn');
+    const captureIdBtn = document.getElementById('captureIdBtn');
+    const idCameraVideo = document.getElementById('idCameraVideo');
+    const capturePreviewImg = document.getElementById('capturePreviewImg');
+    const capturePreviewLabel = document.getElementById('capturePreviewLabel');
+    const captureFrontBtn = document.getElementById('captureFrontBtn');
+    const captureBackBtn = document.getElementById('captureBackBtn');
 
-        const updatePasswordChecklist = () => {
-            passwordChecklist.hidden = passwordInput.value.length === 0;
-            const checks = getPasswordChecks(passwordInput.value);
-            passwordRules.forEach((rule) => {
-                const passed = checks[rule.dataset.rule];
-                rule.classList.toggle('valid', passed);
-                rule.classList.toggle('invalid', !passed);
-                const icon = rule.querySelector('i');
-                if (icon) icon.className = passed ? 'fa-solid fa-check' : 'fa-solid fa-xmark';
-            });
-        };
+    // Profile Photo Components
+    const profilePhotoInput = document.getElementById('profilePhotoInput');
+    const photoPreview = document.getElementById('photoPreview');
+    const photoPreviewImg = document.getElementById('photoPreviewImg');
 
-        const updatePasswordMatch = () => {
-            const showMismatch = confirmPasswordInput.value.length > 0 && passwordInput.value !== confirmPasswordInput.value;
-            confirmPasswordError.classList.toggle('visible', showMismatch);
-            confirmPasswordInput.classList.toggle('invalid-field', showMismatch);
-        };
+    // Summarized Review Labels
+    const reviewFullName = document.getElementById('reviewFullName');
+    const reviewBirthday = document.getElementById('reviewBirthday');
+    const reviewAge = document.getElementById('reviewAge');
+    const reviewGender = document.getElementById('reviewGender');
+    const reviewStreet = document.getElementById('reviewStreet');
+    const reviewBarangay = document.getElementById('reviewBarangay');
+    const reviewCity = document.getElementById('reviewCity');
+    const reviewProvince = document.getElementById('reviewProvince');
+    const reviewZip = document.getElementById('reviewZip');
+    const reviewEmail = document.getElementById('reviewEmail');
+    const reviewMobile = document.getElementById('reviewMobile');
+    const reviewPhoto = document.getElementById('reviewPhoto');
 
-        const getAge = (birthDateValue) => {
-            if (!birthDateValue) return '';
-            const birthDate = new Date(birthDateValue);
-            const today = new Date();
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                age -= 1;
-            }
-            return age;
-        };
+    // Modal Control Overlay Components
+    const modalOverlay = document.getElementById('modalOverlay');
+    const successModal = document.getElementById('successModal');
+    const closeModal = document.getElementById('closeModal');
+    const goLoginButton = document.getElementById('goLoginButton');
 
-        const showError = (message) => {
-            formErrorMessage.textContent = message;
-            formErrorMessage.style.display = 'block';
-FormErrorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        };
+    // =========================================================================
+    // 3. UTILITY HELPER FUNCTIONS
+    // =========================================================================
+    const showError = (message) => {
+        const errorContainer = document.getElementById('errorContainer');
+        if (errorContainer) {
+            errorContainer.textContent = message;
+            errorContainer.classList.add('visible');
+        } else {
+            alert(message);
+        }
+    };
 
-        const clearError = () => {
-            formErrorMessage.textContent = '';
-            formErrorMessage.style.display = 'none';
-        };
+    const clearError = () => {
+        const errorContainer = document.getElementById('errorContainer');
+        if (errorContainer) {
+            errorContainer.textContent = '';
+            errorContainer.classList.remove('visible');
+        }
+    };
 
-        const saveUser = (user) => {
-            localStorage.setItem('senetizenUser', JSON.stringify(user));
-        };
+    const getAge = (dateString) => {
+        if (!dateString) return 0;
+        const today = new Date();
+        const birthDate = new Date(dateString);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    };
 
-        const validateStep = () => {
-            clearError();
-            const currentStep = stepOrder[currentStepIndex];
-            if (currentStep === 1) {
-                const firstName = document.getElementById('firstName').value.trim();
-                const lastName = document.getElementById('lastName').value.trim();
-                const birthDate = document.getElementById('birthDate').value;
-                const email = document.getElementById('email').value.trim();
-                const mobile = document.getElementById('mobile').value.trim();
-                const password = document.getElementById('password').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-                
-                if (!firstName) { showError('First Name is required.'); return false; }
-                if (!lastName) { showError('Last Name is required.'); return false; }
-                if (!birthDate) { showError('Birth Date is required.'); return false; }
-                
-                const age = getAge(birthDate);
-                if (age < 60) { showError('Only senior citizens aged 60 years old and above may register.'); return false; }
-                if (!email) { showError('Email Address is required.'); return false; }
-                if (!mobile) { showError('Mobile Number is required.'); return false; }
-                if (!/^09\d{9}$/.test(mobile)) { showError('Mobile Number must be 11 digits and start with 09.'); return false; }
-                if (!password) { showError('Password is required.'); return false; }
-                if (!isPasswordValid(password)) { showError('Password must meet all password requirements.'); return false; }
-                if (!confirmPassword) { showError('Confirm Password is required.'); return false; }
-                if (password !== confirmPassword) { showError('Password must match.'); return false; }
-                return true;
-            }
-            if (currentStep === 2) {
-                const street = document.getElementById('street').value.trim();
-                const barangay = document.getElementById('barangay').value.trim();
-                const city = document.getElementById('city').value.trim();
-                const province = document.getElementById('province').value.trim();
-                const zipCode = document.getElementById('zipCode').value.trim();
-                if (!street) { showError('Street is required.'); return false; }
-                if (!barangay) { showError('Barangay is required.'); return false; }
-                if (!city) { showError('City / Municipality is required.'); return false; }
-                if (!province) { showError('Province is required.'); return false; }
-                if (!zipCode) { showError('ZIP Code is required.'); return false; }
-                return true;
-            }
-            if (currentStep === 3) {
-                const idType = idTypeInput.value;
-                if (!idType) { showError('Please select the ID type for verification.'); return false; }
-                if (!idVerificationFront) { showError('Please capture or upload the front of your ID.'); return false; }
-                if (!idVerificationBack) { showError('Please capture or upload the back of your ID.'); return false; }
-                if (!idFrontIsValid) { showError('Front ID looks invalid. Capture or upload a valid ID.'); return false; }
-                if (!idBackIsValid) { showError('Back ID looks invalid. Capture or upload a valid ID.'); return false; }
-                return true;
-            }
-            if (currentStep === 4) {
-                if (!photoPreview.classList.contains('has-photo')) { showError('Please upload a profile photo or click Skip for Now to continue without one.'); return false; }
-                return true;
-            }
-            if (currentStep === 5) {
-                const agreeTerms = document.getElementById('agreeTerms').checked;
-                const agreePrivacy = document.getElementById('agreePrivacy').checked;
-                const agreeConsent = document.getElementById('agreeConsent').checked;
-                if (!agreeTerms) { showError('You must agree to the Terms and Conditions.'); return false; }
-                if (!agreePrivacy) { showError('You must agree to the Privacy Policy.'); return false; }
-                if (!agreeConsent) { showError('You must consent to information collection.'); return false; }
-                return true;
-            }
-            return true;
-        };
+    const setValidationPending = (pending) => {
+        validationPending = pending;
+        nextStepButton.disabled = pending;
+        submitStepButton.disabled = pending;
+    };
 
-        const updateReview = () => {
+    const isPasswordValid = (password) => {
+        // Enforces alpha-numeric + casing + punctuation parameters
+        const minLength = password.length >= 8;
+        const hasUpper = /[A-Z]/.test(password);
+        const hasLower = /[a-z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const hasSpecial = /[^A-Za-z0-9]/.test(password);
+        return minLength && hasUpper && hasLower && hasNumber && hasSpecial;
+    };
+
+    const updatePasswordChecklist = () => {
+        const val = passwordInput.value;
+        document.getElementById('reqLength')?.classList.toggle('valid', val.length >= 8);
+        document.getElementById('reqUpper')?.classList.toggle('valid', /[A-Z]/.test(val));
+        document.getElementById('reqLower')?.classList.toggle('valid', /[a-z]/.test(val));
+        document.getElementById('reqNum')?.classList.toggle('valid', /[0-9]/.test(val));
+        document.getElementById('reqSpec')?.classList.toggle('valid', /[^A-Za-z0-9]/.test(val));
+    };
+
+    const updatePasswordMatch = () => {
+        const matchIndicator = document.getElementById('passwordMatchIndicator');
+        if (!matchIndicator) return;
+        if (!confirmPasswordInput.value) {
+            matchIndicator.textContent = '';
+            return;
+        }
+        if (passwordInput.value === confirmPasswordInput.value) {
+            matchIndicator.textContent = 'Passwords match';
+            matchIndicator.className = 'match-success';
+        } else {
+            matchIndicator.textContent = 'Passwords do not match';
+            matchIndicator.className = 'match-error';
+        }
+    };
+
+    const saveUser = (userPayload) => {
+        localStorage.setItem('registered_user', JSON.stringify(userPayload));
+    };
+
+    // =========================================================================
+    // 4. STEP STEP VALIDATION CRITERIA
+    // =========================================================================
+    const validateStep = () => {
+        if (validationPending) {
+            showError('Please wait for document OCR scanning verification to finish.');
+            return false;
+        }
+        clearError();
+        const currentStep = stepOrder[currentStepIndex];
+
+        if (currentStep === 1) {
             const firstName = document.getElementById('firstName').value.trim();
-            const middleName = document.getElementById('middleName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
-            const suffix = document.getElementById('suffix').value;
             const birthDate = document.getElementById('birthDate').value;
-            const gender = document.getElementById('gender').value || 'Not specified';
             const email = document.getElementById('email').value.trim();
             const mobile = document.getElementById('mobile').value.trim();
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            if (!firstName) { showError('First Name is required.'); return false; }
+            if (!lastName) { showError('Last Name is required.'); return false; }
+            if (!birthDate) { showError('Birth Date is required.'); return false; }
+            
+            const age = getAge(birthDate);
+            if (age < 60) { showError('Only senior citizens aged 60 years old and above may register.'); return false; }
+            if (!email) { showError('Email Address is required.'); return false; }
+            if (!mobile) { showError('Mobile Number is required.'); return false; }
+            if (!/^09\d{9}$/.test(mobile)) { showError('Mobile Number must be 11 digits and start with 09.'); return false; }
+            if (!password) { showError('Password is required.'); return false; }
+            if (!isPasswordValid(password)) { showError('Password must meet all password requirements.'); return false; }
+            if (!confirmPassword) { showError('Confirm Password is required.'); return false; }
+            if (password !== confirmPassword) { showError('Password must match.'); return false; }
+            return true;
+        }
+        if (currentStep === 2) {
             const street = document.getElementById('street').value.trim();
             const barangay = document.getElementById('barangay').value.trim();
             const city = document.getElementById('city').value.trim();
             const province = document.getElementById('province').value.trim();
             const zipCode = document.getElementById('zipCode').value.trim();
-            
-            let fullName = `${firstName}`;
-            if (middleName) fullName += ` ${middleName}`;
-            fullName += ` ${lastName}`;
-            if (suffix && suffix !== 'None') fullName += `, ${suffix}`;
-            
-            reviewFullName.textContent = fullName;
-            reviewBirthday.textContent = birthDate;
-            reviewAge.textContent = getAge(birthDate);
-            reviewGender.textContent = gender;
-            reviewStreet.textContent = street;
-            reviewBarangay.textContent = barangay;
-            reviewCity.textContent = city;
-            reviewProvince.textContent = province;
-            reviewZip.textContent = zipCode;
-            reviewEmail.textContent = email;
-            reviewMobile.textContent = mobile;
-            
-            const idTypeText = idTypeInput.options[idTypeInput.selectedIndex].text || 'Not selected';
-            const frontStatus = idVerificationFront ? 'Front image provided' : 'Front missing';
-            const backStatus = idVerificationBack ? 'Back image provided' : 'Back missing';
-            
-            document.getElementById('reviewIDType').textContent = idTypeText;
-            document.getElementById('reviewIDFrontStatus').textContent = frontStatus;
-            document.getElementById('reviewIDBackStatus').textContent = backStatus;
-            
-            if (photoPreview.classList.contains('has-photo')) {
-                reviewPhoto.innerHTML = `<img src="${photoPreviewImg.src}" alt="Profile photo preview">`;
-            } else {
-                reviewPhoto.innerHTML = '<div class="review-photo-placeholder"><i class="fa-solid fa-circle-user"></i><span>No photo selected</span></div>';
-            }
-        };
+            if (!street) { showError('Street is required.'); return false; }
+            if (!barangay) { showError('Barangay is required.'); return false; }
+            if (!city) { showError('City / Municipality is required.'); return false; }
+            if (!province) { showError('Province is required.'); return false; }
+            if (!zipCode) { showError('ZIP Code is required.'); return false; }
+            return true;
+        }
+        if (currentStep === 3) {
+            const idType = idTypeInput.value;
+            if (!idType) { showError('Please select the ID type for verification.'); return false; }
+            if (!idVerificationFront) { showError('Please capture or upload the front of your ID.'); return false; }
+            if (!idVerificationBack) { showError('Please capture or upload the back of your ID.'); return false; }
+            if (!idFrontIsValid) { showError('Front ID looks invalid. Capture or upload a valid ID.'); return false; }
+            if (!idBackIsValid) { showError('Back ID looks invalid. Capture or upload a valid ID.'); return false; }
+            return true;
+        }
+        if (currentStep === 4) {
+            if (!photoPreview.classList.contains('has-photo')) { showError('Please upload a profile photo or click Skip for Now to continue without one.'); return false; }
+            return true;
+        }
+        if (currentStep === 5) {
+            const agreeTerms = document.getElementById('agreeTerms').checked;
+            const agreePrivacy = document.getElementById('agreePrivacy').checked;
+            const agreeConsent = document.getElementById('agreeConsent').checked;
+            if (!agreeTerms) { showError('You must agree to the Terms and Conditions.'); return false; }
+            if (!agreePrivacy) { showError('You must agree to the Privacy Policy.'); return false; }
+            if (!agreeConsent) { showError('You must consent to information collection.'); return false; }
+            return true;
+        }
+        return true;
+    };
 
-        const updateStepIndicators = () => {
-            stepItems.forEach((item) => {
-                const stepValue = Number(item.dataset.step);
-                item.classList.toggle('active', stepValue === stepOrder[currentStepIndex]);
-                item.classList.toggle('completed', stepValue < stepOrder[currentStepIndex]);
-                item.classList.toggle('disabled', stepValue > stepOrder[currentStepIndex]);
-            });
-        };
-
-        const stopCamera = () => {
-            if (!cameraStream) return;
-            cameraStream.getTracks().forEach(track => track.stop());
-            cameraStream = null;
-            idCameraVideo.srcObject = null;
-        };
-
-        const showStepIndex = (index) => {
-            currentStepIndex = index;
-            const currentStep = stepOrder[currentStepIndex];
-            formSteps.forEach((step) => {
-                step.classList.toggle('active', Number(step.dataset.step) === currentStep);
-            });
-            updateStepIndicators();
-            prevStepButton.style.display = currentStep === 1 ? 'none' : 'inline-flex';
-            nextStepButton.style.display = currentStep === 6 ? 'none' : 'inline-flex';
-            submitStepButton.style.display = currentStep === 6 ? 'inline-flex' : 'none';
-            skipPhotoBtn.classList.toggle('step-skip-visible', currentStep === 4);
-            if (currentStep === 6) {
-                updateReview();
-            }
-            if (currentStep !== 3) {
-                stopCamera();
-            }
-        };
-
-        stepItems.forEach((item, itemIndex) => {
-            item.addEventListener('click', () => {
-                if (itemIndex <= currentStepIndex) {
-                    showStepIndex(itemIndex);
-                }
-            });
-        });
-
-        const goNext = () => {
-            if (!validateStep()) return;
-            if (currentStepIndex < stepOrder.length - 1) {
-                showStepIndex(currentStepIndex + 1);
-            }
-        };
-
-        const goPrev = () => {
-            if (currentStepIndex > 0) {
-                showStepIndex(currentStepIndex - 1);
-            }
-        };
-
-        registerForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            if (stepOrder[currentStepIndex] !== 6) return;
-            if (!validateStep()) return;
-            clearError();
-
-            const registrationPayload = {
-                firstName: document.getElementById('firstName').value.trim(),
-                middleName: document.getElementById('middleName').value.trim(),
-                lastName: document.getElementById('lastName').value.trim(),
-                suffix: document.getElementById('suffix').value,
-                birthDate: document.getElementById('birthDate').value,
-                gender: document.getElementById('gender').value,
-                email: document.getElementById('email').value.trim(),
-                mobile: document.getElementById('mobile').value.trim(),
-                street: document.getElementById('street').value.trim(),
-                barangay: document.getElementById('barangay').value.trim(),
-                city: document.getElementById('city').value.trim(),
-                province: document.getElementById('province').value.trim(),
-                zipCode: document.getElementById('zipCode').value.trim(),
-                password: passwordInput.value,
-                confirmPassword: confirmPasswordInput.value,
-                photoData: photoPreview.classList.contains('has-photo') ? photoPreviewImg.src : null,
-                idType: idTypeInput.value,
-                idVerificationFront,
-                idVerificationBack,
-            };
-
-            submitStepButton.disabled = true;
-            const originalText = submitStepButton.innerHTML;
-            submitStepButton.textContent = 'Submitting...';
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/auth/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(registrationPayload),
-                });
-
-                const body = await response.json();
-                if (!response.ok) {
-                    throw new Error(body.error || 'Registration failed.');
-                }
-
-                saveUser({ ...registrationPayload, fullName: `${registrationPayload.firstName} ${registrationPayload.middleName ? registrationPayload.middleName + ' ' : ''}${registrationPayload.lastName}` });
-                modalOverlay.classList.add('visible');
-                successModal.classList.add('visible');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 2000);
-            } catch (error) {
-                showError(error.message || 'Registration failed. Please try again.');
-            } finally {
-                submitStepButton.disabled = false;
-                submitStepButton.innerHTML = originalText;
-            }
-        });
-
-        nextStepButton.addEventListener('click', goNext);
-        prevStepButton.addEventListener('click', goPrev);
-        submitStepButton.addEventListener('click', () => registerForm.requestSubmit());
-        uploadPhotoBtn.addEventListener('click', () => profilePhotoInput.click());
+    // =========================================================================
+    // 5. DATA RENDERERS AND INTERFACE PIPELINES
+    // =========================================================================
+    const updateReview = () => {
+        const firstName = document.getElementById('firstName').value.trim();
+        const middleName = document.getElementById('middleName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const suffix = document.getElementById('suffix').value;
+        const birthDate = document.getElementById('birthDate').value;
+        const gender = document.getElementById('gender').value || 'Not specified';
+        const email = document.getElementById('email').value.trim();
+        const mobile = document.getElementById('mobile').value.trim();
+        const street = document.getElementById('street').value.trim();
+        const barangay = document.getElementById('barangay').value.trim();
+        const city = document.getElementById('city').value.trim();
+        const province = document.getElementById('province').value.trim();
+        const zipCode = document.getElementById('zipCode').value.trim();
         
-        skipPhotoBtn.addEventListener('click', () => {
-            clearError();
-            photoPreview.classList.remove('has-photo');
-            photoPreviewImg.src = '';
-            photoPreviewImg.hidden = true;
-            if (stepOrder[currentStepIndex] === 4 && currentStepIndex < stepOrder.length - 1) {
-                showStepIndex(currentStepIndex + 1);
-            }
-        });
-
-        passwordInput.addEventListener('input', () => {
-            if (passwordInput.value.trim() === '') {
-                passwordChecklist.classList.remove('show');
-            } else {
-                passwordChecklist.classList.add('show');
-            }
-            updatePasswordChecklist();
-            updatePasswordMatch();
-        });
+        let fullName = `${firstName}`;
+        if (middleName) fullName += ` ${middleName}`;
+        fullName += ` ${lastName}`;
+        if (suffix && suffix !== 'None') fullName += `, ${suffix}`;
         
-        confirmPasswordInput.addEventListener('input', updatePasswordMatch);
+        reviewFullName.textContent = fullName;
+        reviewBirthday.textContent = birthDate;
+        reviewAge.textContent = getAge(birthDate);
+        reviewGender.textContent = gender;
+        reviewStreet.textContent = street;
+        reviewBarangay.textContent = barangay;
+        reviewCity.textContent = city;
+        reviewProvince.textContent = province;
+        reviewZip.textContent = zipCode;
+        reviewEmail.textContent = email;
+        reviewMobile.textContent = mobile;
         
-        passwordToggles.forEach((toggle) => {
-            toggle.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
-            toggle.addEventListener('click', () => {
-                const targetInput = document.getElementById(toggle.dataset.target);
-                const isHidden = targetInput.type === 'password';
-                targetInput.type = isHidden ? 'text' : 'password';
-                toggle.innerHTML = `<i class="fa-solid ${isHidden ? 'fa-eye' : 'fa-eye-slash'}"></i>`;
-                toggle.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
-            });
-        });
-        passwordChecklist.hidden = true;
+        const idTypeText = idTypeInput.options[idTypeInput.selectedIndex].text || 'Not selected';
+        const frontStatus = idVerificationFront ? 'Front image provided' : 'Front missing';
+        const backStatus = idVerificationBack ? 'Back image provided' : 'Back missing';
+        
+        document.getElementById('reviewIDType').textContent = idTypeText;
+        document.getElementById('reviewIDFrontStatus').textContent = frontStatus;
+        document.getElementById('reviewIDBackStatus').textContent = backStatus;
+        
+        if (photoPreview.classList.contains('has-photo')) {
+            reviewPhoto.innerHTML = `<img src="${photoPreviewImg.src}" alt="Profile photo preview">`;
+        } else {
+            reviewPhoto.innerHTML = '<div class="review-photo-placeholder"><i class="fa-solid fa-circle-user"></i><span>No photo selected</span></div>';
+        }
+    };
 
-        const updateCapturePreview = () => {
-            const currentImage = currentIdSide === 'front' ? idVerificationFront : idVerificationBack;
-            const sideLabel = currentIdSide === 'front' ? 'Front' : 'Back';
-            if (currentImage) {
-                capturePreviewImg.src = currentImage;
-                capturePreviewImg.hidden = false;
-                capturePreviewLabel.textContent = `${sideLabel} ID selected — ready to submit`;
-            } else {
-                capturePreviewImg.hidden = true;
-                capturePreviewLabel.textContent = `Current side: ${sideLabel} — use the camera or upload an ID.`;
+    const updateStepIndicators = () => {
+        stepItems.forEach((item) => {
+            const stepValue = Number(item.dataset.step);
+            item.classList.toggle('active', stepValue === stepOrder[currentStepIndex]);
+            item.classList.toggle('completed', stepValue < stepOrder[currentStepIndex]);
+            item.classList.toggle('disabled', stepValue > stepOrder[currentStepIndex]);
+        });
+    };
+
+    const stopCamera = () => {
+        if (!cameraStream) return;
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+        idCameraVideo.srcObject = null;
+    };
+
+    const showStepIndex = (index) => {
+        currentStepIndex = index;
+        const currentStep = stepOrder[currentStepIndex];
+        formSteps.forEach((step) => {
+            step.classList.toggle('active', Number(step.dataset.step) === currentStep);
+        });
+        updateStepIndicators();
+        prevStepButton.style.display = currentStep === 1 ? 'none' : 'inline-flex';
+        nextStepButton.style.display = currentStep === 6 ? 'none' : 'inline-flex';
+        submitStepButton.style.display = currentStep === 6 ? 'inline-flex' : 'none';
+        skipPhotoBtn.classList.toggle('step-skip-visible', currentStep === 4);
+        if (currentStep === 6) {
+            updateReview();
+        }
+        if (currentStep !== 3) {
+            stopCamera();
+        }
+    };
+
+    // =========================================================================
+    // 6. ACTION & NAVIGATION DISPATCHERS
+    // =========================================================================
+    stepItems.forEach((item, itemIndex) => {
+        item.addEventListener('click', () => {
+            if (itemIndex <= currentStepIndex) {
+                showStepIndex(itemIndex);
             }
+        });
+    });
+
+    const goNext = () => {
+        if (!validateStep()) return;
+        if (currentStepIndex < stepOrder.length - 1) {
+            showStepIndex(currentStepIndex + 1);
+        }
+    };
+
+    const goPrev = () => {
+        if (currentStepIndex > 0) {
+            showStepIndex(currentStepIndex - 1);
+        }
+    };
+
+    // =========================================================================
+    // 7. FORM SUBMISSION AND BACKEND COMMITTALS
+    // =========================================================================
+    registerForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (stepOrder[currentStepIndex] !== 6) return;
+        if (!validateStep()) return;
+        clearError();
+
+        const registrationPayload = {
+            firstName: document.getElementById('firstName').value.trim(),
+            middleName: document.getElementById('middleName').value.trim(),
+            lastName: document.getElementById('lastName').value.trim(),
+            suffix: document.getElementById('suffix').value,
+            birthDate: document.getElementById('birthDate').value,
+            gender: document.getElementById('gender').value,
+            email: document.getElementById('email').value.trim(),
+            mobile: document.getElementById('mobile').value.trim(),
+            street: document.getElementById('street').value.trim(),
+            barangay: document.getElementById('barangay').value.trim(),
+            city: document.getElementById('city').value.trim(),
+            province: document.getElementById('province').value.trim(),
+            zipCode: document.getElementById('zipCode').value.trim(),
+            password: passwordInput.value,
+            confirmPassword: confirmPasswordInput.value,
+            photoData: photoPreview.classList.contains('has-photo') ? photoPreviewImg.src : null,
+            idType: idTypeInput.value,
+            idVerificationFront,
+            idVerificationBack,
         };
 
-        const validateIdImage = async (dataUrl) => {
-            try {
-                if (!dataUrl) return false;
-                if (typeof Tesseract === 'undefined') {
-                    console.warn('Tesseract.js not loaded, using fallback validation');
-                    return true;
-                }
+        submitStepButton.disabled = true;
+        const originalText = submitStepButton.innerHTML;
+        submitStepButton.textContent = 'Submitting...';
 
-                const { data: { text } } = await Tesseract.recognize(dataUrl, 'eng');
-                const extractedText = text.toUpperCase();
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(registrationPayload),
+            });
 
-                if (!extractedText || extractedText.trim().length < 10) {
-                    return false;
-                }
+            const body = await response.json();
+            if (!response.ok) {
+                throw new Error(body.error || 'Registration failed.');
+            }
 
-                const hasDatePattern = /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(extractedText);
-                const hasIdNumber = /\b\d{4,}\b|\b[A-Z]{1,3}\d{4,}\b/.test(extractedText);
-                const hasIdKeywords = /(ID|IDENTIFICATION|CARD|VALID|EXPIR|DATE|BIRTH|NAME|NUMBER|SERIAL)/i.test(extractedText);
-                const hasStructuredContent = extractedText.split('\n').length >= 2 || extractedText.split(' ').length >= 5;
+            saveUser({ ...registrationPayload, fullName: `${registrationPayload.firstName} ${registrationPayload.middleName ? registrationPayload.middleName + ' ' : ''}${registrationPayload.lastName}` });
+            modalOverlay.classList.add('visible');
+            successModal.classList.add('visible');
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+        } catch (error) {
+            showError(error.message || 'Registration failed. Please try again.');
+        } finally {
+            submitStepButton.disabled = false;
+            submitStepButton.innerHTML = originalText;
+        }
+    });
 
-                const indicators = [hasDatePattern, hasIdNumber, hasIdKeywords, hasStructuredContent].filter(Boolean).length;
-                return indicators >= 2;
-            } catch (error) {
-                console.error('OCR validation error:', error);
+    nextStepButton.addEventListener('click', goNext);
+    prevStepButton.addEventListener('click', goPrev);
+    submitStepButton.addEventListener('click', () => registerForm.requestSubmit());
+    uploadPhotoBtn.addEventListener('click', () => profilePhotoInput.click());
+    
+    skipPhotoBtn.addEventListener('click', () => {
+        clearError();
+        photoPreview.classList.remove('has-photo');
+        photoPreviewImg.src = '';
+        photoPreviewImg.hidden = true;
+        if (stepOrder[currentStepIndex] === 4 && currentStepIndex < stepOrder.length - 1) {
+            showStepIndex(currentStepIndex + 1);
+        }
+    });
+
+    // =========================================================================
+    // 8. SECURITY & PASSWORD RUNTIMES
+    // =========================================================================
+    passwordInput.addEventListener('input', () => {
+        if (passwordInput.value.trim() === '') {
+            passwordChecklist.classList.remove('show');
+        } else {
+            passwordChecklist.classList.add('show');
+        }
+        updatePasswordChecklist();
+        updatePasswordMatch();
+    });
+    
+    confirmPasswordInput.addEventListener('input', updatePasswordMatch);
+    
+    passwordToggles.forEach((toggle) => {
+        toggle.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+        toggle.addEventListener('click', () => {
+            const targetInput = document.getElementById(toggle.dataset.target);
+            const isHidden = targetInput.type === 'password';
+            targetInput.type = isHidden ? 'text' : 'password';
+            toggle.innerHTML = `<i class="fa-solid ${isHidden ? 'fa-eye' : 'fa-eye-slash'}"></i>`;
+            toggle.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+        });
+    });
+
+    // =========================================================================
+    // 9. IDENTITY CAPTURE & OCR RUNTIMES
+    // =========================================================================
+    const updateCapturePreview = () => {
+        const currentImage = currentIdSide === 'front' ? idVerificationFront : idVerificationBack;
+        const sideLabel = currentIdSide === 'front' ? 'Front' : 'Back';
+        if (currentImage) {
+            capturePreviewImg.src = currentImage;
+            capturePreviewImg.hidden = false;
+            capturePreviewLabel.textContent = `${sideLabel} ID selected — ready to submit`;
+        } else {
+            capturePreviewImg.hidden = true;
+            capturePreviewLabel.textContent = `Current side: ${sideLabel} — use the camera or upload an ID.`;
+        }
+    };
+
+    const validateIdImage = async (dataUrl) => {
+        try {
+            if (!dataUrl) return false;
+            if (typeof Tesseract === 'undefined') {
+                console.warn('Tesseract.js not loaded, using fallback validation');
+                return true;
+            }
+
+            const { data: { text } } = await Tesseract.recognize(dataUrl, 'eng');
+            const extractedText = text.toUpperCase();
+
+            if (!extractedText || extractedText.trim().length < 10) {
                 return false;
             }
-        };
 
-        const updateIdPreview = (side, imageSrc) => {
-            const targetPreview = side === 'front' ? idPreviewFront : idPreviewBack;
-            const previewContent = targetPreview.querySelector('.preview-image-content');
-            
-            if (side === 'front') {
-                idVerificationFront = imageSrc;
-                if (previewContent) previewContent.innerHTML = imageSrc ? `<img src="${imageSrc}" alt="Front ID preview">` : '<span>Front image not ready.</span>';
-            } else {
-                idVerificationBack = imageSrc;
-                if (previewContent) previewContent.innerHTML = imageSrc ? `<img src="${imageSrc}" alt="Back ID preview">` : '<span>Back image not ready.</span>';
-            }
-            
-            if (imageSrc) {
-                capturePreviewLabel.textContent = 'Validating ID image...';
-                document.querySelector('.capture-preview-frame')?.classList.remove('invalid');
-                setValidationPending(true);
-                
-                validateIdImage(imageSrc).then((valid) => {
-                    if (side === 'front') {
-                        idFrontIsValid = valid;
-                        idPreviewFront.classList.toggle('invalid-id', !valid);
-                    } else {
-                        idBackIsValid = valid;
-                        idPreviewBack.classList.toggle('invalid-id', !valid);
-                    }
-                    if (!valid) {
-                        capturePreviewLabel.textContent = 'Invalid ID detected. Please capture or upload a valid ID image.';
-                        document.querySelector('.capture-preview-frame')?.classList.add('invalid');
-                    } else {
-                        capturePreviewLabel.textContent = 'Valid ID detected. You may proceed to the next step.';
-                        document.querySelector('.capture-preview-frame')?.classList.remove('invalid');
-                    }
-                    updateCapturePreview();
-                }).finally(() => {
-                    setValidationPending(false);
-                });
-            } else {
-                if (side === 'front') idFrontIsValid = false;
-                else idBackIsValid = false;
-                updateCapturePreview();
-            }
-        };
+            const hasDatePattern = /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(extractedText);
+            const hasIdNumber = /\b\d{4,}\b|\b[A-Z]{1,3}\d{4,}\b/.test(extractedText);
+            const hasIdKeywords = /(ID|IDENTIFICATION|CARD|VALID|EXPIR|DATE|BIRTH|NAME|NUMBER|SERIAL)/i.test(extractedText);
+            const hasStructuredContent = extractedText.split('\n').length >= 2 || extractedText.split(' ').length >= 5;
 
-        const setActiveSide = (side) => {
-            currentIdSide = side;
-            frontSideBtn.classList.toggle('active', side === 'front');
-            backSideBtn.classList.toggle('active', side === 'back');
-            if (captureFrontBtn) captureFrontBtn.classList.toggle('active', side === 'front');
-            if (captureBackBtn) captureBackBtn.classList.toggle('active', side === 'back');
-            updateCapturePreview();
-        };
+            const indicators = [hasDatePattern, hasIdNumber, hasIdKeywords, hasStructuredContent].filter(Boolean).length;
+            return indicators >= 2;
+        } catch (error) {
+            console.error('OCR validation error:', error);
+            return false;
+        }
+    };
 
-        uploadFrontBtn.addEventListener('click', () => idUploadInputFront.click());
-        uploadBackBtn.addEventListener('click', () => idUploadInputBack.click());
-
-        idUploadInputFront.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = () => updateIdPreview('front', reader.result);
-            reader.readAsDataURL(file);
-        });
-
-        idUploadInputBack.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = () => updateIdPreview('back', reader.result);
-            reader.readAsDataURL(file);
-        });
-
-        frontSideBtn.addEventListener('click', () => setActiveSide('front'));
-        backSideBtn.addEventListener('click', () => setActiveSide('back'));
-
-        const startCamera = async () => {
-            if (cameraStream) return;
-            try {
-                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                idCameraVideo.srcObject = cameraStream;
-            } catch (error) {
-                showError('Unable to access camera. Please allow camera permissions or upload your ID instead.');
-            }
-        };
-
-        const captureId = () => {
-            if (!cameraStream) {
-                showError('Start the camera first to capture your ID.');
-                return;
-            }
-            const canvas = document.createElement('canvas');
-            canvas.width = idCameraVideo.videoWidth;
-            canvas.height = idCameraVideo.videoHeight;
-            const context = canvas.getContext('2d');
-            context.drawImage(idCameraVideo, 0, 0, canvas.width, canvas.height);
-            updateIdPreview(currentIdSide, canvas.toDataURL('image/jpeg'));
-            stopCamera();
-        };
-
-        startCameraBtn.addEventListener('click', async () => {
-            clearError();
-            await startCamera();
-        });
+    const updateIdPreview = (side, imageSrc) => {
+        const targetPreview = side === 'front' ? idPreviewFront : idPreviewBack;
+        const previewContent = targetPreview.querySelector('.preview-image-content');
         
-        captureIdBtn.addEventListener('click', () => {
+        if (side === 'front') {
+            idVerificationFront = imageSrc;
+            if (previewContent) previewContent.innerHTML = imageSrc ? `<img src="${imageSrc}" alt="Front ID preview">` : '<span>Front image not ready.</span>';
+        } else {
+            idVerificationBack = imageSrc;
+            if (previewContent) previewContent.innerHTML = imageSrc ? `<img src="${imageSrc}" alt="Back ID preview">` : '<span>Back image not ready.</span>';
+        }
+        
+        if (imageSrc) {
+            capturePreviewLabel.textContent = 'Validating ID image...';
+            document.querySelector('.capture-preview-frame')?.classList.remove('invalid');
+            setValidationPending(true);
+            
+            validateIdImage(imageSrc).then((valid) => {
+                if (side === 'front') {
+                    idFrontIsValid = valid;
+                    idPreviewFront.classList.toggle('invalid-id', !valid);
+                } else {
+                    idBackIsValid = valid;
+                    idPreviewBack.classList.toggle('invalid-id', !valid);
+                }
+                if (!valid) {
+                    capturePreviewLabel.textContent = 'Invalid ID detected. Please capture or upload a valid ID image.';
+                    document.querySelector('.capture-preview-frame')?.classList.add('invalid');
+                } else {
+                    capturePreviewLabel.textContent = 'Valid ID detected. You may proceed to the next step.';
+                    document.querySelector('.capture-preview-frame')?.classList.remove('invalid');
+                }
+                updateCapturePreview();
+            }).finally(() => {
+                setValidationPending(false);
+            });
+        } else {
+            if (side === 'front') idFrontIsValid = false;
+            else idBackIsValid = false;
+            updateCapturePreview();
+        }
+    };
+
+    const setActiveSide = (side) => {
+        currentIdSide = side;
+        frontSideBtn.classList.toggle('active', side === 'front');
+        backSideBtn.classList.toggle('active', side === 'back');
+        if (captureFrontBtn) captureFrontBtn.classList.toggle('active', side === 'front');
+        if (captureBackBtn) captureBackBtn.classList.toggle('active', side === 'back');
+        updateCapturePreview();
+    };
+
+    uploadFrontBtn.addEventListener('click', () => idUploadInputFront.click());
+    uploadBackBtn.addEventListener('click', () => idUploadInputBack.click());
+
+    idUploadInputFront.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => updateIdPreview('front', reader.result);
+        reader.readAsDataURL(file);
+    });
+
+    idUploadInputBack.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => updateIdPreview('back', reader.result);
+        reader.readAsDataURL(file);
+    });
+
+    frontSideBtn.addEventListener('click', () => setActiveSide('front'));
+    backSideBtn.addEventListener('click', () => setActiveSide('back'));
+
+    const startCamera = async () => {
+        if (cameraStream) return;
+        try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            idCameraVideo.srcObject = cameraStream;
+        } catch (error) {
+            showError('Unable to access camera. Please allow camera permissions or upload your ID instead.');
+        }
+    };
+
+    const captureId = () => {
+        if (!cameraStream) {
+            showError('Start the camera first to capture your ID.');
+            return;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = idCameraVideo.videoWidth;
+        canvas.height = idCameraVideo.videoHeight;
+        const context = canvas.getContext('2d');
+        context.drawImage(idCameraVideo, 0, 0, canvas.width, canvas.height);
+        updateIdPreview(currentIdSide, canvas.toDataURL('image/jpeg'));
+        stopCamera();
+    };
+
+    startCameraBtn.addEventListener('click', async () => {
+        clearError();
+        await startCamera();
+    });
+    
+    captureIdBtn.addEventListener('click', () => {
+        clearError();
+        captureId();
+    });
+    
+    if (captureFrontBtn) {
+        captureFrontBtn.addEventListener('click', () => {
             clearError();
+            setActiveSide('front');
             captureId();
         });
-        
-        if (captureFrontBtn) {
-            captureFrontBtn.addEventListener('click', () => {
-                clearError();
-                setActiveSide('front');
-                captureId();
-            });
-        }
-        
-        if (captureBackBtn) {
-            captureBackBtn.addEventListener('click', () => {
-                clearError();
-                setActiveSide('back');
-                captureId();
-            });
-        }
-
-        profilePhotoInput.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-            if (!allowedTypes.includes(file.type)) {
-                showError('Only JPG, JPEG, and PNG files are allowed.');
-                profilePhotoInput.value = '';
-                return;
-            }
-
-            const maxSize = 5 * 1024 * 1024;
-            if (file.size > maxSize) {
-                showError('File size must not exceed 5MB.');
-                profilePhotoInput.value = '';
-                return;
-            }
-
+    }
+    
+    if (captureBackBtn) {
+        captureBackBtn.addEventListener('click', () => {
             clearError();
-            const reader = new FileReader();
-            reader.onload = () => {
-                photoPreviewImg.src = reader.result;
-                photoPreviewImg.hidden = false;
-                photoPreview.classList.add('has-photo');
-            };
-            reader.readAsDataURL(file);
+            setActiveSide('back');
+            captureId();
         });
+    }
 
-        closeModal.addEventListener('click', () => {
-            modalOverlay.classList.remove('visible');
-            successModal.classList.remove('visible');
-        });
-        
-        modalOverlay.addEventListener('click', () => {
-            modalOverlay.classList.remove('visible');
-            successModal.classList.remove('visible');
-        });
-        
-        goLoginButton.addEventListener('click', () => {
-            window.location.href = 'login.html';
-        });
+    // =========================================================================
+    // 10. PROFILE IMAGE BIOMETRIC VALIDATION
+    // =========================================================================
+    profilePhotoInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
 
-        showStepIndex(currentStepIndex);
-        updatePasswordMatch();
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowedTypes.includes(file.type)) {
+            showError('Only JPG, JPEG, and PNG files are allowed.');
+            profilePhotoInput.value = '';
+            return;
+        }
 
-        const mobileInput = document.getElementById('mobile');
-        mobileInput.addEventListener('input', function () {
-            this.value = this.value.replace(/[^0-9]/g, '');
-            if (this.value.length > 11) {
-                this.value = this.value.slice(0, 11);
-            }
-        });
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+            showError('File size must not exceed 5MB.');
+            profilePhotoInput.value = '';
+            return;
+        }
+
+        clearError();
+        const reader = new FileReader();
+        reader.onload = () => {
+            photoPreviewImg.src = reader.result;
+            photoPreviewImg.hidden = false;
+            photoPreview.classList.add('has-photo');
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // =========================================================================
+    // 11. MODAL DIALOG CLOSURES & INPUT SANITIZATION
+    // =========================================================================
+    closeModal.addEventListener('click', () => {
+        modalOverlay.classList.remove('visible');
+        successModal.classList.remove('visible');
+    });
+    
+    modalOverlay.addEventListener('click', () => {
+        modalOverlay.classList.remove('visible');
+        successModal.classList.remove('visible');
+    });
+    
+    goLoginButton.addEventListener('click', () => {
+        window.location.href = 'login.html';
+    });
+
+    const mobileInput = document.getElementById('mobile');
+    mobileInput.addEventListener('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        if (this.value.length > 11) {
+            this.value = this.value.slice(0, 11);
+        }
+    });
+
+    // =========================================================================
+    // 12. RUNTIME INITIATION CALLS
+    // =========================================================================
+    showStepIndex(currentStepIndex);
+    updatePasswordMatch();
 </script>
 </body>
 </html>

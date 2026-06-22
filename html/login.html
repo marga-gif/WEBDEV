@@ -361,13 +361,14 @@ If you have any questions, concerns, clarifications, or requests regarding your 
         emailInput.addEventListener('input', clearLoginError);
         passwordInput.addEventListener('input', clearLoginError);
 
-function getApiUrl() {
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return 'https://webdev-r8m4.onrender.com/api';
-    }
-    return 'https://webdev-r8m4.onrender.com/api';
-}
+        function getApiUrl() {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                return 'http://localhost:5000';
+            }
+            return 'https://webdev-r8m4.onrender.com';
+        }
 
+        // --- LOGIN FUNCTION ---
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const email = emailInput.value.trim();
@@ -380,7 +381,6 @@ function getApiUrl() {
             loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
 
             try {
-                // Get the base URL securely here
                 const baseUrl = getApiUrl();
                 
                 const response = await fetch(`${baseUrl}/api/auth/login`, {
@@ -416,7 +416,7 @@ function getApiUrl() {
             }
         });
 
-        // --- FORGOT PASSWORD MODULE WIZARD ---
+        // --- FORGOT PASSWORD MODAL CONTROLS ---
         const openModal = (e) => {
             e.preventDefault();
             forgotModalWrapper.style.display = 'flex';
@@ -449,11 +449,6 @@ function getApiUrl() {
             if(otpCodeWrapper) otpCodeWrapper.style.borderColor = '#e2e8f0';
         };
 
-        const clearForgotFieldError = () => {
-            forgotPhoneWrapper.style.borderColor = '#e2e8f0';
-            forgotPhoneError.style.display = 'none';
-        };
-
         const showForgotFieldError = (message) => {
             forgotPhoneWrapper.style.borderColor = '#ef4444';
             forgotPhoneError.textContent = message;
@@ -468,6 +463,7 @@ function getApiUrl() {
             return normalized;
         }
 
+        // --- INPUT FORMATTING SANITIZERS ---
         forgotPhone.addEventListener('input', (e) => {
             let value = e.target.value.replace(/[^\d+]/g, '');
             if (value.indexOf('+') > 0) {
@@ -533,9 +529,12 @@ function getApiUrl() {
                 forgotSuccess.innerHTML = '<i class="fa-solid fa-circle-check"></i> Verification code sent!';
                 forgotSuccess.style.display = 'flex';
 
-                forgotStep1.style.display = 'none';
-                forgotStep2.style.display = 'block';
-                setTimeout(() => otpCode.focus(), 50);
+                setTimeout(() => {
+                    forgotSuccess.style.display = 'none';
+                    forgotStep1.style.display = 'none';
+                    forgotStep2.style.display = 'block';
+                    setTimeout(() => otpCode.focus(), 50);
+                }, 1500);
 
             } catch (err) {
                 forgotError.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${err.message}`;
@@ -559,6 +558,11 @@ function getApiUrl() {
                 return;
             }
 
+            const verifyBtn = document.getElementById('forgotVerifyBtn');
+            const originalText = verifyBtn.innerHTML;
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
             try {
                 const response = await fetch(`${getApiUrl()}/api/auth/verify-otp`, {
                     method: 'POST',
@@ -574,12 +578,20 @@ function getApiUrl() {
                 forgotSuccess.innerHTML = '<i class="fa-solid fa-circle-check"></i> Identity verified! Set your new password.';
                 forgotSuccess.style.display = 'flex';
 
-                forgotStep2.style.display = 'none';
-                forgotStep3.style.display = 'block';
+                setTimeout(() => {
+                    forgotSuccess.style.display = 'none';
+                    forgotStep2.style.display = 'none';
+                    forgotStep3.style.display = 'block';
+                    setTimeout(() => newPassword.focus(), 50);
+                }, 1500);
+
             } catch (err) {
                 forgotError.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${err.message}`;
                 forgotError.style.display = 'flex';
                 otpCodeWrapper.style.borderColor = '#ef4444';
+            } finally {
+                verifyBtn.disabled = false;
+                verifyBtn.innerHTML = originalText;
             }
         }
 
@@ -607,6 +619,11 @@ function getApiUrl() {
                 return;
             }
 
+            const resetBtn = document.getElementById('forgotResetBtn');
+            const originalText = resetBtn.innerHTML;
+            resetBtn.disabled = true;
+            resetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
             try {
                 const response = await fetch(`${getApiUrl()}/api/auth/reset-password`, {
                     method: 'POST',
@@ -624,10 +641,14 @@ function getApiUrl() {
 
                 setTimeout(() => {
                     closeModal();
+                    window.location.reload();
                 }, 2000);
             } catch (err) {
                 forgotError.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${err.message}`;
                 forgotError.style.display = 'flex';
+            } finally {
+                resetBtn.disabled = false;
+                resetBtn.innerHTML = originalText;
             }
         }
 
@@ -643,7 +664,7 @@ function getApiUrl() {
             }
         });
 
-        // --- Terms & Privacy Modal ---
+        // --- TERMS & PRIVACY MODAL UTILITIES ---
         const termsLink = document.getElementById('termsLink');
         const privacyLink = document.getElementById('privacyLink');
         const termsModal = document.getElementById('termsModal');

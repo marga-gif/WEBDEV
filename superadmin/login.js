@@ -3,6 +3,15 @@ const loginForm = document.getElementById('superadmin-login-form');
 const toastElement = document.getElementById('toast');
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Back button to Admin Login
+const backBtn = document.querySelector('.btn-back-to-user-login, .btn-back-to-admin-login');
+if (backBtn) {
+  backBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = '../admin/auth/index.html';
+  });
+}
+
 function showToast(message, duration = 3200) {
   toastElement.textContent = message;
   toastElement.classList.add('show');

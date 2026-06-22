@@ -30,7 +30,7 @@ router.get("/status", (req, res) => {
   });
 });
 
-router.use("/auth", authRoutes);
+router.use("/auth", authRoutes); 
 router.use("/medical", medicalRoutes);
 router.use("/financial", financialRoutes);
 router.use("/government", governmentRoutes);

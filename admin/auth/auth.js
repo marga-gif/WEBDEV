@@ -34,7 +34,16 @@ window.showToast = function(message, type = 'info') {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 400); // Wait for CSS transition
     }, 3500);
-};
+}
+
+// Ensure API_BASE is set for admin pages
+if (!window.API_BASE) {
+    if (window.location.hostname === 'localhost') {
+        window.API_BASE = 'http://localhost:5000/api';
+    } else if (window.location.hostname === '127.0.0.1') {
+        window.API_BASE = 'http://127.0.0.1:5000/api';
+    }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Auth.js loaded locally. Initializing listeners...");
@@ -159,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Login error:", error);
                 const msg = error && error.message ? error.message : String(error);
                 if (msg.toLowerCase().includes('failed to fetch') || error instanceof TypeError) {
-                    showToast('Network error: Could not reach the API. Ensure the backend is running and you opened the page via http://localhost:5000', 'error');
+                    showToast('Network error: Could not reach the API. Ensure the backend is running on http://localhost:5000', 'error');
                 } else {
                     showToast(msg || 'Login failed. Check browser console for details.', 'error');
                 }

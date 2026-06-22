@@ -1,4 +1,4 @@
-// Shared API base URL for admin pages
+// Shared API base URL for superadmin pages
 if (window.location.hostname === 'localhost') {
     window.API_BASE = window.API_BASE || 'http://localhost:5000/api';
 } else if (window.location.hostname === '127.0.0.1') {

@@ -1,7 +1,15 @@
 const registerForm = document.getElementById('register-form');
-const btnBackToLogin = document.getElementById('btn-back-to-login');
+const backButton = document.querySelector('.btn-back-to-login');
 const btnGoToLogin = document.getElementById('btn-go-to-login');
 const toast = document.getElementById('toast');
+
+// Back button to SuperAdmin Login
+if (backButton) {
+  backButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = 'login.html';
+  });
+}
 
 const API_BASE = window.API_BASE || `${window.location.origin}/api`;
 
@@ -13,7 +21,7 @@ function showToast(message, type = 'info') {
 }
 
 function redirectToLogin() {
-  window.location.href = 'login.html';
+  window.location.href = '../admin/auth/index.html';
 }
 
 function collectFormData() {
