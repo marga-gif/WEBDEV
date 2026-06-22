@@ -362,10 +362,13 @@ If you have any questions, concerns, clarifications, or requests regarding your 
         passwordInput.addEventListener('input', clearLoginError);
 
         // --- DYNAMIC API ROUTING ENGINE ---
+        // Explicitly forces Render when running on Vercel domain structures
         const PROD_API_URL = 'https://webdev-r8m4.onrender.com'; 
-        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:5001'
-            : PROD_API_URL;
+        const API_BASE_URL = window.location.hostname.includes('vercel.app') 
+            ? PROD_API_URL
+            : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                ? 'http://localhost:5001' 
+                : PROD_API_URL);
 
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
