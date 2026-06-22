@@ -428,14 +428,14 @@
         let currentIdSide = 'front';
         let pendingValidations = 0;
 
-    // --- DYNAMIC API ROUTING ENGINE ---
-    const PROD_API_URL = 'https://webdev-r8m4.onrender.com/api'; // Add /api here!
-    let API_BASE_URL = PROD_API_URL; 
+        // --- DYNAMIC API ROUTING ENGINE ---
+        const PROD_API_URL = 'https://webdev-r8m4.onrender.com/api'; 
+        let API_BASE_URL = PROD_API_URL; 
 
-    // Only use localhost if explicitly running on a local development server
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        API_BASE_URL = 'https://webdev-r8m4.onrender.com/api'; // Add /api here too!
-    }
+        // Point directly to your local Node instance during development
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            API_BASE_URL = 'http://localhost:5001/api'; 
+        }
 
         const setValidationPending = (start) => {
             pendingValidations = Math.max(0, pendingValidations + (start ? 1 : -1));
@@ -714,7 +714,7 @@ FormErrorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
             submitStepButton.textContent = 'Submitting...';
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(registrationPayload),
