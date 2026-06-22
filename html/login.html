@@ -363,15 +363,17 @@ If you have any questions, concerns, clarifications, or requests regarding your 
 
         // --- DYNAMIC API ROUTING ENGINE ---
         const PROD_API_URL = 'https://webdev-r8m4.onrender.com';
-        window.API_BASE_URL = PROD_API_URL; 
 
+        // 1. Declare it globally using 'let' so it has script-wide scope
+        let API_BASE_URL = PROD_API_URL; 
+
+        // 2. Fallback check for local environments
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            window.API_BASE_URL = 'http://localhost:5001';
+            API_BASE_URL = 'http://localhost:5001';
         }
 
-        // ADD THIS LINE TO FIX THE "API IS NOT DEFINED" ERROR:
-        window.api = window.API_BASE_URL; 
-        window.API = window.API_BASE_URL; // Case-sensitive fallback just in case
+        // 3. Bind it to window just in case other scripts need it
+        window.API_BASE_URL = API_BASE_URL;
 
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
