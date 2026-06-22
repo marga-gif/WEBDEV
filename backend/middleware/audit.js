@@ -51,3 +51,35 @@ export async function logAdminAuthAudit(email, action, details = {}) {
     // Audit logging should not block main requests.
   }
 }
+
+export async function logSuperAdminAudit(req, action, details = {}) {
+  try {
+    await addRecord("superadminAuditLogs", {
+      action,
+      actorUid: req.user?.uid || "anonymous",
+      actorEmail: req.user?.email || "",
+      actorRole: "superadmin",
+      path: req.originalUrl,
+      method: req.method,
+      details,
+      ip: req.ip,
+      timestamp: new Date(),
+    });
+  } catch {
+    // Audit logging should not block main requests.
+  }
+}
+
+export async function logSuperAdminAuthAudit(email, action, details = {}) {
+  try {
+    await addRecord("superadminAuthAuditLogs", {
+      action,
+      actorEmail: email,
+      actorRole: "superadmin",
+      details,
+      timestamp: new Date(),
+    });
+  } catch {
+    // Audit logging should not block main requests.
+  }
+}

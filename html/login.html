@@ -361,14 +361,12 @@ If you have any questions, concerns, clarifications, or requests regarding your 
         emailInput.addEventListener('input', clearLoginError);
         passwordInput.addEventListener('input', clearLoginError);
 
-// --- DYNAMIC API ROUTING ENGINE ---
-        // A single, bulletproof function to get the API URL anywhere in this script
-        function getApiUrl() {
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                return 'https://webdev-r8m4.onrender.com';
-            }
-            return 'https://webdev-r8m4.onrender.com';
-        }
+function getApiUrl() {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'https://webdev-r8m4.onrender.com/api';
+    }
+    return 'https://webdev-r8m4.onrender.com/api';
+}
 
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SuperAdmin Registration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="auth.css" />
+</head>
+<body class="auth-body">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <button type="button" class="btn-back-to-login" id="btn-back-to-login" title="Back to Login">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="brand-metallic-seal-bg"></div>
+        <div class="brand-content">
+          <h2>Barangay San Jose</h2>
+          <p class="brand-subtitle">SuperAdmin Access Portal</p>
+          <div class="brand-divider-line"></div>
+          <span class="brand-portal-label">SuperAdmin Registration</span>
+        </div>
+      </div>
+      <div class="auth-forms">
+        <div class="form-section active" id="register-section">
+          <div class="form-header">
+            <h3>Create SuperAdmin Account</h3>
+            <p>Register the new SuperAdmin account with secure approval.</p>
+          </div>
+          <form id="register-form">
+            <div class="input-group">
+              <label>First Name</label>
+              <div class="input-with-icon">
+                <i class="fas fa-user"></i>
+                <input type="text" id="reg-firstname" placeholder="Juan" required />
+              </div>
+            </div>
+            <div class="input-group">
+              <label>Middle Name</label>
+              <div class="input-with-icon">
+                <i class="fas fa-user"></i>
+                <input type="text" id="reg-middlename" placeholder="Montoya" />
+              </div>
+            </div>
+            <div class="input-group">
+              <label>Last Name</label>
+              <div class="input-with-icon">
+                <i class="fas fa-user"></i>
+                <input type="text" id="reg-lastname" placeholder="Dela Cruz" required />
+              </div>
+            </div>
+            <div class="input-group">
+              <label>Email Address</label>
+              <div class="input-with-icon">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="reg-email" placeholder="superadmin@barangay.gov.ph" required />
+              </div>
+            </div>
+            <div class="input-group">
+              <label>SuperAdmin Secret Token</label>
+              <div class="input-with-icon">
+                <i class="fas fa-key"></i>
+                <input type="password" id="reg-admin-token" placeholder="Enter secret token" required />
+              </div>
+            </div>
+            <div class="input-group">
+              <label>Password</label>
+              <div class="input-with-icon">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="reg-password" placeholder="Create strong password" required />
+                <button type="button" class="btn-toggle-password" data-target="reg-password" title="Show/hide password">
+                  <i class="fas fa-eye-slash"></i>
+                </button>
+              </div>
+            </div>
+            <div class="input-group">
+              <label>Confirm Password</label>
+              <div class="input-with-icon">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="reg-password-confirm" placeholder="Confirm password" required />
+                <button type="button" class="btn-toggle-password" data-target="reg-password-confirm" title="Show/hide password">
+                  <i class="fas fa-eye-slash"></i>
+                </button>
+              </div>
+            </div>
+            <button type="submit" class="btn-auth-submit" id="btn-register">Create SuperAdmin</button>
+          </form>
+          <div class="form-footer-switch">
+            <p>Already registered? <button type="button" class="text-link-toggle" id="btn-go-to-login">Sign in</button></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="../admin/api-config.js"></script>
+  <script src="register.js"></script>
+</body>
+</html>

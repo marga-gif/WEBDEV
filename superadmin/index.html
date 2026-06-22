@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SuperAdmin Console</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+        <div class="superadmin-shell">
+            <aside class="superadmin-sidebar">
+                <div class="sidebar-brand">
+                    <div class="brand-logo">SA</div>
+                    <div>
+                        <h1>SuperAdmin</h1>
+                        <p>System control</p>
+                    </div>
+                </div>
+                <nav class="sidebar-nav">
+                    <button class="nav-link active" data-target="panel-overview" data-title="Overview"><i class="fas fa-chart-pie"></i>
+                        Overview</button>
+                    <!-- Profile is now editable via clicking the SuperAdmin name -->
+                    <button class="nav-link" data-target="panel-accounts" data-title="Accounts"><i class="fas fa-users-cog"></i>
+                        Accounts</button>
+                    <button class="nav-link" data-target="panel-documents" data-title="Requested Documents"><i class="fas fa-file-alt"></i>
+                        Requested Documents</button>
+                    <button class="nav-link" data-target="panel-audit" data-title="Audit Logs"><i class="fas fa-scroll"></i> Audit Logs</button>
+                    <button class="nav-link" data-target="panel-settings" data-title="Global Settings"><i class="fas fa-cog"></i> Global
+                        Settings</button>
+                    <button class="nav-link" data-target="panel-trash" data-title="Archive / Trash"><i class="fas fa-trash-restore"></i> Archive /
+                        Trash</button>
+                </nav>
+                <div class="sidebar-footer">
+                    <div class="admin-summary">
+                        <span class="role-badge">SuperAdmin</span>
+                        <strong id="superadmin-name">System Owner</strong>
+                        <span class="profile-hint">Click your name to edit profile</span>
+                    </div>
+                    <button id="logout-btn" class="btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </aside>
+
+            <main class="superadmin-main">
+                <header class="topbar">
+                    <div>
+                        <h2 id="panel-title">Overview</h2>
+                        <p class="text-muted">Live data from users, admins, audit logs and global settings.</p>
+                    </div>
+                </header>
+
+                <section class="content-panel show" id="panel-overview">
+                    <div class="panel-header">
+                        <h3>Overview</h3>
+                        <p class="text-muted">Live data from users, admins, audit logs and global settings.</p>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span>Total accounts</span>
+                            <strong id="stat-total-accounts">0</strong>
+                        </div>
+                        <div class="stat-card">
+                            <span>Active users</span>
+                            <strong id="stat-active-users">0</strong>
+                        </div>
+                        <div class="stat-card">
+                            <span>Admin accounts</span>
+                            <strong id="stat-admin-count">0</strong>
+                        </div>
+                        <div class="stat-card">
+                            <span>Archived accounts</span>
+                            <strong id="stat-archived-count">0</strong>
+                        </div>
+
+                        <!-- Financial / workflow stats (synced from user+admin submissions) -->
+                        <div class="stat-card">
+                            <span>Pending financial requests</span>
+                            <strong id="stat-pending-financial-requests">0</strong>
+                        </div>
+                        <div class="stat-card">
+                            <span>Approved financial requests</span>
+                            <strong id="stat-approved-financial-requests">0</strong>
+                        </div>
+                        <div class="stat-card">
+                            <span>Rejected financial requests</span>
+                            <strong id="stat-rejected-financial-requests">0</strong>
+                        </div>
+                        <div class="stat-card">
+                            <span>Disbursed financial requests</span>
+                            <strong id="stat-disbursed-financial-requests">0</strong>
+                        </div>
+                        <div class="stat-card">
+                            <span>Upcoming payout batches</span>
+                            <strong id="stat-upcoming-payout-batches">0</strong>
+                        </div>
+                        <div class="stat-card">
+                            <span>Total payout batches</span>
+                            <strong id="stat-total-payout-batches">0</strong>
+                        </div>
+                    </div>
+
+                    <div class="panel-block">
+                        <div class="panel-header">
+                            <h3>Recent SuperAdmin Activity</h3>
+                        </div>
+                        <div class="filter-row">
+                            <input id="filter-overview" type="search" placeholder="Search activity">
+                            <select id="filter-overview-type">
+                                <option value="all">All types</option>
+                                <option value="action">Actions</option>
+                                <option value="admin-auth">Admin Auth</option>
+                                <option value="superadmin-auth">SuperAdmin Auth</option>
+                            </select>
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Action</th>
+                                        <th>Actor</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="overview-activity-body">
+                                    <tr>
+                                        <td colspan="4" class="empty-state">Loading recent activity...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Profile moved into a modal opened when clicking the SuperAdmin name -->
+
+                <section class="content-panel" id="panel-accounts">
+                    <div class="panel-header panel-header-row">
+                        <div>
+                            <h3>Account Monitoring</h3>
+                            <p class="text-muted">Search, update roles, and archive or restore accounts.</p>
+                        </div>
+                        <div class="filter-row">
+                            <input id="search-account" type="search"
+                                placeholder="Search by name, email, role or status">
+                            <select id="filter-role">
+                                <option value="all">All roles</option>
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                                <option value="superadmin">SuperAdmin</option>
+                            </select>
+                            <select id="filter-status">
+                                <option value="all">All statuses</option>
+                                <option value="active">Active</option>
+                                <option value="disabled">Disabled</option>
+                                <option value="archived">Archived</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Permissions</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accounts-table-body">
+                                <tr>
+                                    <td colspan="6" class="empty-state">Loading accounts...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="content-panel" id="panel-documents">
+                    <div class="panel-header">
+                        <h3>Requested Documents</h3>
+                        <p class="text-muted">Review and process document requests from users.</p>
+                    </div>
+                    <div class="filter-row">
+                        <input id="filter-documents" type="search" placeholder="Search requests">
+                        <select id="filter-documents-status">
+                            <option value="all">All statuses</option>
+                            <option value="Pending Review">Pending Review</option>
+                            <option value="Processing">Processing</option>
+                            <option value="Ready for Pickup">Ready for Pickup</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Request ID</th>
+                                    <th>Citizen Name</th>
+                                    <th>Document Type</th>
+                                    <th>Date Submitted</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="documents-table-body">
+                                <tr>
+                                    <td colspan="6" class="empty-state">Loading document requests...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="content-panel" id="panel-audit">
+                    <div class="panel-header">
+                        <h3>Audit Logs</h3>
+                        <p class="text-muted">Review both user-side and admin-side activity history.</p>
+                    </div>
+                    <div class="filter-row">
+                        <input id="filter-audit" type="search" placeholder="Search logs">
+                        <select id="filter-audit-type">
+                            <option value="all">All types</option>
+                            <option value="admin-auth">Admin Auth</option>
+                            <option value="superadmin-auth">SuperAdmin Auth</option>
+                            <option value="action">Action</option>
+                        </select>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Actor</th>
+                                    <th>Action</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audit-logs-body">
+                                <tr>
+                                    <td colspan="4" class="empty-state">Loading audit logs...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="content-panel" id="panel-settings">
+                    <div class="panel-header">
+                        <h3>Global Settings</h3>
+                        <p class="text-muted">Update system contact information and service settings.</p>
+                    </div>
+                    <form id="settings-form" class="settings-form">
+                        <div class="field-grid">
+                            <label>Site Name<input type="text" id="setting-siteName" required></label>
+                            <label>Contact Email<input type="email" id="setting-contactEmail" required></label>
+                            <label>Contact Phone<input type="text" id="setting-contactPhone" required></label>
+                            <label>Working Hours<input type="text" id="setting-workingHours" required></label>
+                            <label>Street<input type="text" id="setting-street" required></label>
+                            <label>Purok<input type="text" id="setting-purok" required></label>
+                            <label>Barangay<input type="text" id="setting-barangay" required></label>
+                            <label>City<input type="text" id="setting-city" required></label>
+                            <label>Province<input type="text" id="setting-province" required></label>
+                            <label>Zip Code<input type="text" id="setting-zipCode" required></label>
+                            <label>Time Zone<input type="text" id="setting-timeZone" required></label>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Save Settings</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="content-panel" id="panel-trash">
+                    <div class="panel-header">
+                        <h3>Archive / Trash Bin</h3>
+                        <p class="text-muted">Recover archived accounts from the system archive.</p>
+                    </div>
+                    <div class="filter-row">
+                        <input id="filter-trash" type="search" placeholder="Search archive">
+                        <select id="filter-trash-type">
+                            <option value="all">All</option>
+                            <option value="accounts">Accounts</option>
+                            <option value="document-requests">Document Requests</option>
+                        </select>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Archived At</th>
+                                    <th>Account</th>
+                                    <th>Role</th>
+                                    <th>Original Status</th>
+                                    <th>Recover</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trash-table-body">
+                                <tr>
+                                    <td colspan="5" class="empty-state">Loading archive...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <div id="account-modal" class="modal-overlay">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h3>Edit Account</h3>
+                    <button type="button" id="close-account-modal" class="modal-close"><i
+                            class="fas fa-times"></i></button>
+                </div>
+                <form id="account-form" class="modal-form">
+                    <div class="field-grid">
+                        <label>Full name<input type="text" id="account-fullName" required></label>
+                        <label>Email<input type="email" id="account-email" required></label>
+                        <label>Role
+                            <select id="account-role">
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                                <option value="superadmin">SuperAdmin</option>
+                            </select>
+                        </label>
+                        <label>Status
+                            <select id="account-status">
+                                <option value="active">Active</option>
+                                <option value="disabled">Disabled</option>
+                                <option value="archived">Archived</option>
+                            </select>
+                        </label>
+                        <label>Mobile<input type="text" id="account-mobile"></label>
+                        <label>Permissions<input type="text" id="account-permissions"
+                                placeholder="comma separated"></label>
+                        <label>City<input type="text" id="account-city"></label>
+                        <label>Barangay<input type="text" id="account-barangay"></label>
+                        <label>Province<input type="text" id="account-province"></label>
+                    </div>
+                    <div class="form-actions modal-actions">
+                        <button type="submit" class="btn-primary">Save Account</button>
+                        <button type="button" id="cancel-account-modal" class="btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="profile-modal" class="modal-overlay">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h3>Edit Profile</h3>
+                    <button type="button" id="close-profile-modal" class="modal-close"><i class="fas fa-times"></i></button>
+                </div>
+                <form id="profile-panel-form" class="modal-form">
+                    <div class="field-grid">
+                        <label>Email Address<input type="email" id="profile-email" readonly></label>
+                        <label>First Name<input type="text" id="profile-firstName" required></label>
+                        <label>Middle Name<input type="text" id="profile-middleName"></label>
+                        <label>Last Name<input type="text" id="profile-lastName" required></label>
+                        <label>Street Address<input type="text" id="profile-street"></label>
+                        <label>Purok<input type="text" id="profile-purok"></label>
+                        <label>Barangay<input type="text" id="profile-barangay"></label>
+                        <label>City / Municipality<input type="text" id="profile-city"></label>
+                        <label>Province<input type="text" id="profile-province"></label>
+                        <label>Postal Code<input type="text" id="profile-zip" maxlength="10"></label>
+                        <label>Contact Phone<input type="text" id="profile-phone"></label>
+                    </div>
+                    <div class="form-actions modal-actions">
+                        <button type="submit" class="btn-primary">Save Profile</button>
+                        <button type="button" id="cancel-profile-modal" class="btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="message-toast" class="toast hidden"></div>
+
+        <script src="../admin/api-config.js"></script>
+        <script src="superadmin.js"></script>
+    </body>
+
+</html>

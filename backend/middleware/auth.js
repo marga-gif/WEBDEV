@@ -16,13 +16,16 @@ export async function authenticate(req, res, next) {
   try {
     const decoded = await auth.verifyIdToken(token);
     let profile = await getRecordById("users", decoded.uid);
+    const tokenRole = String(decoded.role || decoded.customClaims?.role || (decoded.admin ? "admin" : "")).trim().toLowerCase().replace(/\s+/g, "");
+    const profileRole = String(profile?.role || "").trim().toLowerCase().replace(/\s+/g, "");
+    const resolvedRole = tokenRole || profileRole || "user";
 
     if (!profile) {
       profile = {
         id: decoded.uid,
         uid: decoded.uid,
         email: decoded.email || "",
-        role: decoded.role || decoded.admin ? "admin" : "user",
+        role: resolvedRole,
         fullName: decoded.name || decoded.email || "User",
       };
     }
@@ -30,7 +33,7 @@ export async function authenticate(req, res, next) {
     req.user = {
       uid: decoded.uid,
       email: decoded.email,
-      role: profile.role || decoded.role || "user",
+      role: resolvedRole,
       fullName: profile.fullName || profile.displayName || decoded.name || "",
       profile,
     };

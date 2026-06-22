@@ -4,6 +4,7 @@ import medicalRoutes from "./medicalRoutes.js";
 import financialRoutes from "./financialRoutes.js";
 import governmentRoutes from "./governmentRoutes.js";
 import generalRoutes from "./generalRoutes.js";
+import superadminRoutes from "./superadminRoutes.js";
 import { isFirebaseReady } from "../config/firebase.js";
 import { getDoctors, getAppointments, createAppointment } from "../controllers/medicalController.js";
 import {
@@ -34,6 +35,7 @@ router.use("/medical", medicalRoutes);
 router.use("/financial", financialRoutes);
 router.use("/government", governmentRoutes);
 router.use("/social", generalRoutes);
+router.use("/superadmin", superadminRoutes);
 
 // Legacy aliases (v1 frontend paths)
 router.get("/about", getAbout);

@@ -8,7 +8,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="/admin/auth/auth.css"> 
+        <link rel="stylesheet" href="auth.css"> 
     </head>
     
     <body class="auth-body">
@@ -64,6 +64,11 @@
                         </form>
                         <div class="form-footer-switch">
                             <p>Need admin access? <button type="button" class="text-link-toggle" onclick="toggleAuthMode('register')">Register here</button></p>
+                        </div>
+                        <div class="form-footer-switch" style="margin-top: 10px;">
+                            <button type="button" class="btn-auth-submit w-100 btn-superadmin-redirect" onclick="window.location.href='../../SuperAdmin/login.html'">
+                                <i class="fas fa-user-shield"></i> SuperAdmin Login
+                            </button>
                         </div>
                     </div>
 
