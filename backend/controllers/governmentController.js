@@ -3,6 +3,7 @@ import {
   addRecord,
   updateRecord,
   getRecordById,
+  deleteRecord,
 } from "../services/firestoreService.js";
 import { logAudit } from "../middleware/audit.js";
 
@@ -138,6 +139,24 @@ export async function updateDocumentRequest(req, res) {
   const existing = await getRecordById("documentRequests", id);
   if (!existing) {
     return res.status(404).json({ error: "Request not found." });
+  }
+
+  // If the request is being rejected, move it to the rejected collection
+  if (status === "Rejected") {
+    const nowIso = new Date().toISOString();
+    await addRecord("rejectedDocumentRequests", {
+      ...existing,
+      originalId: id,
+      rejectedAt: nowIso,
+      rejectedBy: req.user.uid,
+      adminNotes: adminNotes || existing.adminNotes || "",
+    });
+
+    // remove from active requests
+    await deleteRecord("documentRequests", id);
+
+    await logAudit(req, "DOCUMENT_REQUEST_REJECTED", { requestId: id });
+    return res.json({ message: "Request rejected and moved to trash." });
   }
 
   const updated = await updateRecord("documentRequests", id, {

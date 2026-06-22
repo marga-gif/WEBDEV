@@ -16,9 +16,17 @@ export function requireRole(...roles) {
 }
 
 export function requireAdmin(req, res, next) {
-  return requireRole("admin")(req, res, next);
+  return requireRole("admin", "superadmin")(req, res, next);
+}
+
+export function requireSuperAdmin(req, res, next) {
+  return requireRole("superadmin")(req, res, next);
+}
+
+export function requireUserAdminSuper(req, res, next) {
+  return requireRole("user", "admin", "superadmin")(req, res, next);
 }
 
 export function requireUserOrAdmin(req, res, next) {
-  return requireRole("user", "admin")(req, res, next);
+  return requireRole("user", "admin", "superadmin")(req, res, next);
 }

@@ -120,15 +120,24 @@ document.addEventListener('DOMContentLoaded', () => {
             loginBtn.disabled = true;
 
             try {
-                const response = await fetch(`${window.API_BASE}/auth/login`, {
+                const API_BASE = window.API_BASE || `${window.location.origin}/api`;
+                console.log("API_BASE:", API_BASE);
+                console.log("Attempting login to:", `${API_BASE}/auth/login`);
+                
+                const response = await fetch(`${API_BASE}/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password, portal: 'admin' }),
                 });
 
+                console.log("Response status:", response.status);
+                console.log("Response ok:", response.ok);
+
                 const data = await response.json();
+                console.log("Response data:", data);
+                
                 if (!response.ok) {
-                    throw new Error(data.error || 'Unable to sign in.');
+                    throw new Error(data.error || `Login failed with status ${response.status}`);
                 }
 
                 const authPayload = {
@@ -147,7 +156,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = "../dashboard/index.html";
                 }, 500);
             } catch (error) {
-                showToast(error.message || 'Login failed.', "error");
+                console.error("Login error:", error);
+                const msg = error && error.message ? error.message : String(error);
+                if (msg.toLowerCase().includes('failed to fetch') || error instanceof TypeError) {
+                    showToast('Network error: Could not reach the API. Ensure the backend is running and you opened the page via http://localhost:5000', 'error');
+                } else {
+                    showToast(msg || 'Login failed. Check browser console for details.', 'error');
+                }
                 loginBtn.innerHTML = originalText;
                 loginBtn.disabled = false;
             }
@@ -199,7 +214,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 registerBtn.disabled = true;
 
                 try {
-                    const response = await fetch(`${window.API_BASE}/auth/register/admin`, {
+                    const API_BASE = window.API_BASE || `${window.location.origin}/api`;
+                    const response = await fetch(`${API_BASE}/auth/register/admin`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
